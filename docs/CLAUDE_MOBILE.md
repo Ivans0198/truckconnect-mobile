@@ -1,8 +1,8 @@
-# TruckConnect Driver App — CLAUDE.md
+# TruckConnect Driver App: producto y reglas
 
-App móvil para los conductores de TruckConnect (transporte boutique, Melbourne metro). La usan 5 conductores contratistas durante toda su jornada: ver órdenes del día, navegar, registrar fatiga (HVNL), capturar POD, y mantener su compliance al día. Repo: `truckconnect-driver-app`.
+App móvil para los conductores de TruckConnect (transporte boutique, Melbourne metro). La usan 5 conductores contratistas durante toda su jornada: ver órdenes del día, navegar, registrar fatiga (HVNL), capturar POD, y mantener su compliance al día. Repo: `truckconnect-mobile`.
 
-> El backend YA existe. Su contrato está en `docs/openapi.json` (OpenAPI 3.0, 71 paths, 92 schemas). **Es la fuente de verdad.** Si un endpoint o campo no está ahí, no existe.
+> El backend YA existe. Su contrato está en `docs/openapi.json` (OpenAPI 3.0, 78 paths, 107 schemas). **Es la fuente de verdad.** Si un endpoint o campo no está ahí, no existe.
 
 ## Stack (no negociable)
 
@@ -39,6 +39,7 @@ Ver `docs/openapi.json`. Los relevantes (todos filtran al conductor autenticado)
 - **drivers:** `GET /drivers/{id}/stats`, `/fatigue/status` (self permitido)
 - **users:** `GET /users/me`, `PATCH /users/{id}` (self limitado)
 - **notifications:** `GET /notifications`, `PATCH /notifications/{id}/read`, `/read-all`
+- **incidents:** `POST /incidents`, `/incidents/upload-url`, `GET /incidents`, `GET /incidents/{id}` (detalle en `docs/driver-incidents-mobile-requirement.md`)
 
 ## Cómo se consume la API
 
@@ -66,6 +67,8 @@ Todo request usa el cliente tipado. Si el back cambia, se reemplaza `openapi.jso
 | Fatigue | `12_driver_fatigue.html` |
 | Compliance | `13_driver_compliance.html` |
 | Profile | `14_driver_profile.html` |
+| Notifications | sin mockup |
+| Incidents: reportar, mis reportes, detalle | sin mockup, ver `docs/driver-incidents-mobile-requirement.md` |
 
 **Los mockups son la referencia autoritativa de diseño.** Abrí el HTML antes de construir la pantalla. Reproducí layout, colores semánticos y tipografía (Inter). Los mockups son estáticos: agregá estados (loading skeleton, empty, error) y feedback táctil.
 
@@ -96,8 +99,3 @@ pnpm lint
 pnpm test
 eas build --profile development --platform android   # dev build (necesario para GPS background)
 ```
-
-## Herramientas del repo
-
-- Subagent `mobile-api-auditor` — verifica que la app consuma solo endpoints/campos del contrato real.
-- Plugins oficiales: `feature-dev`, `code-review`, `security-guidance`.
