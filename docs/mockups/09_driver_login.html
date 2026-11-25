@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TruckConnect Driver — Login</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; min-height: 100vh; }
+  .phone-frame {
+    width: 393px;
+    height: 852px;
+    background: #fff;
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 25px 80px -10px rgba(0, 0, 0, 0.3), 0 0 0 12px #1e293b, 0 0 0 14px #475569;
+    position: relative;
+  }
+  .notch {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 32px;
+    background: #1e293b;
+    border-radius: 20px;
+    z-index: 10;
+  }
+  .gradient-bg {
+    background: linear-gradient(160deg, #0c4a6e 0%, #075985 30%, #0369a1 60%, #0284c7 100%);
+  }
+  /* Highway pattern overlay */
+  .gradient-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 40%),
+      radial-gradient(circle at 20% 80%, rgba(255,255,255,0.04) 0%, transparent 50%);
+  }
+</style>
+</head>
+<body class="flex items-center justify-center p-8 gap-8">
+
+  <div class="absolute top-4 left-1/2 -translate-x-1/2 text-sm text-slate-500 font-medium">
+    Driver App — Login screen
+  </div>
+
+  <div class="phone-frame flex flex-col gradient-bg relative">
+    <div class="notch"></div>
+
+    <!-- Status bar -->
+    <div class="pt-3 px-7 flex items-center justify-between text-sm font-semibold text-white relative z-10">
+      <span>9:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-4 h-3" viewBox="0 0 24 16" fill="currentColor"><path d="M1 4h2v8H1zm4-2h2v10H5zm4-2h2v12H9zm4 2h2v10h-2zm4 2h2v8h-2zm4 2h2v6h-2z"/></svg>
+        <svg class="w-4 h-3" viewBox="0 0 24 16" fill="currentColor"><path d="M12 3a8 8 0 015.66 2.34L16.24 6.76a6 6 0 00-8.48 0L6.34 5.34A8 8 0 0112 3zm0 4a4 4 0 012.83 1.17l-1.41 1.42a2 2 0 00-2.83 0l-1.42-1.42A4 4 0 0112 7zm0 4a1 1 0 011 1 1 1 0 01-2 0 1 1 0 011-1z"/></svg>
+        <div class="flex items-center gap-0.5">
+          <span class="text-xs font-bold">93%</span>
+          <svg class="w-6 h-3" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="0.5" y="0.5" width="20" height="11" rx="2"/>
+            <rect x="2" y="2" width="18" height="8" rx="1" fill="currentColor"/>
+            <rect x="21" y="3.5" width="2" height="5" rx="1" fill="currentColor"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero content -->
+    <div class="flex-1 flex flex-col px-8 pt-16 pb-8 relative z-10">
+
+      <!-- Logo -->
+      <div class="flex items-center gap-3 mb-12">
+        <div class="w-14 h-14 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20">
+          <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="text-white font-bold text-xl">TruckConnect</div>
+          <div class="text-blue-200 text-xs">Driver App</div>
+        </div>
+      </div>
+
+      <!-- Welcome -->
+      <h1 class="text-white text-3xl font-bold mb-2 leading-tight">Welcome back</h1>
+      <p class="text-blue-100 text-base mb-10">Sign in to start your day</p>
+
+      <!-- Form -->
+      <div class="space-y-4 mb-6">
+        <div>
+          <label class="block text-sm font-medium text-blue-100 mb-2">Email or phone</label>
+          <input
+            type="text"
+            value="david.chen@truckconnect.com.au"
+            class="w-full px-4 py-4 text-base text-white bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl placeholder-blue-200 focus:bg-white/15 focus:border-white/40 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-blue-100 mb-2">Password</label>
+          <div class="relative">
+            <input
+              type="password"
+              value="••••••••••"
+              class="w-full px-4 py-4 pr-12 text-base text-white bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl placeholder-blue-200 focus:bg-white/15 focus:border-white/40 outline-none">
+            <button class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-200">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Forgot password -->
+      <div class="text-right mb-8">
+        <a href="#" class="text-blue-200 text-sm font-medium">Forgot password?</a>
+      </div>
+
+      <!-- Sign in button -->
+      <button class="w-full bg-white text-blue-900 font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2 mb-4">
+        Sign in
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </button>
+
+      <!-- Biometric -->
+      <button class="w-full text-white font-semibold py-3 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        Use Face ID
+      </button>
+
+      <!-- Footer -->
+      <div class="mt-auto pt-8 text-center">
+        <p class="text-blue-200 text-xs leading-relaxed">
+          By signing in, you agree to our<br>
+          <a href="#" class="text-white font-semibold underline">Terms of Service</a> and <a href="#" class="text-white font-semibold underline">Privacy Policy</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Home indicator -->
+    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-white rounded-full opacity-40"></div>
+  </div>
+
+  <div class="text-sm text-slate-600 max-w-xs">
+    <div class="font-semibold mb-2">🔐 Login screen</div>
+    <p class="leading-relaxed">Primera pantalla cuando el conductor abre la app. Email/phone + password. Face ID/Touch ID si está disponible en el device.</p>
+    <p class="mt-3 text-xs text-slate-500">El conductor inicial fue invitado por admin (POST /drivers/invite), recibió email con link de onboarding y seteó password.</p>
+  </div>
+
+</body>
+</html>

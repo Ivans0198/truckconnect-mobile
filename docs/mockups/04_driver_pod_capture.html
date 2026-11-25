@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TruckConnect Driver — POD Capture</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; min-height: 100vh; }
+  .phone-frame {
+    width: 393px;
+    height: 852px;
+    background: #fff;
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 25px 80px -10px rgba(0, 0, 0, 0.3), 0 0 0 12px #1e293b, 0 0 0 14px #475569;
+    position: relative;
+  }
+  .notch {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 32px;
+    background: #1e293b;
+    border-radius: 20px;
+    z-index: 10;
+  }
+  .scroll-hide::-webkit-scrollbar { display: none; }
+  .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Photo preview - simulated pallets photo with gradient */
+  .photo-preview {
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.6) 100%),
+      linear-gradient(135deg, #d4a574 0%, #a87b4f 30%, #8b5a2b 60%, #654321 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .photo-preview::before {
+    content: '';
+    position: absolute;
+    top: 30%;
+    left: 10%;
+    right: 10%;
+    bottom: 20%;
+    background:
+      repeating-linear-gradient(0deg,
+        rgba(101, 67, 33, 0.6) 0px,
+        rgba(101, 67, 33, 0.6) 4px,
+        rgba(139, 90, 43, 0.4) 4px,
+        rgba(139, 90, 43, 0.4) 24px
+      );
+    border-radius: 4px;
+  }
+  .photo-preview::after {
+    content: '';
+    position: absolute;
+    top: 35%;
+    left: 15%;
+    right: 15%;
+    bottom: 25%;
+    background:
+      repeating-linear-gradient(90deg,
+        rgba(80, 50, 20, 0.3) 0px,
+        rgba(80, 50, 20, 0.3) 2px,
+        transparent 2px,
+        transparent 30px
+      );
+  }
+
+  .signature-canvas {
+    background: white;
+    background-image:
+      linear-gradient(90deg, transparent calc(50% - 1px), rgba(0,0,0,0.05) 50%, transparent calc(50% + 1px));
+    position: relative;
+  }
+  .signature-path {
+    position: absolute;
+    inset: 0;
+  }
+</style>
+</head>
+<body class="flex items-center justify-center p-8 gap-8">
+
+  <div class="absolute top-4 left-1/2 -translate-x-1/2 text-sm text-slate-500 font-medium">
+    Driver App — POD Capture (Proof of Delivery)
+  </div>
+
+  <div class="phone-frame flex flex-col">
+    <div class="notch"></div>
+
+    <!-- Status bar -->
+    <div class="pt-3 px-7 flex items-center justify-between text-sm font-semibold text-slate-900">
+      <span>10:47</span>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-4 h-3" viewBox="0 0 24 16" fill="currentColor"><path d="M1 4h2v8H1zm4-2h2v10H5zm4-2h2v12H9zm4 2h2v10h-2zm4 2h2v8h-2zm4 2h2v6h-2z"/></svg>
+        <svg class="w-4 h-3" viewBox="0 0 24 16" fill="currentColor"><path d="M12 3a8 8 0 015.66 2.34L16.24 6.76a6 6 0 00-8.48 0L6.34 5.34A8 8 0 0112 3zm0 4a4 4 0 012.83 1.17l-1.41 1.42a2 2 0 00-2.83 0l-1.42-1.42A4 4 0 0112 7zm0 4a1 1 0 011 1 1 1 0 01-2 0 1 1 0 011-1z"/></svg>
+        <div class="flex items-center gap-0.5">
+          <span class="text-xs font-bold">84%</span>
+          <svg class="w-6 h-3" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="0.5" y="0.5" width="20" height="11" rx="2"/>
+            <rect x="2" y="2" width="16" height="8" rx="1" fill="currentColor"/>
+            <rect x="21" y="3.5" width="2" height="5" rx="1" fill="currentColor"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header with step progress -->
+    <div class="px-5 pt-3 pb-4">
+      <div class="flex items-center gap-3 mb-4">
+        <button class="text-slate-500 -ml-1">
+          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <div class="flex-1">
+          <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">Complete Delivery</div>
+          <div class="font-semibold text-slate-900">TC-2026-00342</div>
+        </div>
+      </div>
+
+      <!-- Step indicator -->
+      <div class="flex items-center gap-2">
+        <div class="flex-1 flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div class="flex-1 h-1 bg-emerald-500 rounded-full"></div>
+        </div>
+        <div class="flex-1 flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm ring-4 ring-blue-100">2</div>
+          <div class="flex-1 h-1 bg-slate-200 rounded-full"></div>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-sm">3</div>
+      </div>
+      <div class="flex justify-between mt-2 text-[11px] font-medium">
+        <span class="text-emerald-600">Photo</span>
+        <span class="text-blue-700">Signature</span>
+        <span class="text-slate-400">Confirm</span>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="flex-1 overflow-y-auto scroll-hide bg-slate-50">
+
+      <!-- Photo already taken card -->
+      <div class="mx-5 mt-2 bg-white rounded-2xl overflow-hidden border border-slate-200">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            <span class="text-sm font-semibold text-slate-900">Photo captured</span>
+          </div>
+          <button class="text-xs text-blue-600 font-semibold">Retake</button>
+        </div>
+        <div class="photo-preview h-32 relative">
+          <div class="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded-md backdrop-blur-sm">
+            10:46 AM · Mulgrave VIC
+          </div>
+        </div>
+      </div>
+
+      <!-- Signature section -->
+      <div class="mx-5 mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <div class="font-semibold text-slate-900">Customer signature</div>
+            <div class="text-xs text-slate-500">Have the receiver sign below</div>
+          </div>
+          <button class="text-xs text-slate-600 font-semibold px-3 py-1.5 bg-slate-100 rounded-lg">Clear</button>
+        </div>
+
+        <!-- Signature canvas -->
+        <div class="bg-white border-2 border-blue-200 rounded-2xl h-44 signature-canvas relative">
+          <!-- Simulated signature SVG -->
+          <svg class="signature-path" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 50,130 Q 60,90 80,100 T 110,115 Q 130,80 150,110 T 180,125 Q 195,95 215,110 L 230,120 Q 245,90 265,105 T 295,120 Q 315,100 335,115"
+              stroke="#1e293b"
+              stroke-width="2.5"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+            <path d="M 70,150 L 75,148 M 90,148 L 95,146 M 110,148 L 115,150"
+              stroke="#1e293b"
+              stroke-width="1.5"
+              fill="none"
+              stroke-linecap="round"/>
+          </svg>
+          <div class="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-slate-300 font-medium">Sign here</div>
+        </div>
+
+        <!-- Form fields -->
+        <div class="mt-4 space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Receiver's name <span class="text-red-500">*</span></label>
+            <input type="text" value="Sarah Mitchell" class="w-full px-4 py-3 text-base font-medium text-slate-900 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Role or title (optional)</label>
+            <input type="text" value="Receiving manager" class="w-full px-4 py-3 text-base font-medium text-slate-900 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+          </div>
+        </div>
+
+        <!-- Location card -->
+        <div class="mt-4 bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-3">
+          <div class="w-9 h-9 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-xs font-semibold text-emerald-900">Location verified</div>
+            <div class="text-xs text-emerald-700">Woolworths DC Mulgrave · Within 50m</div>
+          </div>
+          <svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+        </div>
+
+      </div>
+
+      <!-- Spacer -->
+      <div class="h-32"></div>
+    </div>
+
+    <!-- Fixed bottom CTA -->
+    <div class="bg-white border-t border-slate-200 px-5 pt-3 pb-7 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+      <button class="w-full bg-emerald-600 active:bg-emerald-700 text-white font-bold py-4 rounded-2xl shadow-md flex items-center justify-center gap-2 text-lg">
+        Complete delivery
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      </button>
+      <div class="text-center text-[11px] text-slate-500 mt-2">Order TC-2026-00342 · 6 pallets · $336.00 to payout</div>
+    </div>
+
+    <!-- Home indicator -->
+    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-900 rounded-full opacity-30"></div>
+  </div>
+
+  <!-- Caption -->
+  <div class="text-sm text-slate-600 max-w-xs">
+    <div class="font-semibold mb-2">✍️ POD Capture (Step 2 of 3)</div>
+    <p class="leading-relaxed">El momento crítico de la entrega: foto del cargo recibido, firma del destinatario, nombre del firmante. Ubicación verificada automáticamente para auditoría.</p>
+    <p class="mt-3 text-xs text-slate-500">Después de "Complete delivery" se dispara la pantalla de éxito con confetti, y la orden cierra automáticamente.</p>
+  </div>
+
+</body>
+</html>

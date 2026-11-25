@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TruckConnect Driver — Active Order</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; min-height: 100vh; }
+  .phone-frame {
+    width: 393px;
+    height: 852px;
+    background: #fff;
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 25px 80px -10px rgba(0, 0, 0, 0.3), 0 0 0 12px #1e293b, 0 0 0 14px #475569;
+    position: relative;
+  }
+  .scroll-hide::-webkit-scrollbar { display: none; }
+  .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .status-bar {
+    height: 44px;
+    background: white;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    flex-shrink: 0;
+  }
+  .notch {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 32px;
+    background: #1e293b;
+    border-radius: 20px;
+    z-index: 10;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .pulse-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
+</style>
+</head>
+<body class="flex items-center justify-center p-8 gap-8">
+
+  <!-- Title -->
+  <div class="absolute top-4 left-1/2 -translate-x-1/2 text-sm text-slate-500 font-medium">
+    Driver App — Active Order screen (during in-transit)
+  </div>
+
+  <div class="phone-frame flex flex-col">
+    <div class="notch"></div>
+
+    <!-- Status bar -->
+    <div class="status-bar pt-3">
+      <span>9:54</span>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-4 h-3" viewBox="0 0 24 16" fill="currentColor"><path d="M1 4h2v8H1zm4-2h2v10H5zm4-2h2v12H9zm4 2h2v10h-2zm4 2h2v8h-2zm4 2h2v6h-2z"/></svg>
+        <svg class="w-4 h-3" viewBox="0 0 24 16" fill="currentColor"><path d="M12 3a8 8 0 015.66 2.34L16.24 6.76a6 6 0 00-8.48 0L6.34 5.34A8 8 0 0112 3zm0 4a4 4 0 012.83 1.17l-1.41 1.42a2 2 0 00-2.83 0l-1.42-1.42A4 4 0 0112 7zm0 4a1 1 0 011 1 1 1 0 01-2 0 1 1 0 011-1z"/></svg>
+        <div class="flex items-center gap-0.5">
+          <span class="text-xs font-bold">87%</span>
+          <svg class="w-6 h-3" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="0.5" y="0.5" width="20" height="11" rx="2"/>
+            <rect x="2" y="2" width="16" height="8" rx="1" fill="currentColor"/>
+            <rect x="21" y="3.5" width="2" height="5" rx="1" fill="currentColor"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top tracking bar (because background tracking is active) -->
+    <div class="bg-blue-600 text-white px-5 py-2 flex items-center justify-between text-xs">
+      <div class="flex items-center gap-2">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-300 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-300"></span>
+        </span>
+        <span class="font-semibold">TruckConnect tracking</span>
+      </div>
+      <span class="text-blue-100">Order TC-2026-00342</span>
+    </div>
+
+    <!-- Header -->
+    <div class="px-5 pt-3 pb-4 bg-white">
+      <div class="flex items-center justify-between mb-1">
+        <button class="text-slate-400 -ml-1">
+          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="text-center">
+          <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">Active Order</div>
+          <div class="font-mono text-sm font-semibold text-slate-900">TC-2026-00342</div>
+        </div>
+        <button class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center">
+          <svg class="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H8.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A.996.996 0 0021 6H5.21l-.94-2H1v2h2zm16 16c1.1 0 1.99-.9 1.99-2S20.1 17 19 17s-2 .9-2 2 .9 2 2 2zM7 21c1.1 0 1.99-.9 1.99-2S8.1 17 7 17s-2 .9-2 2 .9 2 2 2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Body scrollable -->
+    <div class="flex-1 overflow-y-auto scroll-hide bg-slate-50">
+
+      <!-- Status banner -->
+      <div class="mx-5 mt-2 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-5 text-white shadow-lg">
+        <div class="flex items-center gap-2 text-blue-100 text-xs font-semibold uppercase tracking-wide mb-2">
+          <span class="w-2 h-2 bg-emerald-400 rounded-full pulse-dot"></span>
+          In Transit
+        </div>
+        <div class="text-3xl font-bold mb-1">12 min</div>
+        <div class="text-blue-100 text-sm">to Woolworths DC Mulgrave</div>
+
+        <div class="mt-4 pt-4 border-t border-blue-500/40 flex items-center justify-between text-sm">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+            <span class="text-blue-100">28.4 km left</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+            <span class="text-blue-100">ETA 10:35 AM</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Big next action button -->
+      <div class="px-5 mt-5">
+        <button class="w-full bg-emerald-600 active:bg-emerald-700 text-white font-bold py-5 px-5 rounded-2xl shadow-md flex items-center justify-between">
+          <div class="text-left">
+            <div class="text-xs text-emerald-100 font-medium uppercase tracking-wider mb-0.5">Next step</div>
+            <div class="text-lg">Arrived at Delivery</div>
+          </div>
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+      </div>
+
+      <!-- Navigate button -->
+      <div class="px-5 mt-3">
+        <button class="w-full bg-white border border-slate-200 text-slate-900 font-semibold py-3.5 px-5 rounded-xl shadow-sm flex items-center justify-center gap-2">
+          <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 7.707L9.414 15a1 1 0 01-1.414 0l-2.293-2.293A1 1 0 016 11h2V4a1 1 0 011-1h3a1 1 0 011 1v7h2a1 1 0 01.707 1.707z" transform="rotate(45 10 10)"/></svg>
+          Navigate to delivery
+        </button>
+      </div>
+
+      <!-- Delivery details card -->
+      <div class="mx-5 mt-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Drop off at</div>
+        <div class="font-semibold text-slate-900 text-base">Woolworths DC Mulgrave</div>
+        <div class="text-slate-600 text-sm">12 Light Industrial Way</div>
+        <div class="text-slate-600 text-sm mb-3">Mulgrave VIC 3170</div>
+
+        <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+          <div>
+            <div class="text-xs text-slate-500 mb-0.5">Contact</div>
+            <div class="text-sm font-medium text-slate-900">Reception bay 4</div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-500 mb-0.5">Window</div>
+            <div class="text-sm font-medium text-slate-900">10:30–11:30 AM</div>
+          </div>
+        </div>
+
+        <div class="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+          <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          <div class="text-xs text-amber-900">
+            <span class="font-semibold">Note:</span> Use tail-lift for 6 pallets. Strict window — late = rejected.
+          </div>
+        </div>
+
+        <button class="mt-3 w-full text-sm font-semibold text-blue-600 py-2 active:bg-blue-50 rounded-lg">
+          Call site contact
+        </button>
+      </div>
+
+      <!-- Progress timeline -->
+      <div class="mx-5 mt-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Today's Progress</div>
+
+        <div class="space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="text-sm font-medium text-slate-900">Accepted order</div>
+              <div class="text-xs text-slate-500">8:42 AM</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="text-sm font-medium text-slate-900">Picked up · 6 pallets</div>
+              <div class="text-xs text-slate-500">9:15 – 9:48 AM · Laverton North</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="relative w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+              <span class="absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-50 pulse-dot"></span>
+              <div class="relative w-2.5 h-2.5 bg-white rounded-full"></div>
+            </div>
+            <div class="flex-1">
+              <div class="text-sm font-semibold text-blue-600">In transit</div>
+              <div class="text-xs text-slate-500">Started 9:50 AM · 62 km/h</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full border-2 border-slate-200 flex-shrink-0"></div>
+            <div class="flex-1">
+              <div class="text-sm text-slate-400">Arrive at delivery</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full border-2 border-slate-200 flex-shrink-0"></div>
+            <div class="flex-1">
+              <div class="text-sm text-slate-400">Complete delivery</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fatigue indicator -->
+      <div class="mx-5 mt-4 mb-6 bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Fatigue status</div>
+            <div class="text-sm text-slate-900 font-semibold mt-0.5">6h 30m of 12h</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-slate-500">Last break</div>
+            <div class="text-sm font-semibold text-slate-900">1h 15m ago</div>
+          </div>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full" style="width: 54%"></div>
+        </div>
+        <div class="flex justify-between mt-2 text-xs text-slate-500">
+          <span>0h</span>
+          <span class="text-emerald-600 font-medium">5h 30m to next break</span>
+          <span>12h</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Tab Bar -->
+    <div class="bg-white border-t border-slate-200 px-2 pt-2 pb-7 flex justify-around items-center">
+      <button class="flex flex-col items-center gap-1 px-4 py-1">
+        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+        <span class="text-[10px] font-semibold text-blue-600">Home</span>
+      </button>
+      <button class="flex flex-col items-center gap-1 px-4 py-1">
+        <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-[10px] font-medium text-slate-400">Fatigue</span>
+      </button>
+      <button class="flex flex-col items-center gap-1 px-4 py-1">
+        <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <span class="text-[10px] font-medium text-slate-400">Docs</span>
+      </button>
+      <button class="flex flex-col items-center gap-1 px-4 py-1">
+        <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span class="text-[10px] font-medium text-slate-400">Profile</span>
+      </button>
+    </div>
+
+    <!-- Home indicator -->
+    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-900 rounded-full opacity-30"></div>
+  </div>
+
+  <!-- Caption -->
+  <div class="text-sm text-slate-600 max-w-xs">
+    <div class="font-semibold mb-2">📱 Active Order Screen</div>
+    <p class="leading-relaxed">La pantalla que el conductor mira durante todo el viaje. Botón gigante para próximo paso, ETA prominente, navegación en un tap.</p>
+    <p class="mt-3 text-xs text-slate-500">Tracking GPS activo en background indicado en la barra azul superior.</p>
+  </div>
+
+</body>
+</html>

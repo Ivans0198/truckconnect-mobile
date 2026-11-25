@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TruckConnect Driver — POD Confirm</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; min-height: 100vh; }
+  .phone-frame {
+    width: 393px;
+    height: 852px;
+    background: #fff;
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 25px 80px -10px rgba(0, 0, 0, 0.3), 0 0 0 12px #1e293b, 0 0 0 14px #475569;
+    position: relative;
+  }
+  .notch {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 32px;
+    background: #1e293b;
+    border-radius: 20px;
+    z-index: 10;
+  }
+  .scroll-hide::-webkit-scrollbar { display: none; }
+  .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Photo thumb */
+  .photo-thumb {
+    background:
+      linear-gradient(135deg, #d4a574 0%, #8b5a2b 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .photo-thumb::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    background:
+      repeating-linear-gradient(0deg,
+        rgba(101, 67, 33, 0.5) 0px,
+        rgba(101, 67, 33, 0.5) 3px,
+        rgba(139, 90, 43, 0.3) 3px,
+        rgba(139, 90, 43, 0.3) 18px
+      );
+    border-radius: 4px;
+  }
+
+  /* Signature thumb */
+  .signature-thumb {
+    background: white;
+    background-image:
+      linear-gradient(90deg, transparent calc(50% - 1px), rgba(0,0,0,0.05) 50%, transparent calc(50% + 1px));
+  }
+
+  @keyframes scale-in {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .scale-in {
+    animation: scale-in 0.4s ease-out;
+  }
+</style>
+</head>
+<body class="flex items-center justify-center p-8 gap-8">
+
+  <div class="absolute top-4 left-1/2 -translate-x-1/2 text-sm text-slate-500 font-medium">
+    Driver App — POD Step 3: Confirm
+  </div>
+
+  <div class="phone-frame flex flex-col">
+    <div class="notch"></div>
+
+    <!-- Status bar -->
+    <div class="pt-3 px-7 flex items-center justify-between text-sm font-semibold text-slate-900">
+      <span>10:48</span>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-4 h-3" viewBox="0 0 24 16" fill="currentColor"><path d="M1 4h2v8H1zm4-2h2v10H5zm4-2h2v12H9zm4 2h2v10h-2zm4 2h2v8h-2zm4 2h2v6h-2z"/></svg>
+        <svg class="w-4 h-3" viewBox="0 0 24 16" fill="currentColor"><path d="M12 3a8 8 0 015.66 2.34L16.24 6.76a6 6 0 00-8.48 0L6.34 5.34A8 8 0 0112 3zm0 4a4 4 0 012.83 1.17l-1.41 1.42a2 2 0 00-2.83 0l-1.42-1.42A4 4 0 0112 7zm0 4a1 1 0 011 1 1 1 0 01-2 0 1 1 0 011-1z"/></svg>
+        <div class="flex items-center gap-0.5">
+          <span class="text-xs font-bold">83%</span>
+          <svg class="w-6 h-3" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="0.5" y="0.5" width="20" height="11" rx="2"/>
+            <rect x="2" y="2" width="16" height="8" rx="1" fill="currentColor"/>
+            <rect x="21" y="3.5" width="2" height="5" rx="1" fill="currentColor"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="px-5 pt-3 pb-4">
+      <div class="flex items-center gap-3 mb-4">
+        <button class="text-slate-500 -ml-1">
+          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="flex-1">
+          <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">Complete Delivery</div>
+          <div class="font-mono text-sm font-semibold text-slate-900">TC-2026-00342</div>
+        </div>
+      </div>
+
+      <!-- Step indicator -->
+      <div class="flex items-center gap-2">
+        <div class="flex-1 flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div class="flex-1 h-1 bg-emerald-500 rounded-full"></div>
+        </div>
+        <div class="flex-1 flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div class="flex-1 h-1 bg-emerald-500 rounded-full"></div>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm ring-4 ring-blue-100">3</div>
+      </div>
+      <div class="flex justify-between mt-2 text-[11px] font-medium">
+        <span class="text-emerald-600">Photo ✓</span>
+        <span class="text-emerald-600">Signature ✓</span>
+        <span class="text-blue-700">Confirm</span>
+      </div>
+    </div>
+
+    <!-- Body scrollable -->
+    <div class="flex-1 overflow-y-auto scroll-hide bg-slate-50">
+
+      <!-- Title -->
+      <div class="px-5 pt-4 pb-2">
+        <h2 class="text-xl font-bold text-slate-900">Review & confirm</h2>
+        <p class="text-sm text-slate-500 mt-0.5">Everything looks good? Submit to mark as delivered.</p>
+      </div>
+
+      <!-- Delivery summary card -->
+      <div class="mx-5 mt-4 bg-white rounded-2xl border border-slate-200 overflow-hidden">
+
+        <!-- Header with check -->
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 px-4 py-4 text-white">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="font-bold text-lg">Delivered to Mulgrave</div>
+              <div class="text-emerald-100 text-xs">Woolworths DC · Reception bay 4</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <div class="p-4 space-y-3">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-500">Arrived</span>
+            <span class="font-semibold text-slate-900">10:32 AM</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-500">Unloaded</span>
+            <span class="font-semibold text-slate-900">10:46 AM · 14 min</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-500">Signed by</span>
+            <span class="font-semibold text-slate-900">Sarah Mitchell</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-500">Role</span>
+            <span class="font-semibold text-slate-900">Receiving manager</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-500">Pallets delivered</span>
+            <span class="font-semibold text-slate-900">6 of 6 ✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Photo + Signature preview -->
+      <div class="px-5 pt-4">
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Proof of delivery</div>
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Photo -->
+          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+            <div class="photo-thumb h-32 relative">
+              <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm rounded px-2 py-0.5 text-[10px] font-bold text-slate-700">PHOTO</div>
+              <button class="absolute bottom-2 right-2 w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center">
+                <svg class="w-3.5 h-3.5 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+            <div class="p-2 text-[10px] text-slate-500">
+              <div class="font-semibold text-slate-700">6 pallets visible</div>
+              <div>10:46 AM · Mulgrave VIC</div>
+            </div>
+          </div>
+
+          <!-- Signature -->
+          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+            <div class="signature-thumb h-32 relative">
+              <div class="absolute top-2 left-2 bg-slate-900/90 backdrop-blur-sm rounded px-2 py-0.5 text-[10px] font-bold text-white">SIGNATURE</div>
+              <!-- Signature SVG mini -->
+              <svg class="w-full h-full" viewBox="0 0 200 100">
+                <path d="M 30,65 Q 35,40 50,50 T 75,60 Q 90,35 110,55 T 140,65 Q 155,45 175,55"
+                  stroke="#1e293b" stroke-width="2" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="p-2 text-[10px] text-slate-500">
+              <div class="font-semibold text-slate-700">Sarah Mitchell</div>
+              <div>10:47 AM · verified</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add note (optional) -->
+      <div class="mx-5 mt-5 bg-white rounded-2xl border border-slate-200 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-bold text-slate-900">Delivery notes</span>
+          <span class="text-xs text-slate-400">Optional</span>
+        </div>
+        <textarea
+          rows="2"
+          placeholder="Add any notes about the delivery (issues, damage, late arrival)..."
+          class="w-full text-sm text-slate-700 placeholder-slate-400 outline-none resize-none"></textarea>
+      </div>
+
+      <!-- Pricing summary -->
+      <div class="mx-5 mt-4 bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm font-semibold text-emerald-900">Earnings for this order</span>
+          <span class="text-xl font-extrabold text-emerald-900">$336.00</span>
+        </div>
+        <div class="flex items-start gap-2 text-xs text-emerald-700">
+          <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+          <span class="leading-relaxed">Added to this week's payout. You'll be paid on Wednesday after admin reconciliation.</span>
+        </div>
+      </div>
+
+      <!-- Spacer -->
+      <div class="h-32"></div>
+    </div>
+
+    <!-- Fixed bottom CTA -->
+    <div class="bg-white border-t border-slate-200 px-5 pt-3 pb-7 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+      <button class="w-full bg-emerald-600 active:bg-emerald-700 text-white font-bold py-4 rounded-2xl shadow-md flex items-center justify-center gap-2 text-lg">
+        Submit & Mark Delivered
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      </button>
+      <button class="w-full text-slate-500 font-semibold py-2.5 mt-2 active:bg-slate-100 rounded-xl text-sm">
+        ← Edit signature
+      </button>
+    </div>
+
+    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-900 rounded-full opacity-30"></div>
+  </div>
+
+  <div class="text-sm text-slate-600 max-w-xs">
+    <div class="font-semibold mb-2">✅ POD Step 3: Confirm</div>
+    <p class="leading-relaxed">Resumen final antes de cerrar la orden. Muestra previews del photo+signature, datos del receptor, tiempos, y earnings. Optional notes para issues.</p>
+    <p class="mt-3 text-xs text-slate-500">Al confirmar → POST /orders/:id/pod + status DELIVERED. Triggera celebración + redirect a Home.</p>
+  </div>
+
+</body>
+</html>
