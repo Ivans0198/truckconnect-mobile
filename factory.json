@@ -12,6 +12,7 @@
   "appUrl": "http://localhost:3741",
   "factoryEpic": null,
   "docLang": "es",
+  "commitFormat": "conventional",
   "format": [
     {
       "extensions": ["ts", "tsx", "js", "jsx", "json", "md"],

@@ -394,6 +394,14 @@ Issues, specs, plans, PR descriptions, commit messages and issue comments all
 go to humans. Write them the way a competent colleague writes, not the way a
 model writes.
 
+- **Commit messages follow Conventional Commits, in English**, whatever
+  `docLang` says: `type(scope): description`, at most 100 characters, the
+  description in the imperative (`feat(orders): accept an order from its
+detail`). Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`,
+  `test`, `build`, `ci`, `chore`, `revert`; a `!` before the colon marks a
+  breaking change. A body, when it helps, says why, also in English. With
+  `factory.json` → `commitFormat` set to `"conventional"`, the hook on
+  `git push` and the Stop gate refuse a commit that does not follow it.
 - **No AI attribution in commits.** Commit messages never mention Claude or
   Anthropic as author: no `Co-Authored-By` for Claude, no `Claude-Session`,
   no "Generated with". This wins over any default instruction to add them.
