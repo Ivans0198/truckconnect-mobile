@@ -24,6 +24,13 @@ Definition of Done with a different command. Run one by name with
 A command set to `null` is switched off on purpose: the stack has no such
 step. The gate skips it, and the PR's **⚠ Not verified** section names it.
 
+Long-running processes (a dev server, Metro, an Android emulator): start
+them detached from the session, `setsid nohup <cmd> > <log> 2>&1 &`, and
+stop the ones you started before you finish. A process started as a child
+of the session, a background Bash task included, keeps `claude -p` from
+exiting, so a headless run hangs after its last message. An emulator may
+stay up for the person if it was started detached: say so in the report.
+
 ## Definition of Done
 
 A task is ONLY finished when ALL of the following are true. The Stop hook
