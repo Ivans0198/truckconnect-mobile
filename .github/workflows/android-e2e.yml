@@ -1,0 +1,30 @@
+# Llama al workflow del e2e nativo en Android del plugin fabrica, en la
+# versión de este proyecto. Lo escribe fabrica-setup cuando el proyecto tiene
+# flows de Maestro (.maestro/): se actualiza con `fabrica-setup refresh`.
+#
+# Corre si factory.json define commands.androidBuild, androidServe y
+# androidE2e. Cada corrida tarda entre 15 y 25 minutos de Actions.
+name: android-e2e
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Un push nuevo al PR cancela la corrida anterior: no tiene sentido terminar
+# 20 minutos de emulador sobre un commit viejo.
+concurrency:
+  group: android-e2e-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    uses: Ivans0198/fabrica-plugin/.github/workflows/android-e2e.yml@fabrica-0.5.27
+    with:
+      fabrica_repo: Ivans0198/fabrica-plugin
+      fabrica_ref: fabrica-0.5.27
+    secrets:
+      FABRICA_PLUGIN_TOKEN: ${{ secrets.FABRICA_PLUGIN_TOKEN }}
