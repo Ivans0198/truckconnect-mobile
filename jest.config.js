@@ -24,7 +24,7 @@ module.exports = {
   // msw v3 y sus piezas solo se publican como ESM: jest las tiene que
   // transformar igual que transforma react-native y expo.
   transformIgnorePatterns: [
-    "/node_modules/(?!(.pnpm|react-native|@react-native|@react-native-community|expo|@expo|@expo-google-fonts|react-navigation|@react-navigation|msw|@msw|@mswjs|@open-draft|until-async|rettime|headers-polyfill|is-node-process|outvariant|cookie|set-cookie-parser|strict-event-emitter))",
+    "/node_modules/(?!(.pnpm|react-native|@react-native|@react-native-community|expo|@expo|@expo-google-fonts|react-navigation|@react-navigation|standard-navigation|msw|@msw|@mswjs|@open-draft|until-async|rettime|headers-polyfill|is-node-process|outvariant|cookie|set-cookie-parser|strict-event-emitter))",
     "/node_modules/react-native-reanimated/plugin/",
     "/node_modules/@react-native/babel-preset/",
   ],
