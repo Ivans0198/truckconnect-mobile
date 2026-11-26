@@ -36,7 +36,7 @@
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
 import { shouldCreateMissingSnapshot } from "./support/missing-snapshot-policy";
 import { snapshotCreatedNotice } from "./support/visual-baseline-notice";
@@ -122,6 +122,34 @@ test.beforeEach(async ({ page }) => {
 // sirve y este vale. Si reporta más, súbelo hasta pasar el ruido y no más.
 const PAGE_MAX_DIFF_PIXELS = 20;
 
+async function expectFullPageScreenshot(
+  page: Page,
+  name: string,
+): Promise<void> {
+  // networkidle nunca llega mientras el dev server compila bajo carga paralela.
+  // Lo que de verdad mueve píxeles son las fuentes y las imágenes, y
+  // toHaveScreenshot ya reintenta hasta que la página deja de cambiar.
+  // La captura de página completa no hace scroll: una imagen con
+  // loading="lazy" fuera del primer pantallazo saldría vacía o no según
+  // el momento. Se cargan todas antes.
+  await page.evaluate(async () => {
+    const images = Array.from(document.images);
+    for (const image of images) image.loading = "eager";
+    await Promise.all(
+      images.map((image) => image.decode().catch(() => undefined)),
+    );
+    await document.fonts.ready;
+  });
+  await createMissingLocalBaseline(name, () =>
+    page.screenshot({ ...SCREENSHOT_OPTIONS, fullPage: true }),
+  );
+  await expect(page).toHaveScreenshot(name, {
+    ...SCREENSHOT_OPTIONS,
+    fullPage: true,
+    maxDiffPixels: PAGE_MAX_DIFF_PIXELS,
+  });
+}
+
 // Es una app de teléfono: sin tablet ni escritorio. 393×852 es el marco de
 // los mockups (docs/mockups/*.png); 360×800 es el Android chico más común.
 const viewports = [
@@ -130,36 +158,14 @@ const viewports = [
 ] as const;
 
 for (const vp of viewports) {
-  test.describe(`home @ ${vp.name}`, () => {
+  test.describe(`sign-in @ ${vp.name}`, () => {
     test.use({ viewport: { width: vp.width, height: vp.height } });
 
     test("matches approved baseline", async ({ page }) => {
       await page.goto(APP_URL);
       // Sin sesión, "/" cae en el login: se captura con su encabezado ya visible.
       await page.getByText("Welcome back").waitFor();
-      // networkidle nunca llega mientras el dev server compila bajo carga paralela.
-      // Lo que de verdad mueve píxeles son las fuentes y las imágenes, y
-      // toHaveScreenshot ya reintenta hasta que la página deja de cambiar.
-      // La captura de página completa no hace scroll: una imagen con
-      // loading="lazy" fuera del primer pantallazo saldría vacía o no según
-      // el momento. Se cargan todas antes.
-      await page.evaluate(async () => {
-        const images = Array.from(document.images);
-        for (const image of images) image.loading = "eager";
-        await Promise.all(
-          images.map((image) => image.decode().catch(() => undefined)),
-        );
-        await document.fonts.ready;
-      });
-      const name = `home-${vp.name}.png`;
-      await createMissingLocalBaseline(name, () =>
-        page.screenshot({ ...SCREENSHOT_OPTIONS, fullPage: true }),
-      );
-      await expect(page).toHaveScreenshot(name, {
-        ...SCREENSHOT_OPTIONS,
-        fullPage: true,
-        maxDiffPixels: PAGE_MAX_DIFF_PIXELS,
-      });
+      await expectFullPageScreenshot(page, `sign-in-${vp.name}.png`);
     });
 
     test("has no horizontal scroll", async ({ page }) => {
@@ -180,6 +186,140 @@ test("has no accessibility violations (axe-core)", async ({ page }) => {
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa"])
     .analyze();
+  expect(
+    results.violations,
+    JSON.stringify(results.violations, null, 2),
+  ).toEqual([]);
+});
+
+const DRIVER_EMAIL = "driver@truckconnect.test";
+
+const driverAccount = {
+  id: "11111111-1111-4111-8111-111111111111",
+  email: DRIVER_EMAIL,
+  fullName: "Dana Driver",
+  phone: "+61400000000",
+  role: "DRIVER",
+  status: "ACTIVE",
+  emergencyContact: null,
+  abn: null,
+  licenceClass: null,
+  licenceNumber: null,
+  emailVerified: true,
+  phoneVerified: true,
+  createdAt: "2026-01-01T00:00:00.000Z",
+  updatedAt: "2026-01-01T00:00:00.000Z",
+  lastLoginAt: null,
+  lastSeenAt: null,
+};
+
+// Los mismos paths del contrato que usa jest con msw (contracts/api-usage.md).
+async function mockDriverLogin(page: Page): Promise<void> {
+  await page.route("**/auth/login", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        accessToken: "access-1",
+        refreshToken: "refresh-1",
+      }),
+    }),
+  );
+  await page.route("**/auth/me", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(driverAccount),
+    }),
+  );
+}
+
+async function signInAsDriver(page: Page): Promise<void> {
+  await page.goto(APP_URL);
+  await page.getByLabel("Email", { exact: true }).fill(DRIVER_EMAIL);
+  await page.getByLabel("Password", { exact: true }).fill("secret");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByRole("tab", { name: /Home/ })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+}
+
+for (const vp of viewports) {
+  test.describe(`sign-in flow @ ${vp.name}`, () => {
+    test.use({ viewport: { width: vp.width, height: vp.height } });
+
+    test("signs in and lands on Home with the tab bar", async ({ page }) => {
+      await mockDriverLogin(page);
+
+      await signInAsDriver(page);
+
+      await expect(page.getByText("Welcome back")).toHaveCount(0);
+      await page.getByRole("heading", { name: "Home" }).waitFor();
+      await expectFullPageScreenshot(page, `home-${vp.name}.png`);
+    });
+
+    test("home has no accessibility violations (axe-core)", async ({
+      page,
+    }) => {
+      await mockDriverLogin(page);
+      await signInAsDriver(page);
+
+      const results = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa"])
+        .analyze();
+
+      expect(
+        results.violations,
+        JSON.stringify(results.violations, null, 2),
+      ).toEqual([]);
+    });
+
+    test("shows the error and keeps the email on bad credentials", async ({
+      page,
+    }) => {
+      await page.goto(APP_URL);
+      await page.getByLabel("Email", { exact: true }).fill(DRIVER_EMAIL);
+      await page.getByLabel("Password", { exact: true }).fill("wrong");
+      await page.getByRole("button", { name: "Sign in" }).click();
+
+      await expect(
+        page.getByText(
+          "Incorrect email or password, or the account is not active",
+        ),
+      ).toBeVisible();
+      await expect(page.getByLabel("Email", { exact: true })).toHaveValue(
+        DRIVER_EMAIL,
+      );
+      await expectFullPageScreenshot(page, `sign-in-error-${vp.name}.png`);
+    });
+  });
+}
+
+test("keeps Sign in visible at 360x800 with the password field focused", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto(APP_URL);
+
+  await page.getByLabel("Password", { exact: true }).focus();
+
+  await expect(page.getByRole("button", { name: "Sign in" })).toBeInViewport();
+});
+
+test("login screen has no accessibility violations with an error shown", async ({
+  page,
+}) => {
+  await page.goto(APP_URL);
+  await page.getByLabel("Email", { exact: true }).fill(DRIVER_EMAIL);
+  await page.getByLabel("Password", { exact: true }).fill("wrong");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByText("Incorrect email or password").waitFor();
+
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa"])
+    .analyze();
+
   expect(
     results.violations,
     JSON.stringify(results.violations, null, 2),

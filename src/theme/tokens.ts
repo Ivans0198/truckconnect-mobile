@@ -13,6 +13,9 @@ export const palette = {
   blue50: "#EFF6FF",
   blue600: "#2563EB",
   blue700: "#1D4ED8",
+  blue900: "#1E3A8A",
+  blue100: "#DBEAFE",
+  blue200: "#BFDBFE",
   emerald50: "#ECFDF5",
   emerald500: "#10B981",
   emerald700: "#047857",
@@ -73,6 +76,15 @@ export const brandGradient = [
   palette.sky700,
   palette.sky600,
 ] as const;
+
+// Capas translúcidas sobre el degradado del login (clases bg-white/10 y
+// border-white/20 del mockup 09).
+export const loginOverlay = {
+  field: "rgba(255, 255, 255, 0.10)",
+  fieldFocused: "rgba(255, 255, 255, 0.15)",
+  border: "rgba(255, 255, 255, 0.20)",
+  borderFocused: "rgba(255, 255, 255, 0.40)",
+} as const;
 
 export const radius = { md: 8, lg: 12, xl: 16, full: 9999 } as const;
 
