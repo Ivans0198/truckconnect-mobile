@@ -17,9 +17,9 @@ concurrency:
 
 jobs:
   checks:
-    uses: Ivans0198/fabrica-plugin/.github/workflows/checks.yml@v0.5.25
+    uses: Ivans0198/fabrica-plugin/.github/workflows/checks.yml@v0.5.26
     with:
       fabrica_repo: Ivans0198/fabrica-plugin
-      fabrica_ref: v0.5.25
+      fabrica_ref: v0.5.26
     secrets:
       FABRICA_PLUGIN_TOKEN: ${{ secrets.FABRICA_PLUGIN_TOKEN }}

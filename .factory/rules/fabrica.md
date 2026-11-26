@@ -66,6 +66,23 @@ enforces this; you cannot end the session with failing checks.
    tried and what is blocking. If the gate itself gave up
    (`.factory/gate-gave-up` exists), opening or readying a PR is FORBIDDEN.
 
+### Apps with sign-in
+
+Almost every screen sits behind the sign-in, and a check that cannot get
+past it sees nothing. Tests sign in with a fixed test user, never with real
+credentials or a real backend:
+
+- **Web e2e (Playwright):** answer the auth endpoints with `page.route` and
+  the same test user the unit tests use, so the visual and accessibility
+  checks see the screens behind the sign-in.
+- **Native (emulator, Maestro):** a development build answers the auth
+  endpoints with dev-only mocks, loaded only in a development build and
+  only when no API URL is set. Write them as plain request handlers: mock
+  libraries built for the browser can need APIs the native runtime does not
+  have.
+- **Production:** the mocks and the test user never reach a production
+  build. Prove it with a test or by checking the exported bundle.
+
 ## Workflow: TDD first
 
 For every task: write the tests FIRST from the acceptance criteria, confirm
@@ -182,6 +199,10 @@ Execute these steps IN ORDER:
    empty PR. Comment on the issue with the evidence (which tests, which
    commits/PRs), remove `in-progress`, and close it. Re-queued or duplicated
    tickets are normal; re-implementing them is not.
+   An open PR from `impl-N` does not make the issue done: someone sent it
+   back to the queue. `fabrica-claim N` prints what was asked on that PR
+   after its last commit. That is the work: the issue is not done until it
+   is addressed on the same branch, pushed and answered on the PR.
 
 3. **Claim**: `fabrica-claim N`. It claims the issue by assignee (exit 2:
    someone else has it, pick another), labels it `in-progress`, moves its
@@ -237,6 +258,9 @@ Execute these steps IN ORDER:
    - **Loop:** fix every `Blocker` and `Major`, commit, and launch the next
      round, until `APPROVED` (no Blocker and no Major findings open) or 3
      rounds.
+   - **After `APPROVED`:** an `APPROVED` covers the commit it reviewed. Any
+     code change after it (a fix asked on the PR, a resumed issue, something
+     found while testing by hand) needs a new round before you finish.
    - **Human decision:** if a `Blocker` or `Major` needs a human decision
      (the ticket contradicts the stack profile, a requirement is missing), do
      not run more rounds: follow step 8 now.
