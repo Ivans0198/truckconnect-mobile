@@ -1,29 +1,20 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { DEFAULT_API_URL } from "@/api/config";
 
 import { DEV_DRIVER_EMAIL, DEV_DRIVER_PASSWORD } from "./dev-auth-handlers";
+import { startDevMocks } from "./start-dev-mocks.native";
 
-// Hermes no trae MessageEvent y el núcleo de msw lo toca al cargarse. En jest
-// sí existe (Node), así que el test lo quita del global antes de importar.
-describe("startDevMocks without MessageEvent (Hermes)", () => {
-  const original = globalThis.MessageEvent;
+describe("startDevMocks", () => {
   const originalFetch = globalThis.fetch;
 
   afterEach(() => {
-    globalThis.MessageEvent = original;
     globalThis.fetch = originalFetch;
   });
 
-  it("loads the mocks and answers a login", async () => {
-    // @ts-expect-error simulating a runtime that lacks the global
-    delete globalThis.MessageEvent;
-    expect(typeof globalThis.MessageEvent).toBe("undefined");
-
-    jest.isolateModules(() => {
-      const { startDevMocks } = jest.requireActual<
-        typeof import("./start-dev-mocks.native")
-      >("./start-dev-mocks.native");
-      startDevMocks();
-    });
+  it("replaces the global fetch with one that answers a login", async () => {
+    startDevMocks();
 
     const response = await globalThis.fetch(`${DEFAULT_API_URL}/auth/login`, {
       method: "POST",
@@ -34,5 +25,15 @@ describe("startDevMocks without MessageEvent (Hermes)", () => {
       }),
     });
     expect(response.status).toBe(200);
+  });
+
+  // Hermes lacks BroadcastChannel and MessageEvent, which msw's core needs.
+  it.each([
+    "start-dev-mocks.native.ts",
+    "mocked-fetch.ts",
+    "dev-auth-handlers.ts",
+  ])("%s does not import msw", (file) => {
+    const source = readFileSync(join(__dirname, file), "utf8");
+    expect(source).not.toMatch(/from ["']msw/);
   });
 });

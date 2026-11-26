@@ -1,18 +1,21 @@
-import { http, HttpResponse } from "msw";
-
+import type { DevRoute } from "./dev-auth-handlers";
 import { createMockedFetch } from "./mocked-fetch";
 
 const BASE_URL = "http://localhost:3000";
 
-const handlers = [
-  http.get(`${BASE_URL}/ping`, () => HttpResponse.json({ pong: true })),
+const routes: DevRoute[] = [
+  {
+    method: "GET",
+    url: `${BASE_URL}/ping`,
+    handle: () => new Response(JSON.stringify({ pong: true })),
+  },
 ];
 
 describe("createMockedFetch", () => {
   it("answers an API request from the handlers", async () => {
     const realFetch = jest.fn();
     const mocked = createMockedFetch({
-      handlers,
+      routes,
       realFetch,
       baseUrl: BASE_URL,
     });
@@ -25,7 +28,7 @@ describe("createMockedFetch", () => {
 
   it("accepts a URL string and init like fetch does", async () => {
     const mocked = createMockedFetch({
-      handlers,
+      routes,
       realFetch: jest.fn(),
       baseUrl: BASE_URL,
     });
@@ -38,7 +41,7 @@ describe("createMockedFetch", () => {
   it("fails loudly on an API request without a handler", async () => {
     const realFetch = jest.fn();
     const mocked = createMockedFetch({
-      handlers,
+      routes,
       realFetch,
       baseUrl: BASE_URL,
     });
@@ -52,7 +55,7 @@ describe("createMockedFetch", () => {
   it("lets requests to other hosts (Metro, assets) through to the real fetch", async () => {
     const realFetch = jest.fn().mockResolvedValue(new Response("bundle"));
     const mocked = createMockedFetch({
-      handlers,
+      routes,
       realFetch,
       baseUrl: BASE_URL,
     });

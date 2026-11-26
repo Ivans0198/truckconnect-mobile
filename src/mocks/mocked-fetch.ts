@@ -1,19 +1,18 @@
-import { getResponse, type RequestHandler } from "msw";
+import type { DevRoute } from "./dev-auth-handlers";
 
 type FetchFunction = typeof globalThis.fetch;
 
 type MockedFetchOptions = {
-  handlers: RequestHandler[];
+  routes: DevRoute[];
   realFetch: FetchFunction;
   baseUrl: string;
 };
 
-// msw 3 ya no trae `msw/native`, y `msw/node` importa módulos de Node que
-// Metro no resuelve. Se usa solo el núcleo (getResponse) detrás de un fetch
-// propio. openapi-fetch captura globalThis.fetch al crear el cliente, así que
-// este tiene que instalarse antes de importar src/api/client.ts.
+// Un fetch propio sin dependencias del navegador, para Hermes. openapi-fetch
+// captura globalThis.fetch al crear el cliente, así que este tiene que
+// instalarse antes de importar src/api/client.ts.
 export function createMockedFetch({
-  handlers,
+  routes,
   realFetch,
   baseUrl,
 }: MockedFetchOptions): FetchFunction {
@@ -21,12 +20,17 @@ export function createMockedFetch({
     const request = new Request(input, init);
     if (!request.url.startsWith(baseUrl)) return realFetch(input, init);
 
-    const response = await getResponse(handlers, request);
-    if (!response) {
+    const { origin, pathname } = new URL(request.url);
+    const route = routes.find(
+      (candidate) =>
+        candidate.method === request.method.toUpperCase() &&
+        candidate.url === `${origin}${pathname}`,
+    );
+    if (!route) {
       throw new Error(
         `No mock handler for ${request.method} ${request.url}. Add one in src/mocks or set EXPO_PUBLIC_API_URL to use a real back.`,
       );
     }
-    return response;
+    return route.handle(request);
   };
 }

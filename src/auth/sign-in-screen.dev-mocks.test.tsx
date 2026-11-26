@@ -3,8 +3,8 @@ import { fireEvent, render, screen } from "@testing-library/react-native";
 import {
   DEV_DRIVER_EMAIL,
   DEV_DRIVER_PASSWORD,
-  createDevAuthHandlers,
 } from "@/mocks/dev-auth-handlers";
+import { createDevAuthMswHandlers } from "@/test/dev-auth-msw";
 import { TEST_API_URL } from "@/test/env";
 import { server } from "@/test/server";
 
@@ -21,7 +21,7 @@ async function signInWith(email: string, password: string) {
 
 describe("sign-in screen with dev mocks", () => {
   beforeEach(() => {
-    server.use(...createDevAuthHandlers(TEST_API_URL));
+    server.use(...createDevAuthMswHandlers(TEST_API_URL));
     useSessionStore.setState(initialState, true);
     useSessionStore.getState().finishRestoring({ hasTokens: false });
   });

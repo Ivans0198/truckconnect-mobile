@@ -1,5 +1,3 @@
-import { http, HttpResponse } from "msw";
-
 import type { components } from "@/api/schema";
 
 import { driverAccountFixture } from "./auth-fixtures";
@@ -27,13 +25,21 @@ const issueTokens = (): AuthTokens => ({
   refreshToken: REFRESH_TOKEN,
 });
 
+// Sin msw: el núcleo de msw usa APIs del navegador (BroadcastChannel,
+// MessageEvent) que Hermes no tiene. Aquí solo hay Request y Response.
+const jsonResponse = (body: unknown, status = 200): Response =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+
 const errorResponse = (
   statusCode: number,
   message: string,
   error: string,
 ): Response => {
   const body: ApiError = { statusCode, message, error };
-  return HttpResponse.json(body, { status: statusCode });
+  return jsonResponse(body, statusCode);
 };
 
 const unauthorized = (message: string): Response =>
@@ -63,33 +69,40 @@ async function login(request: Request): Promise<Response> {
   const isDriver =
     email === DEV_DRIVER_EMAIL && password === DEV_DRIVER_PASSWORD;
   return isDriver
-    ? HttpResponse.json(issueTokens())
+    ? jsonResponse(issueTokens())
     : unauthorized("Invalid credentials");
 }
 
 function me(request: Request): Response {
   const authorization = request.headers.get("Authorization");
   return authorization === `${BEARER_PREFIX}${ACCESS_TOKEN}`
-    ? HttpResponse.json(driverAccountFixture)
+    ? jsonResponse(driverAccountFixture)
     : unauthorized("Unauthorized");
 }
 
 async function refresh(request: Request): Promise<Response> {
   const { refreshToken } = await readJsonObject(request);
   return refreshToken === REFRESH_TOKEN
-    ? HttpResponse.json(issueTokens())
+    ? jsonResponse(issueTokens())
     : unauthorized("Invalid refresh token");
 }
 
+export type DevRoute = {
+  method: string;
+  url: string;
+  handle: (request: Request) => Response | Promise<Response>;
+};
+
 // Las cuatro operaciones de auth del contrato, contra un conductor ACTIVE.
-export function createDevAuthHandlers(baseUrl: string) {
+export function createDevAuthRoutes(baseUrl: string): DevRoute[] {
   return [
-    http.post(`${baseUrl}/auth/login`, ({ request }) => login(request)),
-    http.get(`${baseUrl}/auth/me`, ({ request }) => me(request)),
-    http.post(`${baseUrl}/auth/refresh`, ({ request }) => refresh(request)),
-    http.post(
-      `${baseUrl}/auth/logout`,
-      () => new HttpResponse(null, { status: HTTP_NO_CONTENT }),
-    ),
+    { method: "POST", url: `${baseUrl}/auth/login`, handle: login },
+    { method: "GET", url: `${baseUrl}/auth/me`, handle: me },
+    { method: "POST", url: `${baseUrl}/auth/refresh`, handle: refresh },
+    {
+      method: "POST",
+      url: `${baseUrl}/auth/logout`,
+      handle: () => new Response(null, { status: HTTP_NO_CONTENT }),
+    },
   ];
 }

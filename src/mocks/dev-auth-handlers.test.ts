@@ -1,12 +1,18 @@
 import { TEST_API_URL } from "@/test/env";
-import { server } from "@/test/server";
 
 import { driverAccountFixture } from "./auth-fixtures";
 import {
   DEV_DRIVER_EMAIL,
   DEV_DRIVER_PASSWORD,
-  createDevAuthHandlers,
+  createDevAuthRoutes,
 } from "./dev-auth-handlers";
+import { createMockedFetch } from "./mocked-fetch";
+
+let fetch = createMockedFetch({
+  routes: createDevAuthRoutes(TEST_API_URL),
+  realFetch: jest.fn(),
+  baseUrl: TEST_API_URL,
+});
 
 const json = (body: unknown): RequestInit => ({
   method: "POST",
@@ -32,10 +38,6 @@ async function loginAsDriver(): Promise<{
 }
 
 describe("dev auth handlers", () => {
-  beforeEach(() => {
-    server.use(...createDevAuthHandlers(TEST_API_URL));
-  });
-
   it("uses the shared driver fixture as the test driver", () => {
     expect(DEV_DRIVER_EMAIL).toBe(driverAccountFixture.email);
   });
@@ -132,7 +134,11 @@ describe("dev auth handlers", () => {
 
   it("keeps accepting earlier tokens on a fresh set of handlers (app restart)", async () => {
     const { accessToken, refreshToken } = await loginAsDriver();
-    server.use(...createDevAuthHandlers(TEST_API_URL));
+    fetch = createMockedFetch({
+      routes: createDevAuthRoutes(TEST_API_URL),
+      realFetch: jest.fn(),
+      baseUrl: TEST_API_URL,
+    });
 
     const me = await get("/auth/me", {
       Authorization: `Bearer ${accessToken}`,
