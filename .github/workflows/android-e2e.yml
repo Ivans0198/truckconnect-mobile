@@ -2,8 +2,8 @@
 # versión de este proyecto. Lo escribe fabrica-setup cuando el proyecto tiene
 # flows de Maestro (.maestro/): se actualiza con `fabrica-setup refresh`.
 #
-# Corre si factory.json define commands.androidBuild, androidServe y
-# androidE2e. Cada corrida tarda entre 15 y 25 minutos de Actions.
+# Corre si factory.json define commands.androidBuild, androidServe,
+# androidE2e y androidApk. Cada corrida tarda entre 15 y 25 minutos de Actions.
 name: android-e2e
 
 on:
@@ -22,9 +22,9 @@ concurrency:
 
 jobs:
   android:
-    uses: Ivans0198/fabrica-plugin/.github/workflows/android-e2e.yml@fabrica-0.5.27
+    uses: Ivans0198/fabrica-plugin/.github/workflows/android-e2e.yml@v0.5.27
     with:
       fabrica_repo: Ivans0198/fabrica-plugin
-      fabrica_ref: fabrica-0.5.27
+      fabrica_ref: v0.5.27
     secrets:
       FABRICA_PLUGIN_TOKEN: ${{ secrets.FABRICA_PLUGIN_TOKEN }}

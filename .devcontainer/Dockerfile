@@ -35,6 +35,10 @@ RUN install -d -m 0755 /etc/apt/keyrings \
 # PNPM_VERSION y reconstruye.
 ARG PNPM_VERSION=12.23.0
 RUN npm install -g pnpm@${PNPM_VERSION}
+# Su caché va en un volumen (devcontainer.json): el proyecto está en otro
+# sistema de archivos, y pnpm la dejaba dentro de la carpeta del proyecto.
+RUN mkdir -p /home/node/.local/share/pnpm-store \
+  && chown -R node:node /home/node/.local
 
 # Playwright: Chromium y sus librerías de sistema van en la imagen, que se
 # construye con la red abierta. Dentro, el firewall no deja usar apt ni bajar
