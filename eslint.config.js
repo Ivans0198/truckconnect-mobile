@@ -12,6 +12,9 @@ const DEV_ONLY_FILES = [
   "jest.setup.ts",
   "tests/**",
   "src/test/**",
+  // Mocks de desarrollo: index.js los carga solo detrás de __DEV__ y Metro
+  // los quita del bundle de producción.
+  "src/mocks/**",
   "*.config.js",
   "*.config.ts",
 ];

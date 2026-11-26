@@ -45,6 +45,10 @@ with `nodeLinker: hoisted`. The stack profile is
   permissions) adds its flow to `.maestro/` **and** says in the PR that a
   person must run `pnpm e2e:android` on the emulator before merging. Never
   claim a Maestro flow passed without having run it.
+- **Dev build without `EXPO_PUBLIC_API_URL` = mocks.** In development on
+  Android, `index.js` answers the auth endpoints from `src/mocks` (test
+  driver `driver@truckconnect.test`), so the Maestro flows run with no
+  backend. Setting the variable means "I have a real back" and turns them off.
 - Running the app on Android: `pnpm android` (`expo run:android`) builds and
   installs the development build on the running emulator or a connected
   phone. The emulator reaches the host's API at `http://10.0.2.2:<port>`, not

@@ -3,10 +3,9 @@
 # nativo, que jest y Playwright no tocan.
 #
 # Corre con `pnpm e2e:android` (emulador o teléfono por USB, dev build
-# instalado con `pnpm android`, Metro corriendo con `pnpm start`). Necesita un
-# back alcanzable desde la app (EXPO_PUBLIC_API_URL, en el emulador
-# http://10.0.2.2:<puerto>) y un conductor de prueba ACTIVE:
-#   MAESTRO_DRIVER_EMAIL=... MAESTRO_DRIVER_PASSWORD=... pnpm e2e:android
+# instalado con `pnpm android`, Metro corriendo con `pnpm start`). No necesita
+# back: sin EXPO_PUBLIC_API_URL, el dev build responde con los mocks de
+# src/mocks y el conductor de prueba de src/mocks/dev-auth-handlers.ts.
 # Fuera del gate a propósito: ver CLAUDE.md → Testing layers.
 appId: au.com.truckconnect.driver
 env:
@@ -22,9 +21,9 @@ env:
     visible: "Welcome back"
     timeout: 180000
 - tapOn: "Email"
-- inputText: ${MAESTRO_DRIVER_EMAIL}
+- inputText: driver@truckconnect.test
 - tapOn: "Password"
-- inputText: ${MAESTRO_DRIVER_PASSWORD}
+- inputText: driver-password
 - hideKeyboard
 - tapOn: "Sign in"
 # "Fatigue" solo existe en la tab bar, que solo se ve con sesión: el login no
