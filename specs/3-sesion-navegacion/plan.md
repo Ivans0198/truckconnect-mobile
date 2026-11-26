@@ -101,11 +101,13 @@ src/
 ├── api/
 │   ├── client.ts                # api (con middleware) y authApi (sin él, para refresh)
 │   ├── auth-middleware.ts       # Bearer, 401 → renovar una vez → repetir
-│   └── auth-middleware.test.ts
+│   ├── auth-middleware.test.ts
+│   └── query-client.ts          # el QueryClient único (endSession limpia su caché)
 ├── auth/
 │   ├── token-storage.ts         # expo-secure-store
 │   ├── token-storage.web.ts     # stub en memoria
 │   ├── session-store.ts         # Zustand: SessionState y motivo de salida
+│   ├── end-session.ts           # borra tokens y cuenta, limpia la caché, signedOut
 │   ├── refresh-session.ts       # single-flight, devuelve RefreshOutcome
 │   ├── restore-session.ts       # arranque con sesión guardada
 │   ├── sign-in.ts               # login + /auth/me + control de rol
@@ -117,10 +119,11 @@ src/
 ├── navigation/
 │   ├── tab-bar.tsx              # tab bar del mockup 10 con tokens
 │   ├── tab-icons.tsx            # paths SVG del mockup
-│   └── tab-bar.test.tsx
+│   ├── tab-bar.test.tsx
+│   └── protected-routes.test.tsx
 ├── ui/
 │   └── confirm-dialog.tsx       # Modal con dos botones ≥60
-├── test/                        # server.ts suma handlers de auth; render con sesión
+├── test/                        # server.ts suma handlers de auth; auth-fixtures.ts
 └── theme/tokens.ts
 
 tests/ui.spec.ts                 # login y Home con tab bar, en los dos viewports
