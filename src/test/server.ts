@@ -3,6 +3,11 @@ import { setupServer } from "msw/node";
 
 import { driverAccountFixture, tokensFixture } from "./auth-fixtures";
 import { TEST_API_URL } from "./env";
+import {
+  fatigueEventsFixture,
+  fatigueStatusFixture,
+  weekSummaryFixture,
+} from "./fatigue-fixtures";
 
 export const apiUrl = (path: string): string => `${TEST_API_URL}${path}`;
 
@@ -22,4 +27,21 @@ export const authHandlers = [
   ),
 ];
 
-export const server = setupServer(healthOk, ...authHandlers);
+// Respuestas felices de las tres lecturas de fatiga.
+export const fatigueHandlers = [
+  http.get(apiUrl("/fatigue/status"), () =>
+    HttpResponse.json(fatigueStatusFixture),
+  ),
+  http.get(apiUrl("/fatigue/events"), () =>
+    HttpResponse.json(fatigueEventsFixture),
+  ),
+  http.get(apiUrl("/fatigue/week-summary"), () =>
+    HttpResponse.json(weekSummaryFixture),
+  ),
+];
+
+export const server = setupServer(
+  healthOk,
+  ...authHandlers,
+  ...fatigueHandlers,
+);
