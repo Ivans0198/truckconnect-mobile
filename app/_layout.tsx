@@ -8,13 +8,21 @@ import {
 } from "@expo-google-fonts/inter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
 
 import { queryClient } from "@/api/query-client";
+import { restoreSession } from "@/auth/restore-session";
 import { useSessionStore } from "@/auth/session-store";
+
+// La splash sigue a la vista hasta tener fuentes y saber si hay sesión: así el
+// conductor con sesión guardada nunca ve un destello del login.
+void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout(): React.JSX.Element | null {
   const isSignedIn = useSessionStore((s) => s.session.status === "signedIn");
+  const isRestoring = useSessionStore((s) => s.session.status === "restoring");
   // Inter viaja dentro de la app: nada de CDN, que en un dock sin señal no carga.
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
@@ -24,7 +32,20 @@ export default function RootLayout(): React.JSX.Element | null {
     Inter_800ExtraBold,
   });
 
-  if (!fontsLoaded && !fontError) return null;
+  const isReady = (fontsLoaded || fontError) && !isRestoring;
+
+  useEffect(() => {
+    // Solo la primera vez: si la sesión ya se resolvió, no hay nada que leer.
+    if (useSessionStore.getState().session.status === "restoring") {
+      void restoreSession();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isReady) void SplashScreen.hideAsync();
+  }, [isReady]);
+
+  if (!isReady) return null;
 
   return (
     <QueryClientProvider client={queryClient}>
