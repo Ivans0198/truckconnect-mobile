@@ -21,7 +21,7 @@ con la primera épica que la usa, no como épica propia.
 | E1  | Sesión y navegación                 | Login (mockup 09), tokens en secure store, refresh automático, guard de rutas, solo rol DRIVER, `GET /auth/me`, tab bar (Home, Fatigue, Docs, Profile), logout       | M      | (ninguna)  | `specs/3-sesion-navegacion/` (#3) |
 | E2  | Órdenes y run activo                | Home/Today (10) con Start Day, detalle de orden (11) con accept/reject y navegación externa, orden activa (03) con avance de estado, cola offline, GPS en background | L      | E1         |                                   |
 | E3  | POD                                 | Foto (15), firma (04), confirmación y upload a R2 (16), POD encolado offline con archivos en disco y estado "pending sync"                                           | M      | E2         |                                   |
-| E4  | Fatiga HVNL                         | Pantalla de fatiga (12): ring, stats, break y fin de día, timeline, resumen semanal; bloqueo de "Accept" cuando el conductor excede las horas                        | M      | E1         |                                   |
+| E4  | Fatiga HVNL                         | Pantalla de fatiga (12): ring, stats, break y fin de día, timeline, resumen semanal; bloqueo de "Accept" cuando el conductor excede las horas                        | M      | E1         | `specs/26-fatiga-hvnl/` (#26)     |
 | E5  | Compliance, perfil y notificaciones | Documentos (13) con renovación por upload y banner en Home, perfil (14) con stats y preferencias, logout, lista de notificaciones in-app                             | M      | E1         |                                   |
 | E6  | Incidentes                          | Reportar, mis reportes y detalle (sin mockup), evidencia por upload, `reasonOther` condicional, registros redactados por retención                                   | M      | E1, E2     |                                   |
 | E7  | Endurecimiento                      | Estados loading/empty/error parejos en todas las pantallas, auditoría del consumo contra `openapi.json`, accesibilidad (contraste, targets ≥60px, texto ≥16pt)       | S      | E2 a E6    |                                   |
@@ -43,7 +43,9 @@ E1 ──┬── E2 ──┬── E3 ──┐
      └── E5 ───────────┘
 ```
 
-Con E1 mergeada, E2, E4 y E5 avanzan a la vez. E3 y E6 esperan a E2.
+Con E1 mergeada, E2, E4 y E5 podrían avanzar a la vez. El orden elegido
+(2026-11-27) es E4 y E5 primero, y después E2, E3, E6 y E7. E3 y E6 esperan a
+E2.
 
 ## Por qué este orden
 
@@ -52,9 +54,12 @@ Con E1 mergeada, E2, E4 y E5 avanzan a la vez. E3 y E6 esperan a E2.
 - **E2 antes que E3 y E6**: la orden activa es la pantalla más crítica y la
   que pone en pie la cola offline y el helper de uploads. POD e incidentes los
   reusan en vez de inventar los suyos.
-- **E4 y E5 en paralelo con E2**: solo dependen de la sesión. E4 agrega el
-  bloqueo de "Accept" sobre el detalle de orden de E2; si E4 llega antes, el
-  bloqueo entra en la historia de E2 que construye ese botón.
+- **E4 y E5 antes que E2** (decisión del 2026-11-27): solo dependen de la
+  sesión y no necesitan cambios en el back. E2 pide decisiones de contrato
+  (hueco 1) y arrastra a E3, E6 y E7, así que va después.
+- **El bloqueo de "Accept" lo deja E4 como dato**: una regla de "puede
+  aceptar órdenes" con sus motivos (límite diario, límite semanal, break
+  vencido). La historia de E2 que construye el botón la consume.
 - **E7 al final**: revisa lo que las otras dejaron, no construye pantallas.
 
 ## Decisiones técnicas transversales
@@ -98,3 +103,7 @@ Con E1 mergeada, E2, E4 y E5 avanzan a la vez. E3 y E6 esperan a E2.
 4. **Incidentes**: offline sí o no, dónde vive "Report incident" en la
    navegación y cuántos adjuntos por reporte. Son las preguntas abiertas del
    requerimiento; se cierran en la spec de E6.
+5. **Los eventos de fatiga no llevan hora** (`POST /fatigue/start-day`,
+   `/start-break`, `/end-break`, `/end-day` no tienen body): el servidor usa la
+   hora en que recibe el pedido. Por eso E4 no encola estas acciones sin red.
+   Encolarlas exige que el back acepte la hora del evento.
