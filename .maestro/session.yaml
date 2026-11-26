@@ -1,0 +1,46 @@
+# La sesión sobrevive a un reinicio: entra, cierra la app, la abre sin
+# clearState y llega a Home sin pasar por el login. Prueba el secure store
+# nativo, que jest y Playwright no tocan.
+#
+# Corre con `pnpm e2e:android` (emulador o teléfono por USB, dev build
+# instalado con `pnpm android`, Metro corriendo con `pnpm start`). Necesita un
+# back alcanzable desde la app (EXPO_PUBLIC_API_URL, en el emulador
+# http://10.0.2.2:<puerto>) y un conductor de prueba ACTIVE:
+#   MAESTRO_DRIVER_EMAIL=... MAESTRO_DRIVER_PASSWORD=... pnpm e2e:android
+# Fuera del gate a propósito: ver CLAUDE.md → Testing layers.
+appId: au.com.truckconnect.driver
+env:
+  DEV_CLIENT_LINK: "exp+truckconnect-driver://?__expo_url=http%3A%2F%2Flocalhost%3A8081&__expo_disable_fab=1&__expo_disable_auto_launch=1&__expo_disable_onboarding=1"
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Development Build"
+    timeout: 60000
+- openLink: ${DEV_CLIENT_LINK}
+- extendedWaitUntil:
+    visible: "Welcome back"
+    timeout: 180000
+- tapOn: "Email"
+- inputText: ${MAESTRO_DRIVER_EMAIL}
+- tapOn: "Password"
+- inputText: ${MAESTRO_DRIVER_PASSWORD}
+- hideKeyboard
+- tapOn: "Sign in"
+# "Fatigue" solo existe en la tab bar, que solo se ve con sesión: el login no
+# la tiene.
+- extendedWaitUntil:
+    visible: "Fatigue"
+    timeout: 30000
+# Reinicio: se mata la app y se vuelve a abrir SIN clearState.
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible: "Development Build"
+    timeout: 60000
+- openLink: ${DEV_CLIENT_LINK}
+# Primera aserción tras el reinicio: un texto que solo tiene Home con sesión.
+- extendedWaitUntil:
+    visible: "Fatigue"
+    timeout: 180000
+- assertNotVisible: "Welcome back"
