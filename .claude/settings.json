@@ -7,7 +7,8 @@
     "allow": [
       "Bash(fabrica-cmd:*)",
       "Bash(fabrica-setup check)",
-      "Bash(fabrica-task-status:*)"
+      "Bash(fabrica-task-status:*)",
+      "Bash(fabrica-epic:*)"
     ],
     "deny": [
       "Read(**/.env)",

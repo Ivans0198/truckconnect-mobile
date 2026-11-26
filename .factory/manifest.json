@@ -1,13 +1,13 @@
 {
-  "version": "0.5.23",
+  "version": "0.5.24",
   "files": {
     ".factory/rules/fabrica.md": "ae52b6f92b5c658e2ed4ce49d1a223588a55b36f",
     ".factory/rules/stacks/node-ts.md": "bf548c5bd5ab15aa8b9d57f04971d638547f0589",
-    ".github/workflows/checks.yml": "3154e6a7d702525a1b835e729f41f095c8751edf",
-    ".github/workflows/claude-backlog.yml": "31707e4a7f00939613f3edb7f1565fc9317debea",
-    ".github/workflows/claude-mentions.yml": "f6a8d72048c8934f419305c84c5f5f09e572aee4",
-    ".github/workflows/labels-cleanup.yml": "ac47bc96399455d306c017b7d72c12ed63081082",
-    ".github/workflows/pr-conflicts.yml": "11d70135babb0f260d4d08467de2f15031fdeab4",
-    ".github/workflows/visual-baselines.yml": "f21c12916622ca0d0ed3493f130a7c6515588c45"
+    ".github/workflows/checks.yml": "a979e336b17845a4cdf00808c0822508addf0d2e",
+    ".github/workflows/claude-backlog.yml": "809ee2d9f5261330ed3a64fec95e054012f06dd5",
+    ".github/workflows/claude-mentions.yml": "7aebcee496eaa4611f57b304cc2b93f89b9ef0dd",
+    ".github/workflows/labels-cleanup.yml": "0af7dadc4dca1fba792761098d33a3d56cc63f00",
+    ".github/workflows/pr-conflicts.yml": "faa3f65bbb11533d8e3383d71666609fdebd3272",
+    ".github/workflows/visual-baselines.yml": "cbac500086aa8ebfb87400afadbc80741e076178"
   }
 }
