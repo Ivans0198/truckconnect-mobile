@@ -275,6 +275,55 @@ for (const vp of viewports) {
       ).toEqual([]);
     });
 
+    test("profile shows Log out and the confirmation dialog", async ({
+      page,
+    }) => {
+      await mockDriverLogin(page);
+      await signInAsDriver(page);
+      await page.getByRole("tab", { name: /Profile/ }).click();
+      await page.getByRole("heading", { name: "Profile" }).waitFor();
+      await expectFullPageScreenshot(page, `profile-${vp.name}.png`);
+
+      await page.getByRole("button", { name: "Log out" }).click();
+
+      await expect(page.getByText("Log out?")).toBeVisible();
+      await expectFullPageScreenshot(page, `log-out-dialog-${vp.name}.png`);
+      const results = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa"])
+        .analyze();
+      expect(
+        results.violations,
+        JSON.stringify(results.violations, null, 2),
+      ).toEqual([]);
+    });
+
+    test("Cancel keeps the session and Log out returns to the sign-in", async ({
+      page,
+    }) => {
+      await mockDriverLogin(page);
+      let logoutCalls = 0;
+      await page.route("**/auth/logout", (route) => {
+        logoutCalls += 1;
+        return route.fulfill({ status: 204 });
+      });
+      await signInAsDriver(page);
+      await page.getByRole("tab", { name: /Profile/ }).click();
+
+      await page.getByRole("button", { name: "Log out" }).click();
+      await page.getByRole("button", { name: "Cancel" }).click();
+      await expect(page.getByText("Log out?")).toHaveCount(0);
+      expect(logoutCalls).toBe(0);
+
+      await page.getByRole("button", { name: "Log out" }).click();
+      await page
+        .getByTestId("confirm-dialog")
+        .getByRole("button", { name: "Log out" })
+        .click();
+
+      await expect(page.getByText("Welcome back")).toBeVisible();
+      expect(logoutCalls).toBe(1);
+    });
+
     test("shows the error and keeps the email on bad credentials", async ({
       page,
     }) => {
