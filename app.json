@@ -15,7 +15,12 @@
     "web": {
       "output": "single"
     },
-    "plugins": ["expo-router", "expo-font", "expo-status-bar"],
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-status-bar",
+      "expo-secure-store"
+    ],
     "experiments": {
       "typedRoutes": true
     }

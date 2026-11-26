@@ -100,14 +100,11 @@ const APP_URL = process.env.APP_URL ?? "http://localhost:3741";
 // cualquier host, así que nunca toca un API real (ni el de otro proyecto en
 // localhost:3000).
 test.beforeEach(async ({ page }) => {
-  await page.route("**/health", (route) =>
+  await page.route("**/auth/**", (route) =>
     route.fulfill({
-      status: 200,
+      status: 401,
       contentType: "application/json",
-      body: JSON.stringify({
-        status: "ok",
-        info: { database: { status: "up" } },
-      }),
+      body: JSON.stringify({ message: "Unauthorized" }),
     }),
   );
 });
@@ -138,9 +135,8 @@ for (const vp of viewports) {
 
     test("matches approved baseline", async ({ page }) => {
       await page.goto(APP_URL);
-      // La pantalla arranca en "Checking connection…": se captura el estado
-      // final, no el transitorio.
-      await page.getByText("API online").waitFor();
+      // Sin sesión, "/" cae en el login: se captura con su encabezado ya visible.
+      await page.getByText("Welcome back").waitFor();
       // networkidle nunca llega mientras el dev server compila bajo carga paralela.
       // Lo que de verdad mueve píxeles son las fuentes y las imágenes, y
       // toHaveScreenshot ya reintenta hasta que la página deja de cambiar.
@@ -180,7 +176,7 @@ for (const vp of viewports) {
 
 test("has no accessibility violations (axe-core)", async ({ page }) => {
   await page.goto(APP_URL);
-  await page.getByText("API online").waitFor();
+  await page.getByText("Welcome back").waitFor();
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa"])
     .analyze();

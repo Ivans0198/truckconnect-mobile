@@ -23,3 +23,19 @@ for (const [name, value] of Object.entries(nodeFetch)) {
 server.listen({ onUnhandledFrame: "error" });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
+
+// expo-secure-store es nativo: en jest se reemplaza por un Map en memoria que
+// se vacía entre tests, para que ninguno herede la sesión de otro.
+const mockSecureStoreItems = new Map<string, string>();
+jest.mock("expo-secure-store", () => ({
+  getItemAsync: jest.fn(
+    async (key: string) => mockSecureStoreItems.get(key) ?? null,
+  ),
+  setItemAsync: jest.fn(async (key: string, value: string) => {
+    mockSecureStoreItems.set(key, value);
+  }),
+  deleteItemAsync: jest.fn(async (key: string) => {
+    mockSecureStoreItems.delete(key);
+  }),
+}));
+afterEach(() => mockSecureStoreItems.clear());
