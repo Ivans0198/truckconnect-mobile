@@ -13,7 +13,8 @@ import {
 import type { NextBreak } from "./next-break";
 import { WEEKLY_LIMIT_HOURS } from "./types";
 
-const MS_PER_HOUR = 3_600_000;
+const MS_PER_MINUTE = 60_000;
+const MINUTES_PER_HOUR = 60;
 
 type FatigueStatsProps = {
   hoursRemaining: number;
@@ -24,7 +25,9 @@ type FatigueStatsProps = {
 function nextBreakText(nextBreak: NextBreak): string {
   switch (nextBreak.kind) {
     case "in":
-      return formatHoursMinutes(nextBreak.ms / MS_PER_HOUR);
+      return formatHoursMinutes(
+        Math.ceil(nextBreak.ms / MS_PER_MINUTE) / MINUTES_PER_HOUR,
+      );
     case "due":
       return "Due now";
     case "none":
@@ -41,7 +44,10 @@ export function FatigueStats({
   const isCounting = nextBreak.kind === "in";
   return (
     <View style={styles.row}>
-      <Stat label="Remaining" value={formatHoursMinutes(hoursRemaining)} />
+      <Stat
+        label="Remaining"
+        value={formatHoursMinutes(Math.max(hoursRemaining, 0))}
+      />
       <Stat
         label="Next break in"
         value={nextBreakText(nextBreak)}

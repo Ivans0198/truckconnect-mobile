@@ -155,6 +155,24 @@ describe("FatigueScreen", () => {
     expect(screen.getByText("38h / 72h")).toBeOnTheScreen();
   });
 
+  it("shows 0h 00m remaining, never a negative, past the limit", async () => {
+    serveStatus(statusWith({ hoursWorked: 13, hoursRemaining: -1 }));
+
+    await renderWithQuery(<FatigueScreen />);
+
+    await screen.findByText("13h 00m");
+    expect(screen.getByText("0h 00m")).toBeOnTheScreen();
+    expect(screen.queryByText(/-/)).not.toBeOnTheScreen();
+  });
+
+  it("rounds a countdown under a minute up, not down to zero", async () => {
+    serveStatus(statusWith({ nextBreakDueAt: "2026-11-27T01:35:20.000Z" }));
+
+    await renderWithQuery(<FatigueScreen />);
+
+    expect(await screen.findByText("0h 01m")).toBeOnTheScreen();
+  });
+
   it("shows 28h / 72h for a week of 28 hours", async () => {
     server.use(
       http.get(apiUrl("/fatigue/week-summary"), () =>
