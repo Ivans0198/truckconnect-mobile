@@ -8,6 +8,15 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# Ya cerrado: no se rearma. Para rearmar, el script abre las políticas, y un
+# worker con sudo podía correrlo y salir por esa ventana (revisión del
+# 2026-11-26). La marca sola no alcanza: en un contenedor reiniciado sigue
+# ahí y las reglas no, así que también se mira la política y la lista.
+if [ -f /run/fabrica-firewall-ok ] && iptables -S OUTPUT | grep -qx -- '-P OUTPUT DROP' && ipset list allowed-domains >/dev/null 2>&1; then
+  echo "El firewall ya está cerrado: no lo vuelvo a armar."
+  exit 0
+fi
+
 rm -f /run/fabrica-firewall-ok
 
 # Las políticas, abiertas mientras se arma la lista; se cierran más abajo.
