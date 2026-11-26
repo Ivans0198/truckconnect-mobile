@@ -1,3 +1,4 @@
+import * as SecureStore from "expo-secure-store";
 import { waitFor } from "@testing-library/react-native";
 import { http, HttpResponse } from "msw";
 
@@ -8,7 +9,12 @@ import { apiUrl, server } from "@/test/server";
 import { restoreSession } from "./restore-session";
 import { useSessionStore } from "./session-store";
 import { CURRENT_ACCOUNT_KEY } from "./use-current-account";
-import { readStoredTokens, saveAccount, saveTokens } from "./token-storage";
+import {
+  readStoredTokens,
+  saveAccount,
+  saveTokens,
+  SESSION_STORAGE_KEY,
+} from "./token-storage";
 
 const initialState = useSessionStore.getState();
 const getSession = () => useSessionStore.getState().session;
@@ -47,6 +53,15 @@ describe("restoreSession", () => {
 
     expect(getSession()).toEqual({ status: "signedIn" });
     release();
+  });
+
+  it("goes to signedOut and clears the store when the stored session is corrupt", async () => {
+    await SecureStore.setItemAsync(SESSION_STORAGE_KEY, "{not json");
+
+    await restoreSession();
+
+    expect(getSession()).toEqual({ status: "signedOut", reason: null });
+    expect(await SecureStore.getItemAsync(SESSION_STORAGE_KEY)).toBeNull();
   });
 
   it("seeds the query cache with the stored account", async () => {

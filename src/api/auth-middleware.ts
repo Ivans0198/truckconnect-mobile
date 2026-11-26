@@ -61,4 +61,9 @@ export const authMiddleware: Middleware = {
     clone.headers.set("Authorization", `Bearer ${accessToken}`);
     return options.fetch(clone);
   },
+
+  // Sin red fetch rechaza y onResponse nunca corre: el clon se suelta aquí.
+  onError({ id }) {
+    pendingClones.delete(id);
+  },
 };

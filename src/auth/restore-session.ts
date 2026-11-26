@@ -2,7 +2,12 @@ import { queryClient } from "@/api/query-client";
 
 import { endSession } from "./end-session";
 import { useSessionStore } from "./session-store";
-import { readStoredAccount, readStoredTokens } from "./token-storage";
+import {
+  clearStoredSession,
+  readStoredAccount,
+  readStoredTokens,
+} from "./token-storage";
+import type { Account } from "./types";
 import {
   CURRENT_ACCOUNT_KEY,
   fetchCurrentAccount,
@@ -26,15 +31,24 @@ async function validateAccountInBackground(): Promise<void> {
   }
 }
 
-export async function restoreSession(): Promise<void> {
-  const tokens = await readStoredTokens();
-  if (!tokens) {
-    useSessionStore.getState().finishRestoring({ hasTokens: false });
-    return;
-  }
+type StoredSession = { hasTokens: boolean; account: Account | null };
 
-  const account = await readStoredAccount();
+// Un valor corrupto o un error del keystore no debe dejar la splash para
+// siempre: lo guardado deja de servir, se borra y el conductor ve el login.
+async function readStoredSession(): Promise<StoredSession> {
+  try {
+    const tokens = await readStoredTokens();
+    if (!tokens) return { hasTokens: false, account: null };
+    return { hasTokens: true, account: await readStoredAccount() };
+  } catch {
+    await clearStoredSession();
+    return { hasTokens: false, account: null };
+  }
+}
+
+export async function restoreSession(): Promise<void> {
+  const { hasTokens, account } = await readStoredSession();
   if (account) queryClient.setQueryData(CURRENT_ACCOUNT_KEY, account);
-  useSessionStore.getState().finishRestoring({ hasTokens: true });
-  void validateAccountInBackground();
+  useSessionStore.getState().finishRestoring({ hasTokens });
+  if (hasTokens) void validateAccountInBackground();
 }
