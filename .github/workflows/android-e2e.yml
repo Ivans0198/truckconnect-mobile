@@ -3,28 +3,35 @@
 # flows de Maestro (.maestro/): se actualiza con `fabrica-setup refresh`.
 #
 # Corre si factory.json define commands.androidBuild, androidServe,
-# androidE2e y androidApk. Cada corrida tarda entre 15 y 25 minutos de Actions.
+# androidE2e y androidApk. Con commands.androidFingerprint, un PR que no toca
+# la parte nativa usa el APK de la caché y tarda unos 7 minutos de Actions;
+# compilar suma entre 10 y 20.
+#
+# En main corre al mergear: las cachés que deja ahí las ven todos los PRs.
 name: android-e2e
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 # Un push nuevo al PR cancela la corrida anterior: no tiene sentido terminar
-# 20 minutos de emulador sobre un commit viejo.
+# 20 minutos de emulador sobre un commit viejo. En main no: la corrida a
+# medias es la que deja la caché.
 concurrency:
   group: android-e2e-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   android:
-    uses: Ivans0198/fabrica-plugin/.github/workflows/android-e2e.yml@v0.5.28
+    uses: Ivans0198/fabrica-plugin/.github/workflows/android-e2e.yml@v0.5.29
     with:
       fabrica_repo: Ivans0198/fabrica-plugin
-      fabrica_ref: v0.5.28
+      fabrica_ref: v0.5.29
     secrets:
       FABRICA_PLUGIN_TOKEN: ${{ secrets.FABRICA_PLUGIN_TOKEN }}
