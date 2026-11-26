@@ -116,15 +116,18 @@ eligió, por qué y qué se descartó.
 
 ## R9. Todo texto a 16 o más, aunque el mockup lo dibuje más chico
 
-- **Decision**: las etiquetas de los datos ("Remaining", "Next break in",
-  "This week"), las horas de la línea de tiempo y la semana van a
-  `fontSize.body` (16) como mínimo. Los botones de acción a `TOUCH_TARGET_MIN`
-  (60) de alto o más.
-- **Rationale**: la regla de ergonomía del perfil es obligatoria y E1 tomó la
-  misma decisión con las etiquetas de la tab bar. FR-015 permitía la excepción
-  pero no la exige, así que cumplir el perfil también cumple la spec.
-- **Alternatives considered**: copiar los 10 a 12 px del mockup. Sería un
-  hallazgo `Major` del code-reviewer.
+- **Decision**: ningún texto de la pantalla baja de `fontSize.body` (16): las
+  etiquetas de los datos ("Remaining", "Next break in", "This week"), la
+  etiqueta de estado del anillo, "of 12h shift limit", las horas y subtítulos
+  de la línea de tiempo, los días y horas de la semana y el aviso de bloqueo.
+  Donde el mockup usa dos tamaños para marcar jerarquía, la jerarquía pasa al
+  peso (`fontFamily`) y al color, no a un tamaño menor. Los botones de acción
+  miden `TOUCH_TARGET_MIN` (60) de alto o más.
+- **Rationale**: FR-015 lo pide sin excepciones. Es la regla del conductor de
+  `docs/CLAUDE_MOBILE.md` y la regla obligatoria de ergonomía del perfil, y E1
+  tomó la misma decisión con las etiquetas de la tab bar.
+- **Alternatives considered**: copiar los 10 a 12 px del mockup. Rompe FR-015
+  y sería un hallazgo `Major` del code-reviewer.
 
 ## R10. "Start Day" y los botones según el estado
 

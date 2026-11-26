@@ -56,15 +56,15 @@ description: "Task list for Fatiga HVNL"
 ### Tests for User Story 1 (MANDATORY, write first) ⚠️
 
 - [ ] T011 [P] [US1] Test de `src/fatigue/next-break.test.ts`: `working` con `nextBreakDueAt` futuro da `{ kind: "in", ms }`; igual o pasado da `due`; `on_break`, `off_duty` o `nextBreakDueAt` nulo dan `none` (data-model.md)
-- [ ] T012 [P] [US1] Test de `src/fatigue/fatigue-screen.test.tsx` (escenarios 1.1 a 1.10) con fake timers: "Working", "5h 30m" y "of 12h shift limit"; el anillo expone horas y tono en su nombre accesible para no depender del color; 9 h ámbar y 11,5 h rojo; "Remaining", "Next break in" ("2h 12m") y "This week" ("28h / 72h"); "On break" sin cuenta regresiva; "Off duty" con 0 h; con 13 h el centro dice "13h 00m" y el anillo está completo; "Due now" con el break vencido; esqueleto mientras carga; error con "Try again" que vuelve a pedir; nuevo pedido al pasar 60 s, al enfocar la pestaña y al tirar hacia abajo; no hay flecha de volver
+- [ ] T012 [P] [US1] Test de `src/fatigue/fatigue-screen.test.tsx` (escenarios 1.1 a 1.10) con fake timers: "Working", "5h 30m" y "of 12h shift limit"; el anillo expone horas y tono en su nombre accesible para no depender del color; 9 h ámbar y 11,5 h rojo; "Remaining", "Next break in" ("2h 12m") y "This week" ("28h / 72h"); "On break" sin cuenta regresiva; "Off duty" con 0 h; con 13 h el centro dice "13h 00m" y el anillo está completo; "Due now" con el break vencido; esqueleto mientras carga; error con "Try again" que vuelve a pedir; nuevo pedido al pasar 60 s, al enfocar la pestaña y al tirar hacia abajo; no hay flecha de volver; ningún texto de la pantalla baja de `fontSize.body`, incluidas las etiquetas que el mockup dibuja más chicas (FR-015)
 - [ ] T013 [P] [US1] Agregar a `tests/ui.spec.ts` `page.route("**/fatigue/**")` con las formas del contrato, la captura de Fatigue en los dos viewports, sin scroll horizontal, y axe
 
 ### Implementation for User Story 1
 
 - [ ] T014 [US1] `src/fatigue/next-break.ts` (pasa T011)
 - [ ] T015 [P] [US1] `src/fatigue/section-error.tsx`: mensaje y botón "Try again" de al menos `TOUCH_TARGET_MIN`, con `accessibilityLiveRegion`
-- [ ] T016 [P] [US1] `src/fatigue/hours-ring.tsx`: anillo SVG de `react-native-svg` con progreso `min(hoursWorked / DAILY_LIMIT_HOURS, 1)`, etiqueta de estado y horas reales en el centro, tono de `fatigueTone` (research R7, R8)
-- [ ] T017 [P] [US1] `src/fatigue/fatigue-stats.tsx`: las tres tarjetas del mockup 12 con texto ≥16 (research R9); "Due now" en `semantic.danger`
+- [ ] T016 [P] [US1] `src/fatigue/hours-ring.tsx`: anillo SVG de `react-native-svg` con progreso `min(hoursWorked / DAILY_LIMIT_HOURS, 1)`, etiqueta de estado, horas reales y "of 12h shift limit" en el centro, todo a 16 o más, tono de `fatigueTone` (research R7, R8)
+- [ ] T017 [P] [US1] `src/fatigue/fatigue-stats.tsx`: las tres tarjetas del mockup 12, con las etiquetas a 16 o más y la jerarquía por peso y color (research R9); "Due now" en `semantic.danger`
 - [ ] T018 [US1] `src/fatigue/fatigue-screen.tsx`: encabezado "Fatigue" con "Standard Hours · HVNL compliant", `ScrollView` con `RefreshControl`, `useFocusEffect` y esqueleto; `app/(tabs)/fatigue.tsx` lo compone en lugar de `TitleScreen` (pasa T012 y T013)
 
 **Checkpoint**: la pestaña muestra el estado de fatiga real. Sin botones todavía.
@@ -81,7 +81,7 @@ description: "Task list for Fatiga HVNL"
 
 - [ ] T019 [P] [US2] Test de `src/fatigue/fatigue-actions.test.ts`: `off_duty` → `start-day`; `working` → `start-break`, `end-day`; `on_break` → `end-break`, `end-day` (data-model.md)
 - [ ] T020 [P] [US2] Test de `src/fatigue/action-error.test.ts`: un `fetch` que lanza da `offline`; 429 da `rate-limited`; 400 y 403 dan `rejected` con el `message` del back, uniendo las líneas cuando es un arreglo (research R4)
-- [ ] T021 [P] [US2] Test de `src/fatigue/fatigue-action-bar.test.tsx` (escenarios 2.1 a 2.11) montando `FatigueScreen`: los botones de cada estado; Take Break pasa a "On break" con "End Break"; End Break vuelve a "Working"; End Day muestra "End your day?" y solo con confirmar llama a `POST /fatigue/end-day`; Start Day pasa a "Working"; el botón en curso está deshabilitado y un segundo toque no manda otro pedido; un 400 muestra el mensaje y vuelve a pedir el estado; un 429 muestra "Too many attempts, try again in a moment"; sin red muestra "No connection. Your break was not recorded." con "Try again" y el estado no cambia; después de cada acción se vuelven a pedir eventos y semana
+- [ ] T021 [P] [US2] Test de `src/fatigue/fatigue-action-bar.test.tsx` (escenarios 2.1 a 2.11) montando `FatigueScreen`: los botones de cada estado; Take Break pasa a "On break" con "End Break"; End Break vuelve a "Working"; End Day muestra "End your day?" y solo con confirmar llama a `POST /fatigue/end-day`; Start Day pasa a "Working"; el botón en curso está deshabilitado y un segundo toque no manda otro pedido; un 400 muestra el mensaje y vuelve a pedir el estado; un 429 muestra "Too many attempts, try again in a moment"; sin red muestra "No connection. Your break was not recorded." con "Try again" y el estado no cambia; después de cada acción se vuelven a pedir eventos y semana; el texto de los botones y del mensaje de error no baja de `fontSize.body` (FR-015)
 - [ ] T022 [P] [US2] Agregar a `tests/ui.spec.ts` la ruta de `POST /fatigue/end-day` y la captura del diálogo "End your day?" con axe, en los dos viewports
 
 ### Implementation for User Story 2
@@ -104,7 +104,7 @@ description: "Task list for Fatiga HVNL"
 ### Tests for User Story 3 (MANDATORY, write first) ⚠️
 
 - [ ] T027 [P] [US3] Test de `src/fatigue/timeline.test.ts`: los cuatro tipos con "Day started", "Break started", "Back to work" y "Day ended"; ordena por `timestamp` aunque lleguen desordenados; `durationMs` solo en un `BREAK_START` con `BREAK_END` posterior; `isCurrent` en el último si el estado no es `off_duty`
-- [ ] T028 [P] [US3] Test de `src/fatigue/today-events.test.tsx` (escenarios 3.1 a 3.7) montando `FatigueScreen`: "Today's events" y "5 events"; "9:48 AM · 15 min"; "current" en el último; horas en Melbourne; vacío con su mensaje; error de la sección con "Try again" mientras el anillo y los botones siguen visibles
+- [ ] T028 [P] [US3] Test de `src/fatigue/today-events.test.tsx` (escenarios 3.1 a 3.7) montando `FatigueScreen`: "Today's events" y "5 events"; "9:48 AM · 15 min"; "current" en el último; horas en Melbourne; vacío con su mensaje; error de la sección con "Try again" mientras el anillo y los botones siguen visibles; ningún texto de la sección baja de `fontSize.body` (FR-015)
 
 ### Implementation for User Story 3
 
@@ -123,7 +123,7 @@ description: "Task list for Fatiga HVNL"
 
 ### Tests for User Story 4 (MANDATORY, write first) ⚠️
 
-- [ ] T031 [P] [US4] Test de `src/fatigue/week-summary.test.tsx` (escenarios 4.1 a 4.4) montando `FatigueScreen`: un renglón por día de `byDay` con "Mon" y "7h 48m"; el largo de cada barra proporcional a `DAILY_LIMIT_HOURS` y su tono de `fatigueTone`, expuesto también como texto; "Total worked" con las horas sobre 72 h; error de la sección con "Try again"
+- [ ] T031 [P] [US4] Test de `src/fatigue/week-summary.test.tsx` (escenarios 4.1 a 4.4) montando `FatigueScreen`: un renglón por día de `byDay` con "Mon" y "7h 48m"; el largo de cada barra proporcional a `DAILY_LIMIT_HOURS` y su tono de `fatigueTone`, expuesto también como texto; "Total worked" con las horas sobre 72 h; error de la sección con "Try again"; ningún texto de la sección baja de `fontSize.body` (FR-015)
 
 ### Implementation for User Story 4
 
@@ -142,7 +142,7 @@ description: "Task list for Fatiga HVNL"
 ### Tests for User Story 5 (MANDATORY, write first) ⚠️
 
 - [ ] T033 [P] [US5] Test de `src/fatigue/order-acceptance.test.ts`: `allowed` dentro de horas; `daily-limit` con `hoursRemaining` 0 o negativo; `weekly-limit` con `remainingHours` 0 o negativo; `break-overdue` solo en `working` con `nextBreakDueAt <= now`; varios motivos juntos en el orden del contrato; `useOrderAcceptance` da `unknown` mientras carga o con error y `allowed` después de terminar un break vencido (contracts/order-acceptance.md)
-- [ ] T034 [P] [US5] Test de `src/fatigue/acceptance-banner.test.tsx` (escenarios 5.1 y 5.2) montando `FatigueScreen`: "You can't accept new orders" con "Daily limit reached", "Weekly limit reached" o "Break overdue", y todos cuando son varios; sin aviso dentro de horas o sin datos
+- [ ] T034 [P] [US5] Test de `src/fatigue/acceptance-banner.test.tsx` (escenarios 5.1 y 5.2) montando `FatigueScreen`: "You can't accept new orders" con "Daily limit reached", "Weekly limit reached" o "Break overdue", y todos cuando son varios; sin aviso dentro de horas o sin datos; el texto del aviso no baja de `fontSize.body` (FR-015)
 
 ### Implementation for User Story 5
 

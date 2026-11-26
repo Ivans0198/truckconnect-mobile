@@ -194,7 +194,7 @@ restantes, la pantalla muestra el aviso, y la regla de "puede aceptar" da
 - **FR-012**: Cada sección MUST tener estado de carga, de error con reintento y, para los eventos, vacío.
 - **FR-013**: Los datos MUST refrescarse al volver a la pestaña, al tirar hacia abajo y cada minuto mientras la pantalla está visible.
 - **FR-014**: Las horas MUST mostrarse en `Australia/Melbourne` y las duraciones en formato "5h 30m".
-- **FR-015**: Los botones de acción MUST medir al menos 60 px de alto y el texto MUST ser de 16 pt o más, salvo las etiquetas secundarias que el mockup muestra más chicas.
+- **FR-015**: Los botones de acción MUST medir al menos 60 px de alto y todo el texto MUST ser de 16 pt o más, también las etiquetas que el mockup dibuja más chicas. La regla del conductor de `docs/CLAUDE_MOBILE.md` manda sobre el mockup, como en la tab bar de E1.
 - **FR-016**: La pantalla MUST usar solo los endpoints y campos de fatiga que existen en `docs/openapi.json`.
 - **FR-017**: Las acciones de fatiga MUST NOT encolarse sin conexión: el servidor registra la hora en que recibe el pedido, y mandar tarde un evento dejaría una hora falsa en el registro HVNL. Sin red, la app avisa que la acción no quedó registrada y ofrece reintentar.
 

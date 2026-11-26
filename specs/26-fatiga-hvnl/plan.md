@@ -47,7 +47,7 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------ |
 | I. Test-first                           | Cada historia arranca con sus tests desde los escenarios; las funciones puras de Foundational también                          | OK     |
 | II. Historias independientes            | US1 crea la pantalla y la query de estado. US2 a US5 dependen de US1 y lo declaran; entre ellas no                             | OK     |
-| III. Spec fija                          | El plan no cambia la spec; R9 elige cumplir 16 pt, que FR-015 permite                                                          | OK     |
+| III. Spec fija                          | El plan no cambia la spec; R9 aplica FR-015 (16 pt sin excepciones)                                                            | OK     |
 | Types (mandatory)                       | `OrderAcceptance`, `NextBreak` y `FatigueActionError` como uniones discriminadas ([data-model.md](./data-model.md))            | OK     |
 | Magic values (mandatory)                | `DAILY_LIMIT_HOURS`, `WEEKLY_LIMIT_HOURS`, `AMBER_FROM_HOURS`, `RED_ABOVE_HOURS`, intervalo de refresco con nombre (R8)        | OK     |
 | Errors (mandatory)                      | Las queries lanzan ante un no-2xx; las acciones clasifican la falla sin tragarla (R4)                                          | OK     |
