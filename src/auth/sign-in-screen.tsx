@@ -1,4 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
+import { StatusBar } from "expo-status-bar";
 import { useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -10,6 +11,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 
 import {
@@ -157,6 +159,7 @@ export function SignInScreen(): React.JSX.Element {
   const reason = useSessionStore((s) =>
     s.session.status === "signedOut" ? s.session.reason : null,
   );
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordShown, setIsPasswordShown] = useState(false);
@@ -194,12 +197,19 @@ export function SignInScreen(): React.JSX.Element {
       end={GRADIENT_END}
       style={styles.gradient}
     >
+      <StatusBar style="light" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.flex}
       >
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[
+            styles.content,
+            {
+              paddingTop: insets.top + spacing.xxl,
+              paddingBottom: insets.bottom + spacing.xl,
+            },
+          ]}
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.logoRow}>

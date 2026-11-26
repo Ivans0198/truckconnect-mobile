@@ -39,3 +39,10 @@ jest.mock("expo-secure-store", () => ({
   }),
 }));
 afterEach(() => mockSecureStoreItems.clear());
+
+// Sin SafeAreaProvider el hook falla; los tests no miden insets, así que
+// basta el mock que trae la librería.
+jest.mock(
+  "react-native-safe-area-context",
+  () => jest.requireActual("react-native-safe-area-context/jest/mock").default,
+);
