@@ -12,6 +12,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 
+import { connectAppFocus } from "@/api/app-focus";
 import { queryClient } from "@/api/query-client";
 import { restoreSession } from "@/auth/restore-session";
 import { useSessionStore } from "@/auth/session-store";
@@ -40,6 +41,8 @@ export default function RootLayout(): React.JSX.Element | null {
       void restoreSession();
     }
   }, []);
+
+  useEffect(() => connectAppFocus(), []);
 
   useEffect(() => {
     if (isReady) void SplashScreen.hideAsync();
