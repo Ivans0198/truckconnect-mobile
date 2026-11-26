@@ -6,7 +6,6 @@ import {
   colors,
   fontFamily,
   fontSize,
-  palette,
   spacing,
   TOUCH_TARGET_MIN,
 } from "@/theme/tokens";
@@ -40,11 +39,14 @@ export function TabBar({
   insets,
 }: TabBarProps): React.JSX.Element {
   return (
-    <View style={[styles.bar, { paddingBottom: spacing.sm + insets.bottom }]}>
+    <View
+      accessibilityRole="tablist"
+      style={[styles.bar, { paddingBottom: spacing.sm + insets.bottom }]}
+    >
       {state.routes.map((route, index) => {
         const isSelected = state.index === index;
         const title = descriptors[route.key]?.options.title ?? route.name;
-        const tint = isSelected ? colors.primary : palette.slate400;
+        const tint = isSelected ? colors.primary : colors.textMuted;
 
         const press = (): void => {
           const event = emitter.emit({
@@ -62,8 +64,9 @@ export function TabBar({
             key={route.key}
             accessibilityRole="tab"
             accessibilityState={{ selected: isSelected }}
+            aria-selected={isSelected}
             onPress={press}
-            style={styles.tab}
+            style={({ pressed }) => [styles.tab, pressed && styles.tabPressed]}
           >
             <TabIcon name={iconFor(route.name)} color={tint} size={ICON_SIZE} />
             <Text
@@ -100,6 +103,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: spacing.xs,
   },
+  tabPressed: { backgroundColor: colors.background },
   label: { fontSize: fontSize.body, fontFamily: fontFamily.medium },
   labelSelected: { fontFamily: fontFamily.semibold },
 });

@@ -7,7 +7,7 @@ import {
 } from "expo-router/testing-library";
 
 import TabsLayout from "../../app/(tabs)/_layout";
-import { fontSize, TOUCH_TARGET_MIN } from "@/theme/tokens";
+import { colors, fontSize, TOUCH_TARGET_MIN } from "@/theme/tokens";
 
 const SCREEN = () => null;
 const routes = {
@@ -41,6 +41,24 @@ describe("tab bar", () => {
       true,
       false,
     ]);
+  });
+
+  it("groups the tabs in a tablist", async () => {
+    await renderRouter(routes, { initialUrl: "/" });
+
+    const [firstTab] = await screen.findAllByRole("tab");
+
+    expect(firstTab?.parent?.props.accessibilityRole).toBe("tablist");
+  });
+
+  it("uses a muted color with enough contrast for the inactive tabs", async () => {
+    await renderRouter(routes, { initialUrl: "/" });
+
+    await screen.findAllByRole("tab");
+
+    expect(screen.getByText("Fatigue")).toHaveStyle({
+      color: colors.textMuted,
+    });
   });
 
   it("moves the selection when another tab is pressed", async () => {
