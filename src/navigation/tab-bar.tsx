@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import {
   colors,
+  palette,
   fontFamily,
   fontSize,
   spacing,
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: spacing.xs,
   },
-  tabPressed: { backgroundColor: colors.background },
+  tabPressed: { backgroundColor: palette.slate100 },
   label: { fontSize: fontSize.body, fontFamily: fontFamily.medium },
   labelSelected: { fontFamily: fontFamily.semibold },
 });
