@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     alignItems: "center",
+    justifyContent: "space-between",
     gap: spacing.xs,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xs,
