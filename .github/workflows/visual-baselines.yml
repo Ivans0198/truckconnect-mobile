@@ -25,10 +25,10 @@ permissions:
 
 jobs:
   visual:
-    uses: Ivans0198/fabrica-plugin/.github/workflows/visual-baselines.yml@v0.5.29
+    uses: Ivans0198/fabrica-plugin/.github/workflows/visual-baselines.yml@fabrica-0.5.29
     with:
       fabrica_repo: Ivans0198/fabrica-plugin
-      fabrica_ref: v0.5.29
+      fabrica_ref: fabrica-0.5.29
       reviewed_run_url: ${{ inputs.reviewed_run_url }}
     secrets:
       FABRICA_PLUGIN_TOKEN: ${{ secrets.FABRICA_PLUGIN_TOKEN }}
