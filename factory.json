@@ -7,7 +7,18 @@
     "test": ["pnpm", "test"],
     "build": ["pnpm", "build"],
     "e2e": ["pnpm", "e2e"],
-    "dev": ["pnpm", "exec", "expo", "start", "--web", "--port", "3741"]
+    "dev": ["pnpm", "exec", "expo", "start", "--web", "--port", "3741"],
+    "androidBuild": ["pnpm", "build:android"],
+    "androidServe": [
+      "pnpm",
+      "exec",
+      "expo",
+      "start",
+      "--dev-client",
+      "--port",
+      "8081"
+    ],
+    "androidE2e": ["pnpm", "e2e:android"]
   },
   "appUrl": "http://localhost:3741",
   "factoryEpic": null,
@@ -39,5 +50,6 @@
       "ref": "0fbfda5a91f4adc311daca25acc99132f40f0b6e",
       "domains": ["mcp.expo.dev"]
     }
-  ]
+  ],
+  "androidApk": "android/app/build/outputs/apk/debug/app-debug.apk"
 }

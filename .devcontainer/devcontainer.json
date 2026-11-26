@@ -12,12 +12,14 @@
   "remoteUser": "node",
   "mounts": [
     "source=fabrica-claude-${devcontainerId},target=/home/node/.claude,type=volume",
-    "source=fabrica-gh-${devcontainerId},target=/home/node/.config/gh,type=volume"
+    "source=fabrica-gh-${devcontainerId},target=/home/node/.config/gh,type=volume",
+    "source=fabrica-pnpm-${devcontainerId},target=/home/node/.local/share/pnpm-store,type=volume"
   ],
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/home/node/.claude",
     "DISABLE_AUTOUPDATER": "1",
-    "PERMISSION_MODE": "bypassPermissions"
+    "PERMISSION_MODE": "bypassPermissions",
+    "pnpm_config_store_dir": "/home/node/.local/share/pnpm-store"
   },
   "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
   "waitFor": "postStartCommand"
