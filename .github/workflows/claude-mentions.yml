@@ -22,8 +22,8 @@ permissions:
 
 jobs:
   mentions:
-    uses: Ivans0198/fabrica-plugin/.github/workflows/claude-mentions.yml@v0.5.25
+    uses: Ivans0198/fabrica-plugin/.github/workflows/claude-mentions.yml@v0.5.26
     with:
       fabrica_repo: Ivans0198/fabrica-plugin
-      fabrica_ref: v0.5.25
+      fabrica_ref: v0.5.26
     secrets: inherit
