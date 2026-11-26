@@ -1,10 +1,9 @@
 # Cerrar sesión desde Profile. Corre con `pnpm e2e:android`, con el emulador
 # (o el teléfono por USB) conectado, el dev build instalado (`pnpm android`),
-# Metro corriendo y el back alcanzable desde la app (EXPO_PUBLIC_API_URL).
+# Metro corriendo. No necesita back: sin EXPO_PUBLIC_API_URL, el dev build
+# responde con los mocks de src/mocks y el conductor de prueba de
+# src/mocks/dev-auth-handlers.ts.
 # Fuera del gate a propósito: ver CLAUDE.md → Testing layers.
-#
-# Variables: MAESTRO_DRIVER_EMAIL y MAESTRO_DRIVER_PASSWORD, de un conductor
-# ACTIVE del back al que apunta la app (maestro test -e NAME=value).
 appId: au.com.truckconnect.driver
 ---
 - launchApp:
@@ -16,11 +15,11 @@ appId: au.com.truckconnect.driver
 - extendedWaitUntil:
     visible: "Welcome back"
     timeout: 180000
-# Entra con un conductor real.
+# Entra con el conductor de prueba de los mocks.
 - tapOn: "Email"
-- inputText: ${MAESTRO_DRIVER_EMAIL}
+- inputText: driver@truckconnect.test
 - tapOn: "Password"
-- inputText: ${MAESTRO_DRIVER_PASSWORD}
+- inputText: driver-password
 - hideKeyboard
 - tapOn: "Sign in"
 - extendedWaitUntil:
@@ -30,16 +29,21 @@ appId: au.com.truckconnect.driver
 - tapOn: "Profile"
 - tapOn: "Log out"
 - assertVisible: "Log out?"
-- tapOn:
-    text: "Log out"
-    index: 1
+# El diálogo es un modal: con él abierto, solo su botón es accesible.
+- tapOn: "Log out"
 - extendedWaitUntil:
     visible: "Welcome back"
     timeout: 30000
 # Reabrir la app sigue en el login: no quedó sesión guardada.
 - stopApp
 - launchApp
-- openLink: "exp+truckconnect-driver://?__expo_url=http%3A%2F%2Flocalhost%3A8081&__expo_disable_fab=1&__expo_disable_auto_launch=1&__expo_disable_onboarding=1"
+# Sin clearState el dev client reabre el último bundle por su cuenta y muestra
+# su menú de herramientas encima: no pasa por el launcher y el menú tapa la
+# pantalla. Se espera al menú y se cierra con Atrás.
+- extendedWaitUntil:
+    visible: "Reload"
+    timeout: 120000
+- pressKey: back
 - extendedWaitUntil:
     visible: "Welcome back"
     timeout: 60000
