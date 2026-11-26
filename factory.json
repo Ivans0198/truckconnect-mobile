@@ -1,5 +1,5 @@
 {
-  "stack": "node-ts",
+  "stack": "expo-rn",
   "commands": {
     "install": ["pnpm", "install", "--frozen-lockfile"],
     "lint": ["pnpm", "lint"],

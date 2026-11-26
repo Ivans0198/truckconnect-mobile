@@ -1,6 +1,7 @@
 {
-  "enabledPlugins": {
-    "fabrica@fabrica-local": true
+  "attribution": {
+    "commit": "",
+    "sessionUrl": false
   },
   "permissions": {
     "allow": [
@@ -35,8 +36,8 @@
       "Bash(rm -rf ~/)"
     ]
   },
-  "attribution": {
-    "commit": "",
-    "sessionUrl": false
+  "enabledPlugins": {
+    "fabrica@fabrica-local": true,
+    "expo@claude-plugins-official": true
   }
 }
