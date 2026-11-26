@@ -8,7 +8,7 @@
     "build": ["pnpm", "build"],
     "e2e": ["pnpm", "e2e"],
     "dev": ["pnpm", "exec", "expo", "start", "--web", "--port", "3741"],
-    "androidBuild": ["pnpm", "exec", "expo", "run:android", "--no-bundler"],
+    "androidBuild": ["pnpm", "build:android"],
     "androidServe": [
       "pnpm",
       "exec",
@@ -50,5 +50,6 @@
       "ref": "0fbfda5a91f4adc311daca25acc99132f40f0b6e",
       "domains": ["mcp.expo.dev"]
     }
-  ]
+  ],
+  "androidApk": "android/app/build/outputs/apk/debug/app-debug.apk"
 }

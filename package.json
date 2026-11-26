@@ -14,7 +14,8 @@
     "test": "jest",
     "build": "expo export --platform android --output-dir dist",
     "e2e": "playwright test",
-    "e2e:android": "adb reverse tcp:8081 tcp:8081 && maestro test .maestro/"
+    "e2e:android": "adb reverse tcp:8081 tcp:8081 && maestro test .maestro/",
+    "build:android": "expo prebuild -p android --no-install && cd android && ./gradlew assembleDebug -PreactNativeArchitectures=x86_64"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
