@@ -36,6 +36,7 @@
     {
       "id": "expo@claude-plugins-official",
       "marketplace": "https://github.com/anthropics/claude-plugins-official.git",
+      "ref": "0fbfda5a91f4adc311daca25acc99132f40f0b6e",
       "domains": ["mcp.expo.dev"]
     }
   ]
