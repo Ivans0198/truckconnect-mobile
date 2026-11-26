@@ -11,6 +11,8 @@ import {
   TOUCH_TARGET_MIN,
 } from "@/theme/tokens";
 
+const TITLE_ID = "confirm-dialog-title";
+
 type ConfirmDialogProps = {
   visible: boolean;
   title: string;
@@ -40,23 +42,38 @@ export function ConfirmDialog({
       <View style={styles.scrim}>
         <View
           accessibilityViewIsModal
+          role="dialog"
+          aria-modal
+          aria-labelledby={TITLE_ID}
           testID="confirm-dialog"
           style={styles.card}
         >
-          <Text accessibilityRole="header" style={styles.title}>
+          <Text
+            nativeID={TITLE_ID}
+            accessibilityRole="header"
+            style={styles.title}
+          >
             {title}
           </Text>
           <Pressable
             accessibilityRole="button"
             onPress={onConfirm}
-            style={[styles.button, styles.confirm]}
+            style={({ pressed }) => [
+              styles.button,
+              styles.confirm,
+              pressed && styles.confirmPressed,
+            ]}
           >
             <Text style={styles.confirmText}>{confirmLabel}</Text>
           </Pressable>
           <Pressable
             accessibilityRole="button"
             onPress={onCancel}
-            style={[styles.button, styles.cancel]}
+            style={({ pressed }) => [
+              styles.button,
+              styles.cancel,
+              pressed && styles.cancelPressed,
+            ]}
           >
             <Text style={styles.cancelText}>{cancelLabel}</Text>
           </Pressable>
@@ -74,13 +91,12 @@ const styles = StyleSheet.create({
     backgroundColor: scrim,
   },
   card: {
-    gap: spacing.md,
+    gap: spacing.lg,
     padding: spacing.xl,
     borderRadius: radius.xl,
     backgroundColor: colors.surface,
   },
   title: {
-    marginBottom: spacing.sm,
     fontFamily: fontFamily.bold,
     fontSize: fontSize.title,
     color: colors.text,
@@ -93,6 +109,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
   },
   confirm: { backgroundColor: palette.red600 },
+  confirmPressed: { backgroundColor: palette.red700 },
   confirmText: {
     fontFamily: fontFamily.bold,
     fontSize: fontSize.lead,
@@ -103,6 +120,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
+  cancelPressed: { backgroundColor: palette.slate100 },
   cancelText: {
     fontFamily: fontFamily.semibold,
     fontSize: fontSize.lead,

@@ -18,7 +18,7 @@ import { signOut } from "./sign-out";
 // Heroicon del botón de 14_driver_profile.html.
 const LOGOUT_ICON_PATH =
   "M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1";
-const ICON_SIZE = 24;
+const ICON_SIZE = 20;
 const ICON_STROKE_WIDTH = 2;
 
 export function SignOutButton(): React.JSX.Element {
@@ -34,7 +34,7 @@ export function SignOutButton(): React.JSX.Element {
       <Pressable
         accessibilityRole="button"
         onPress={() => setIsConfirming(true)}
-        style={styles.button}
+        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
       >
         <Svg
           width={ICON_SIZE}
@@ -77,6 +77,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: colors.surface,
   },
+  pressed: { backgroundColor: palette.red50 },
   label: {
     fontFamily: fontFamily.bold,
     fontSize: fontSize.lead,
