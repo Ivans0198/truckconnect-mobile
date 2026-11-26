@@ -297,6 +297,21 @@ for (const vp of viewports) {
       ).toEqual([]);
     });
 
+    test("log out dialog has no horizontal scroll", async ({ page }) => {
+      await mockDriverLogin(page);
+      await signInAsDriver(page);
+      await page.getByRole("tab", { name: /Profile/ }).click();
+      await page.getByRole("button", { name: "Log out" }).click();
+      await expect(page.getByText("Log out?")).toBeVisible();
+
+      const overflow = await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth >
+          document.documentElement.clientWidth,
+      );
+      expect(overflow, `horizontal overflow at ${vp.width}px`).toBe(false);
+    });
+
     test("Cancel keeps the session and Log out returns to the sign-in", async ({
       page,
     }) => {
