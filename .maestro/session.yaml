@@ -34,10 +34,13 @@ env:
 # Reinicio: se mata la app y se vuelve a abrir SIN clearState.
 - stopApp
 - launchApp
+# Sin clearState el dev client reabre el último bundle por su cuenta y muestra
+# su menú de herramientas encima: no pasa por el launcher y el menú tapa la
+# pantalla. Se espera al menú y se cierra con Atrás.
 - extendedWaitUntil:
-    visible: "Development Build"
-    timeout: 60000
-- openLink: ${DEV_CLIENT_LINK}
+    visible: "Reload"
+    timeout: 120000
+- pressKey: back
 # Primera aserción tras el reinicio: un texto que solo tiene Home con sesión.
 - extendedWaitUntil:
     visible: "Fatigue"

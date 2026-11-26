@@ -29,16 +29,21 @@ appId: au.com.truckconnect.driver
 - tapOn: "Profile"
 - tapOn: "Log out"
 - assertVisible: "Log out?"
-- tapOn:
-    text: "Log out"
-    index: 1
+# El diálogo es un modal: con él abierto, solo su botón es accesible.
+- tapOn: "Log out"
 - extendedWaitUntil:
     visible: "Welcome back"
     timeout: 30000
 # Reabrir la app sigue en el login: no quedó sesión guardada.
 - stopApp
 - launchApp
-- openLink: "exp+truckconnect-driver://?__expo_url=http%3A%2F%2Flocalhost%3A8081&__expo_disable_fab=1&__expo_disable_auto_launch=1&__expo_disable_onboarding=1"
+# Sin clearState el dev client reabre el último bundle por su cuenta y muestra
+# su menú de herramientas encima: no pasa por el launcher y el menú tapa la
+# pantalla. Se espera al menú y se cierra con Atrás.
+- extendedWaitUntil:
+    visible: "Reload"
+    timeout: 120000
+- pressKey: back
 - extendedWaitUntil:
     visible: "Welcome back"
     timeout: 60000
