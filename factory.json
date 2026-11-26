@@ -1,47 +1,14 @@
 {
   "stack": "expo-rn",
   "commands": {
-    "install": [
-      "pnpm",
-      "install",
-      "--frozen-lockfile"
-    ],
-    "lint": [
-      "pnpm",
-      "lint"
-    ],
-    "typecheck": [
-      "pnpm",
-      "typecheck"
-    ],
-    "test": [
-      "pnpm",
-      "test"
-    ],
-    "build": [
-      "pnpm",
-      "build"
-    ],
-    "e2e": [
-      "pnpm",
-      "e2e"
-    ],
-    "dev": [
-      "pnpm",
-      "exec",
-      "expo",
-      "start",
-      "--web",
-      "--port",
-      "3741"
-    ],
-    "androidBuild": [
-      "pnpm",
-      "exec",
-      "expo",
-      "run:android",
-      "--no-bundler"
-    ],
+    "install": ["pnpm", "install", "--frozen-lockfile"],
+    "lint": ["pnpm", "lint"],
+    "typecheck": ["pnpm", "typecheck"],
+    "test": ["pnpm", "test"],
+    "build": ["pnpm", "build"],
+    "e2e": ["pnpm", "e2e"],
+    "dev": ["pnpm", "exec", "expo", "start", "--web", "--port", "3741"],
+    "androidBuild": ["pnpm", "exec", "expo", "run:android", "--no-bundler"],
     "androidServe": [
       "pnpm",
       "exec",
@@ -51,10 +18,7 @@
       "--port",
       "8081"
     ],
-    "androidE2e": [
-      "pnpm",
-      "e2e:android"
-    ]
+    "androidE2e": ["pnpm", "e2e:android"]
   },
   "appUrl": "http://localhost:3741",
   "factoryEpic": null,
@@ -62,34 +26,12 @@
   "commitFormat": "conventional",
   "format": [
     {
-      "extensions": [
-        "ts",
-        "tsx",
-        "js",
-        "jsx",
-        "json",
-        "md"
-      ],
-      "cmd": [
-        "pnpm",
-        "exec",
-        "prettier",
-        "--write"
-      ]
+      "extensions": ["ts", "tsx", "js", "jsx", "json", "md"],
+      "cmd": ["pnpm", "exec", "prettier", "--write"]
     },
     {
-      "extensions": [
-        "ts",
-        "tsx",
-        "js",
-        "jsx"
-      ],
-      "cmd": [
-        "pnpm",
-        "exec",
-        "eslint",
-        "--fix"
-      ]
+      "extensions": ["ts", "tsx", "js", "jsx"],
+      "cmd": ["pnpm", "exec", "eslint", "--fix"]
     }
   ],
   "models": {
@@ -106,9 +48,7 @@
       "id": "expo@claude-plugins-official",
       "marketplace": "https://github.com/anthropics/claude-plugins-official.git",
       "ref": "0fbfda5a91f4adc311daca25acc99132f40f0b6e",
-      "domains": [
-        "mcp.expo.dev"
-      ]
+      "domains": ["mcp.expo.dev"]
     }
   ]
 }
