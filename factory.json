@@ -1,0 +1,34 @@
+{
+  "stack": "node-ts",
+  "commands": {
+    "install": ["pnpm", "install", "--frozen-lockfile"],
+    "lint": ["pnpm", "lint"],
+    "typecheck": ["pnpm", "typecheck"],
+    "test": ["pnpm", "test"],
+    "build": ["pnpm", "build"],
+    "e2e": ["pnpm", "e2e"],
+    "dev": ["pnpm", "exec", "expo", "start", "--web", "--port", "3741"]
+  },
+  "appUrl": "http://localhost:3741",
+  "factoryEpic": null,
+  "docLang": "es",
+  "format": [
+    {
+      "extensions": ["ts", "tsx", "js", "jsx", "json", "md"],
+      "cmd": ["pnpm", "exec", "prettier", "--write"]
+    },
+    {
+      "extensions": ["ts", "tsx", "js", "jsx"],
+      "cmd": ["pnpm", "exec", "eslint", "--fix"]
+    }
+  ],
+  "models": {
+    "worker": "sonnet",
+    "codeReviewer": "sonnet",
+    "uiReviewer": "opus",
+    "planning": "opus"
+  },
+  "review": {
+    "uiReview": "label"
+  }
+}

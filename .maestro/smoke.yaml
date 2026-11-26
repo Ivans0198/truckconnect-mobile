@@ -1,0 +1,35 @@
+# Humo nativo: el development build arranca en Android, carga el JS desde
+# Metro y pinta la pantalla de salud. Corre con `pnpm e2e:android`, con el
+# emulador (o el teléfono por USB) conectado, el dev build instalado
+# (`pnpm android`) y Metro corriendo (`pnpm start`). Fuera del gate a
+# propósito: ver CLAUDE.md → Testing layers.
+#
+# Sin backend, el dispositivo no llega a ninguna API (su localhost es él
+# mismo), así que el estado esperado es el de error con Retry. Eso prueba lo
+# que este flow quiere probar: que la app nativa arranca, pide y no se cae.
+appId: au.com.truckconnect.driver
+---
+- launchApp:
+    clearState: true
+# launchApp vuelve antes de que el launcher del dev client esté listo, y un
+# link que llega mientras arranca se pierde. Se espera a verlo.
+- extendedWaitUntil:
+    visible: "Development Build"
+    timeout: 60000
+# El dev client (su scheme es exp+<slug>) abre el bundle de Metro. Es el
+# mismo formato de link que usa `expo run:android`; las banderas __expo_disable_*
+# apagan el menú de bienvenida y el botón flotante, que taparían la pantalla.
+# localhost:8081 llega al host por `adb reverse`, que pnpm e2e:android hace
+# antes de correr: sirve igual en el emulador y en un teléfono por USB.
+- openLink: "exp+truckconnect-driver://?__expo_url=http%3A%2F%2Flocalhost%3A8081&__expo_disable_fab=1&__expo_disable_auto_launch=1&__expo_disable_onboarding=1"
+# Primero un texto que SOLO tiene nuestra pantalla: "TruckConnect Driver"
+# también es el nombre de la app, y el launcher del dev client lo muestra.
+- extendedWaitUntil:
+    visible: "Can't reach TruckConnect"
+    timeout: 180000
+- assertVisible: "TruckConnect Driver"
+- assertVisible: "Retry"
+- tapOn: "Retry"
+- extendedWaitUntil:
+    visible: "Can't reach TruckConnect"
+    timeout: 30000

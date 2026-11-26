@@ -1,0 +1,31 @@
+# fabrica: de .factory/ se commitean las reglas, la versión y el manifiesto;
+# lo demás es estado de las corridas. Los .fabrica-new son para combinar.
+# .specify/ (Spec Kit) lo arma fabrica-setup speckit en cada máquina.
+# .claude/worktrees/ tiene una copia del repo por cada issue en curso.
+.factory/*
+!.factory/rules/
+!.factory/version
+!.factory/manifest.json
+*.fabrica-new
+.specify/
+.specify.tmp.*/
+.claude/worktrees/
+
+# Expo / React Native
+node_modules/
+.expo/
+dist/
+web-build/
+android/
+ios/
+expo-env.d.ts
+*.apk
+*.aab
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+tests/**/*-snapshots/*-win32.png
+tests/**/*-snapshots/*-darwin.png
+# env
+.env*.local

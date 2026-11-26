@@ -1,0 +1,24 @@
+{
+  "name": "fabrica",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "runArgs": [
+    "--cap-add=NET_ADMIN",
+    "--cap-add=NET_RAW"
+  ],
+  "features": {},
+  "remoteUser": "node",
+  "mounts": [
+    "source=fabrica-claude-${devcontainerId},target=/home/node/.claude,type=volume",
+    "source=fabrica-gh-${devcontainerId},target=/home/node/.config/gh,type=volume"
+  ],
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+    "DISABLE_AUTOUPDATER": "1",
+    "PERMISSION_MODE": "bypassPermissions"
+  },
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+  "waitFor": "postStartCommand"
+}

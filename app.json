@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "TruckConnect Driver",
+    "slug": "truckconnect-driver",
+    "scheme": "truckconnect",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "au.com.truckconnect.driver"
+    },
+    "ios": {
+      "bundleIdentifier": "au.com.truckconnect.driver"
+    },
+    "web": {
+      "output": "single"
+    },
+    "plugins": ["expo-router", "expo-font", "expo-status-bar"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

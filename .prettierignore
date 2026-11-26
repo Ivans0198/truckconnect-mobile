@@ -1,0 +1,11 @@
+node_modules/
+dist/
+android/
+ios/
+.expo/
+.claude/
+.factory/
+pnpm-lock.yaml
+src/api/schema.d.ts
+docs/openapi.json
+docs/mockups/

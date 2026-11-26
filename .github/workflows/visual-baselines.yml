@@ -1,0 +1,35 @@
+# Llama al workflow de líneas base visuales del plugin fabrica, en la versión
+# de este proyecto. Lo escribe fabrica-setup cuando el proyecto tiene módulo
+# visual (tests/ui.spec.ts): se actualiza con `fabrica-setup refresh`.
+#
+# Para aceptar una línea base nueva, después de mirar el artefacto visual-diff:
+#   gh workflow run visual-baselines.yml --ref <rama-de-PR> \
+#     -f reviewed_run_url=<url de la corrida fallida>
+name: Visual baselines (Linux)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      reviewed_run_url:
+        description: "URL de la corrida cuyo artefacto visual-diff ya miraste"
+        required: true
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  visual:
+    uses: Ivans0198/fabrica-plugin/.github/workflows/visual-baselines.yml@v0.5.21
+    with:
+      fabrica_repo: Ivans0198/fabrica-plugin
+      fabrica_ref: v0.5.21
+      reviewed_run_url: ${{ inputs.reviewed_run_url }}
+    secrets:
+      FABRICA_PLUGIN_TOKEN: ${{ secrets.FABRICA_PLUGIN_TOKEN }}
+      FABRICA_PUSH_TOKEN: ${{ secrets.FABRICA_PUSH_TOKEN }}

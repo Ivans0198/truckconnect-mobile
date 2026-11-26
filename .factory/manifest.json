@@ -1,0 +1,13 @@
+{
+  "version": "0.5.21",
+  "files": {
+    ".factory/rules/fabrica.md": "1c8cbd3c1d30ddb0f5aa8d726a61c1261399c4b5",
+    ".factory/rules/stacks/node-ts.md": "bf548c5bd5ab15aa8b9d57f04971d638547f0589",
+    ".github/workflows/checks.yml": "4d1b427c315aa185a2a97c9ffc2591ad53419cdb",
+    ".github/workflows/claude-backlog.yml": "bcfffe5095babc4ca06e95fba9e995261c72b074",
+    ".github/workflows/claude-mentions.yml": "75a329fa34870a35216baccbfa5cafd4045a2081",
+    ".github/workflows/labels-cleanup.yml": "025e4d9a4ff3a001b7de1d47172dc23b2766cd98",
+    ".github/workflows/pr-conflicts.yml": "639d4cad6b1dcf57ac4d274ef5b1a2fc1a4d5816",
+    ".github/workflows/visual-baselines.yml": "568be5e7b71076573c0e93522a8e4f35cffdbf9d"
+  }
+}

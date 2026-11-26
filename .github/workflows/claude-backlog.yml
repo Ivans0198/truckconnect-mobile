@@ -1,0 +1,29 @@
+# Llama al workflow de la fábrica en la nube del plugin fabrica, en la versión
+# de este proyecto. Lo escribe fabrica-setup: se actualiza con
+# `fabrica-setup refresh`.
+#
+# Disparo: la etiqueta `ready-for-dev` en un issue. Trabaja esa issue sola.
+# Credenciales, como secretos del repo:
+#   CLAUDE_TOKEN_<SU_USUARIO>    el token de cada persona (claude setup-token)
+#   ANTHROPIC_API_KEY            opcional, API key de equipo
+name: claude-backlog
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+  checks: read
+  statuses: read
+
+jobs:
+  backlog:
+    uses: Ivans0198/fabrica-plugin/.github/workflows/claude-backlog.yml@v0.5.21
+    with:
+      fabrica_repo: Ivans0198/fabrica-plugin
+      fabrica_ref: v0.5.21
+    secrets: inherit
