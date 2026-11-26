@@ -1,3 +1,5 @@
+import "./message-event-polyfill";
+
 import { DEFAULT_API_URL } from "@/api/config";
 
 import { createDevAuthHandlers } from "./dev-auth-handlers";
