@@ -25,6 +25,11 @@ describe("formatHoursMinutes", () => {
     expect(formatHoursMinutes(5.5)).toBe("5h 30m");
   });
 
+  it("pads the minutes to two digits", () => {
+    expect(formatHoursMinutes(13)).toBe("13h 00m");
+    expect(formatHoursMinutes(2.1)).toBe("2h 06m");
+  });
+
   it("formats 0.75 hours as 0h 45m", () => {
     expect(formatHoursMinutes(0.75)).toBe("0h 45m");
   });

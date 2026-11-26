@@ -360,6 +360,136 @@ for (const vp of viewports) {
   });
 }
 
+// Las formas de contracts/api-usage.md; 5h 30m trabajadas, break en 2h 12m.
+async function mockFatigue(
+  page: Page,
+  status: Record<string, unknown> = {},
+): Promise<void> {
+  const now = Date.now();
+  const fulfill = (body: unknown, code = 200) => ({
+    status: code,
+    contentType: "application/json",
+    body: JSON.stringify(body),
+  });
+  await page.route("**/fatigue/**", (route) => {
+    const url = route.request().url();
+    if (url.includes("/fatigue/status")) {
+      return route.fulfill(
+        fulfill({
+          state: "working",
+          driverId: driverAccount.id,
+          hoursWorked: 5.5,
+          breakMinutes: 45,
+          dayStartedAt: new Date(now - 5.5 * 3_600_000).toISOString(),
+          lastBreakEndAt: null,
+          nextBreakDueAt: new Date(now + 132 * 60_000).toISOString(),
+          hoursRemaining: 6.5,
+          ...status,
+        }),
+      );
+    }
+    if (url.includes("/fatigue/week-summary")) {
+      return route.fulfill(
+        fulfill({ totalHoursWorked: 28, remainingHours: 44, byDay: [] }),
+      );
+    }
+    return route.fulfill(fulfill([]));
+  });
+}
+
+// La app reintenta una lectura fallida 3 veces (1 s, 2 s, 4 s) antes del error.
+const QUERY_RETRY_TIMEOUT_MS = 15_000;
+
+async function openFatigue(page: Page): Promise<void> {
+  await mockDriverLogin(page);
+  await signInAsDriver(page);
+  await page.getByRole("tab", { name: /Fatigue/ }).click();
+  await page.getByRole("heading", { name: "Fatigue" }).waitFor();
+}
+
+for (const vp of viewports) {
+  test.describe(`fatigue @ ${vp.name}`, () => {
+    test.use({ viewport: { width: vp.width, height: vp.height } });
+
+    test("shows the hours ring and the three stats", async ({ page }) => {
+      await mockFatigue(page);
+      await openFatigue(page);
+
+      await expect(page.getByText("5h 30m", { exact: true })).toBeVisible();
+      await expect(page.getByText("2h 12m")).toBeVisible();
+      await expect(page.getByText("28h / 72h")).toBeVisible();
+      await expectFullPageScreenshot(page, `fatigue-${vp.name}.png`);
+    });
+
+    test("shows the amber and red tones", async ({ page }) => {
+      await mockFatigue(page, { hoursWorked: 10, hoursRemaining: 2 });
+      await openFatigue(page);
+      await expect(page.getByText("10h 00m")).toBeVisible();
+      await expectFullPageScreenshot(page, `fatigue-amber-${vp.name}.png`);
+
+      await page.unrouteAll({ behavior: "ignoreErrors" });
+      await mockDriverLogin(page);
+      await mockFatigue(page, { hoursWorked: 11.5, hoursRemaining: 0.5 });
+      await page.reload();
+      await signInAsDriver(page);
+      await page.getByRole("tab", { name: /Fatigue/ }).click();
+      await expect(page.getByText("11h 30m")).toBeVisible();
+      await expectFullPageScreenshot(page, `fatigue-red-${vp.name}.png`);
+    });
+
+    test("shows the error with Try again when the server fails", async ({
+      page,
+    }) => {
+      await page.route("**/fatigue/**", (route) =>
+        route.fulfill({ status: 500 }),
+      );
+      await openFatigue(page);
+
+      await expect(page.getByRole("button", { name: "Try again" })).toBeVisible(
+        { timeout: QUERY_RETRY_TIMEOUT_MS },
+      );
+      await expectFullPageScreenshot(page, `fatigue-error-${vp.name}.png`);
+    });
+
+    test("shows the loading skeleton before the data arrives", async ({
+      page,
+    }) => {
+      await page.route("**/fatigue/**", () => new Promise(() => undefined));
+      await openFatigue(page);
+
+      await expect(page.getByLabel("Loading your hours")).toBeVisible();
+      await expectFullPageScreenshot(page, `fatigue-loading-${vp.name}.png`);
+    });
+
+    test("has no horizontal scroll", async ({ page }) => {
+      await mockFatigue(page);
+      await openFatigue(page);
+      await page.getByText("5h 30m", { exact: true }).waitFor();
+
+      const overflow = await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth >
+          document.documentElement.clientWidth,
+      );
+      expect(overflow, `horizontal overflow at ${vp.width}px`).toBe(false);
+    });
+
+    test("has no accessibility violations (axe-core)", async ({ page }) => {
+      await mockFatigue(page);
+      await openFatigue(page);
+      await page.getByText("5h 30m", { exact: true }).waitFor();
+
+      const results = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa"])
+        .analyze();
+      expect(
+        results.violations,
+        JSON.stringify(results.violations, null, 2),
+      ).toEqual([]);
+    });
+  });
+}
+
 test("keeps Sign in visible at 360x800 with the password field focused", async ({
   page,
 }) => {
