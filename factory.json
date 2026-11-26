@@ -18,7 +18,15 @@
       "--port",
       "8081"
     ],
-    "androidE2e": ["pnpm", "e2e:android"]
+    "androidE2e": ["pnpm", "e2e:android"],
+    "androidFingerprint": [
+      "pnpm",
+      "exec",
+      "fingerprint",
+      "fingerprint:generate",
+      "--platform",
+      "android"
+    ]
   },
   "appUrl": "http://localhost:3741",
   "factoryEpic": null,

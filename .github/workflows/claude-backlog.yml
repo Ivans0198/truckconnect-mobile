@@ -22,8 +22,8 @@ permissions:
 
 jobs:
   backlog:
-    uses: Ivans0198/fabrica-plugin/.github/workflows/claude-backlog.yml@v0.5.28
+    uses: Ivans0198/fabrica-plugin/.github/workflows/claude-backlog.yml@v0.5.29
     with:
       fabrica_repo: Ivans0198/fabrica-plugin
-      fabrica_ref: v0.5.28
+      fabrica_ref: v0.5.29
     secrets: inherit
