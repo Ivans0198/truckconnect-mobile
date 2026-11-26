@@ -23,7 +23,9 @@ export const palette = {
   amber500: "#F59E0B",
   amber700: "#B45309",
   red50: "#FEF2F2",
+  red200: "#FECACA",
   red500: "#EF4444",
+  red600: "#DC2626",
   red700: "#B91C1C",
   sky900: "#0C4A6E",
   sky800: "#075985",
@@ -85,6 +87,9 @@ export const loginOverlay = {
   border: "rgba(255, 255, 255, 0.20)",
   borderFocused: "rgba(255, 255, 255, 0.40)",
 } as const;
+
+// Fondo que atenúa la pantalla detrás de un diálogo (slate-900 al 50%).
+export const scrim = "rgba(15, 23, 42, 0.50)";
 
 export const radius = { md: 8, lg: 12, xl: 16, full: 9999 } as const;
 
