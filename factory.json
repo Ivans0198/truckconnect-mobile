@@ -31,5 +31,12 @@
   },
   "review": {
     "uiReview": "label"
-  }
+  },
+  "extraPlugins": [
+    {
+      "id": "expo@claude-plugins-official",
+      "marketplace": "https://github.com/anthropics/claude-plugins-official.git",
+      "domains": ["mcp.expo.dev"]
+    }
+  ]
 }
