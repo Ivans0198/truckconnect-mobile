@@ -19,7 +19,7 @@ const MINUTES_PER_HOUR = 60;
 type FatigueStatsProps = {
   hoursRemaining: number;
   nextBreak: NextBreak;
-  weekHours: number;
+  weekHours: number | undefined;
 };
 
 function nextBreakText(nextBreak: NextBreak): string {
@@ -55,7 +55,11 @@ export function FatigueStats({
       />
       <Stat
         label="This week"
-        value={`${Math.round(weekHours)}h / ${WEEKLY_LIMIT_HOURS}h`}
+        value={
+          weekHours === undefined
+            ? "--"
+            : `${Math.round(weekHours)}h / ${WEEKLY_LIMIT_HOURS}h`
+        }
       />
     </View>
   );

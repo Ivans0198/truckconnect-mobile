@@ -83,7 +83,7 @@ export function FatigueScreen(): React.JSX.Element {
         }
       >
         <View style={styles.card}>
-          {status.data && week.data ? (
+          {status.data ? (
             <>
               <HoursRing
                 state={status.data.state}
@@ -92,13 +92,13 @@ export function FatigueScreen(): React.JSX.Element {
               <FatigueStats
                 hoursRemaining={status.data.hoursRemaining}
                 nextBreak={nextBreakFor(status.data, now)}
-                weekHours={week.data.totalHoursWorked}
+                weekHours={week.data?.totalHoursWorked}
               />
             </>
-          ) : status.isError || week.isError ? (
+          ) : status.isError ? (
             <SectionError
               message={ERROR_MESSAGE}
-              onRetry={() => void refetchAll()}
+              onRetry={() => void refetchStatus()}
             />
           ) : (
             <Skeleton />
