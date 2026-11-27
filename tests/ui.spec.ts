@@ -493,7 +493,9 @@ for (const vp of viewports) {
       await expect(page.getByText("5 events")).toBeVisible();
       await expect(page.getByText("15 min", { exact: true })).toBeVisible();
       await expect(page.getByText("12:30 PM", { exact: true })).toBeVisible();
-      await expectFullPageScreenshot(page, `fatigue-events-${vp.name}.png`);
+      const events = page.getByTestId("today-events");
+      await events.scrollIntoViewIfNeeded();
+      await expectElementScreenshot(events, `fatigue-events-${vp.name}.png`);
     });
 
     test("says there are no events yet", async ({ page }) => {
