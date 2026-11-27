@@ -16,7 +16,10 @@ const freshAccount = { ...driverAccountFixture, fullName: "Fresh Name" };
 // el test hace lo mismo con su propio cliente.
 function setup(seed: boolean) {
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+    defaultOptions: {
+      queries: { retry: false, gcTime: Infinity },
+      mutations: { gcTime: Infinity },
+    },
   });
   if (seed) client.setQueryData(CURRENT_ACCOUNT_KEY, storedAccount);
   const wrapper = ({ children }: { children: ReactNode }) => (
