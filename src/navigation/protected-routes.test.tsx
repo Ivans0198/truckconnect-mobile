@@ -7,6 +7,8 @@ import RootLayout from "../../app/_layout";
 import AuthLayout from "../../app/(auth)/_layout";
 import NotFound from "../../app/+not-found";
 import SignIn from "../../app/(auth)/sign-in";
+import NewDocument from "../../app/documents/new";
+import Notifications from "../../app/notifications";
 import TabsLayout from "../../app/(tabs)/_layout";
 
 jest.mock("@expo-google-fonts/inter", () => ({
@@ -33,6 +35,8 @@ const routes = {
   "(tabs)/fatigue": title("Fatigue"),
   "(tabs)/docs": title("Docs"),
   "(tabs)/profile": title("Profile"),
+  "documents/new": NewDocument,
+  notifications: Notifications,
 };
 
 const signedOut = () =>
@@ -75,4 +79,32 @@ describe("protected routes", () => {
     expect(await screen.findByText("Home screen")).toBeOnTheScreen();
     expect(screen.queryByText("Welcome back")).toBeNull();
   });
+
+  it.each([
+    ["/documents/new", "New document"],
+    ["/notifications", "Notifications"],
+  ])("shows the placeholder at %s with a session", async (url, heading) => {
+    signedIn();
+
+    await renderRouter(routes, { initialUrl: url });
+
+    expect(
+      await screen.findByRole("header", { name: heading }),
+    ).toBeOnTheScreen();
+  });
+
+  it.each(["/documents/new", "/notifications"])(
+    "shows the login and not the screen at %s without a session",
+    async (url) => {
+      signedOut();
+
+      await renderRouter(routes, { initialUrl: url });
+
+      expect(await screen.findByText("Welcome back")).toBeOnTheScreen();
+      expect(screen.queryByRole("header", { name: "New document" })).toBeNull();
+      expect(
+        screen.queryByRole("header", { name: "Notifications" }),
+      ).toBeNull();
+    },
+  );
 });

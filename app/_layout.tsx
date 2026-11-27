@@ -56,6 +56,11 @@ export default function RootLayout(): React.JSX.Element | null {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Protected guard={isSignedIn}>
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen
+            name="documents/new"
+            options={{ presentation: "modal" }}
+          />
+          <Stack.Screen name="notifications" />
         </Stack.Protected>
         <Stack.Protected guard={!isSignedIn}>
           <Stack.Screen name="(auth)" />
