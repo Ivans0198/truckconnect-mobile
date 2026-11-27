@@ -160,7 +160,7 @@ describe("This week", () => {
     expect(
       await week.findByText("Could not load this week."),
     ).toBeOnTheScreen();
-    expect(screen.getByText("Working")).toBeOnTheScreen();
+    expect(await screen.findByText("Working")).toBeOnTheScreen();
     expect(screen.getByText("Remaining")).toBeOnTheScreen();
     expect(screen.getByText("Next break in")).toBeOnTheScreen();
     expect(screen.getByText("--")).toBeOnTheScreen();
