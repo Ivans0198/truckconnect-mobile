@@ -511,6 +511,30 @@ for (const vp of viewports) {
       await expectFullPageScreenshot(page, `fatigue-red-${vp.name}.png`);
     });
 
+    test("warns that new orders cannot be accepted", async ({ page }) => {
+      await mockFatigue(page, {
+        hoursWorked: 12,
+        hoursRemaining: 0,
+        nextBreakDueAt: new Date(Date.now() - 30 * 60_000).toISOString(),
+      });
+      await openFatigue(page);
+
+      await expect(page.getByText("You can't accept new orders")).toBeVisible();
+      await expect(page.getByText("Daily limit reached")).toBeVisible();
+      await expect(page.getByText("Break overdue")).toBeVisible();
+      await expectFullPageScreenshot(page, `fatigue-blocked-${vp.name}.png`);
+    });
+
+    test("shows no warning inside the hours", async ({ page }) => {
+      await mockFatigue(page);
+      await openFatigue(page);
+
+      await expect(page.getByText("5h 30m").first()).toBeVisible();
+      await expect(page.getByText("You can't accept new orders")).toHaveCount(
+        0,
+      );
+    });
+
     test("shows the error with Try again when the server fails", async ({
       page,
     }) => {
