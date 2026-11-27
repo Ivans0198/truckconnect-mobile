@@ -364,6 +364,7 @@ for (const vp of viewports) {
 async function mockFatigue(
   page: Page,
   status: Record<string, unknown> = {},
+  events: unknown[] | "error" = [],
 ): Promise<void> {
   const now = Date.now();
   const fulfill = (body: unknown, code = 200) => ({
@@ -396,9 +397,28 @@ async function mockFatigue(
     if (url.includes("/fatigue/end-day")) {
       return route.fulfill(fulfill({ ...endedDay }));
     }
+    if (url.includes("/fatigue/events")) {
+      return events === "error"
+        ? route.fulfill(fulfill({ message: "boom" }, 500))
+        : route.fulfill(fulfill(events));
+    }
     return route.fulfill(fulfill([]));
   });
 }
+
+// Cinco eventos de hoy, a hora fija de Melbourne para que la captura no varíe.
+const todayEvents = [
+  ["DAY_START", "2026-11-26T19:35:00.000Z"],
+  ["BREAK_START", "2026-11-26T22:48:00.000Z"],
+  ["BREAK_END", "2026-11-26T23:03:00.000Z"],
+  ["BREAK_START", "2026-11-27T01:00:00.000Z"],
+  ["BREAK_END", "2026-11-27T01:30:00.000Z"],
+].map(([eventType, timestamp], index) => ({
+  id: `e${index + 1}`,
+  eventType,
+  driverId: driverAccount.id,
+  timestamp,
+}));
 
 const endedDay = { state: "off_duty", hoursWorked: 5.5, hoursRemaining: 6.5 };
 
@@ -424,6 +444,38 @@ for (const vp of viewports) {
       await expect(page.getByText("2h 12m")).toBeVisible();
       await expect(page.getByText("28h / 72h")).toBeVisible();
       await expectFullPageScreenshot(page, `fatigue-${vp.name}.png`);
+    });
+
+    test("lists today's events", async ({ page }) => {
+      await mockFatigue(page, {}, todayEvents);
+      await openFatigue(page);
+
+      await expect(page.getByText("5 events")).toBeVisible();
+      await expect(page.getByText("9:48 AM · 15 min")).toBeVisible();
+      await expect(page.getByText("12:30 PM · current")).toBeVisible();
+      await expectFullPageScreenshot(page, `fatigue-events-${vp.name}.png`);
+    });
+
+    test("says there are no events yet", async ({ page }) => {
+      await mockFatigue(page);
+      await openFatigue(page);
+
+      await expect(page.getByText("No events yet today.")).toBeVisible();
+      await expectFullPageScreenshot(page, `fatigue-no-events-${vp.name}.png`);
+    });
+
+    test("shows the events error and keeps the ring", async ({ page }) => {
+      await mockFatigue(page, {}, "error");
+      await openFatigue(page);
+
+      await expect(
+        page.getByText("Could not load today's events."),
+      ).toBeVisible({ timeout: QUERY_RETRY_TIMEOUT_MS });
+      await expect(page.getByText("5h 30m", { exact: true })).toBeVisible();
+      await expectFullPageScreenshot(
+        page,
+        `fatigue-events-error-${vp.name}.png`,
+      );
     });
 
     test("shows the amber and red tones", async ({ page }) => {
@@ -509,9 +561,10 @@ for (const vp of viewports) {
     });
 
     test("has no accessibility violations (axe-core)", async ({ page }) => {
-      await mockFatigue(page);
+      await mockFatigue(page, {}, todayEvents);
       await openFatigue(page);
       await page.getByText("5h 30m", { exact: true }).waitFor();
+      await page.getByText("5 events").waitFor();
 
       const results = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa"])

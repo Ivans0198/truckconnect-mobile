@@ -13,9 +13,14 @@ import { colors, fontFamily, fontSize, radius, spacing } from "@/theme/tokens";
 import { FatigueActionBar } from "./fatigue-action-bar";
 import { FatigueStats } from "./fatigue-stats";
 import { HoursRing } from "./hours-ring";
-import { useFatigueStatus, useWeekSummary } from "./queries";
+import {
+  useFatigueStatus,
+  useTodayFatigueEvents,
+  useWeekSummary,
+} from "./queries";
 import { nextBreakFor } from "./next-break";
 import { SectionError } from "./section-error";
+import { TodayEvents } from "./today-events";
 import { useNow } from "./use-now";
 
 const ERROR_MESSAGE = "Could not load your hours. Check your connection.";
@@ -24,14 +29,16 @@ const SKELETON_BLOCKS = 3;
 export function FatigueScreen(): React.JSX.Element {
   const status = useFatigueStatus();
   const week = useWeekSummary();
+  const events = useTodayFatigueEvents();
   const now = useNow();
   const [isPulling, setIsPulling] = useState(false);
 
   const { refetch: refetchStatus } = status;
   const { refetch: refetchWeek } = week;
+  const { refetch: refetchEvents } = events;
   const refetchAll = useCallback(
-    () => Promise.all([refetchStatus(), refetchWeek()]),
-    [refetchStatus, refetchWeek],
+    () => Promise.all([refetchStatus(), refetchWeek(), refetchEvents()]),
+    [refetchStatus, refetchWeek, refetchEvents],
   );
 
   // La primera carga ya la hace la query al montar: solo se vuelve a pedir
@@ -94,6 +101,14 @@ export function FatigueScreen(): React.JSX.Element {
           )}
         </View>
         {status.data ? <FatigueActionBar state={status.data.state} /> : null}
+        {status.data ? (
+          <TodayEvents
+            events={events.data}
+            status={status.data}
+            isError={events.isError}
+            onRetry={() => void refetchEvents()}
+          />
+        ) : null}
       </ScrollView>
     </View>
   );
