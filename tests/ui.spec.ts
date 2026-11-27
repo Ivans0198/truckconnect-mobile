@@ -438,6 +438,15 @@ const endedDay = { state: "off_duty", hoursWorked: 5.5, hoursRemaining: 6.5 };
 // La app reintenta una lectura fallida 3 veces (1 s, 2 s, 4 s) antes del error.
 const QUERY_RETRY_TIMEOUT_MS = 15_000;
 
+// El Modal de react-native-web aparece con un fade. axe lee los atributos
+// aria-* en el instante en que corre, así que hay que esperar a que el
+// diálogo termine de montarse y animar para que mida el estado estable.
+async function waitForAnimationsToFinish(page: Page): Promise<void> {
+  await page.waitForFunction(() =>
+    document.getAnimations().every(({ playState }) => playState !== "running"),
+  );
+}
+
 async function openFatigue(page: Page): Promise<void> {
   await mockDriverLogin(page);
   await signInAsDriver(page);
@@ -579,6 +588,7 @@ for (const vp of viewports) {
 
       await expect(page.getByRole("dialog")).toBeVisible();
       await expect(page.getByText("End your day?")).toBeVisible();
+      await waitForAnimationsToFinish(page);
       await expectFullPageScreenshot(page, `fatigue-end-day-${vp.name}.png`);
       const results = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa"])
