@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import Svg, { Path } from "react-native-svg";
 
 import { ConfirmDialog } from "@/ui/confirm-dialog";
 import {
@@ -40,6 +41,17 @@ const UNRECORDED: Record<FatigueAction, string> = {
   "start-break": "break",
   "end-break": "break end",
   "end-day": "day end",
+};
+
+// Paths del mockup 12_driver_fatigue.html (Heroicons, viewBox 20). Start Day
+// y End Break no llevan ícono en el mockup.
+const ICON_VIEWBOX = "0 0 20 20";
+const ICON_SIZE = 20;
+const ICON_PATHS: Partial<Record<FatigueAction, string>> = {
+  "start-break":
+    "M5 4a1 1 0 011 1v4a1 1 0 11-2 0V5a1 1 0 011-1zm10 0a1 1 0 011 1v4a1 1 0 11-2 0V5a1 1 0 011-1zM9 4a1 1 0 011 1v10a1 1 0 11-2 0V5a1 1 0 011-1zm6 6a1 1 0 011 1v4a1 1 0 11-2 0v-4a1 1 0 011-1zM5 14a1 1 0 011 1v.01a1 1 0 11-2 0V15a1 1 0 011-1z",
+  "end-day":
+    "M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z",
 };
 
 const PENDING_LABEL = "Saving...";
@@ -93,6 +105,7 @@ export function FatigueActionBar({
             isPending={mutations[action].isPending}
             isDisabled={isBusy}
             label={LABELS[action]}
+            iconPath={ICON_PATHS[action]}
             onPress={() => onPress(action)}
           />
         ))}
@@ -125,6 +138,7 @@ type ActionButtonProps = {
   isPending: boolean;
   isDisabled: boolean;
   label: string;
+  iconPath: string | undefined;
   onPress: () => void;
 };
 
@@ -134,6 +148,7 @@ function ActionButton({
   isPending,
   isDisabled,
   label,
+  iconPath,
   onPress,
 }: ActionButtonProps): React.JSX.Element {
   const text = isPending ? PENDING_LABEL : label;
@@ -152,6 +167,20 @@ function ActionButton({
         isDisabled && styles.disabled,
       ]}
     >
+      {iconPath ? (
+        <View
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        >
+          <Svg width={ICON_SIZE} height={ICON_SIZE} viewBox={ICON_VIEWBOX}>
+            <Path
+              d={iconPath}
+              fill={BUTTON_STYLES[tone].text.color}
+              fillRule="evenodd"
+            />
+          </Svg>
+        </View>
+      ) : null}
       <Text style={[styles.buttonText, BUTTON_STYLES[tone].text]}>{text}</Text>
     </Pressable>
   );
@@ -230,8 +259,10 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: TOUCH_TARGET_MIN,
     minWidth: TOUCH_TARGET_MIN,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.xl,
   },

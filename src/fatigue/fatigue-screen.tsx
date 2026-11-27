@@ -83,7 +83,6 @@ export function FatigueScreen(): React.JSX.Element {
                 nextBreak={nextBreakFor(status.data, now)}
                 weekHours={week.data.totalHoursWorked}
               />
-              <FatigueActionBar state={status.data.state} />
             </>
           ) : status.isError || week.isError ? (
             <SectionError
@@ -94,6 +93,7 @@ export function FatigueScreen(): React.JSX.Element {
             <Skeleton />
           )}
         </View>
+        {status.data ? <FatigueActionBar state={status.data.state} /> : null}
       </ScrollView>
     </View>
   );
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.body,
     color: colors.textMuted,
   },
-  content: { padding: spacing.lg },
+  content: { gap: spacing.lg, padding: spacing.lg },
   card: {
     gap: spacing.xl,
     padding: spacing.lg,
