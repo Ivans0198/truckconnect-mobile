@@ -169,11 +169,24 @@ export function formatTimeLeft(days: number): string {
   return months === 0 ? `in ${years}y` : `in ${years}y ${months}m`;
 }
 
+function parseCalendarDate(calendarDate: string): {
+  year: number;
+  month: number;
+  day: number;
+} {
+  const [year, month, day] = calendarDate.split("-").map(Number);
+  if (year === undefined || month === undefined || day === undefined) {
+    throw new Error(`Not a calendar date: ${calendarDate}`);
+  }
+  return { year, month, day };
+}
+
 function wholeMonthsBetween(from: string, to: string): number {
-  const [fromYear, fromMonth, fromDay] = from.split("-").map(Number);
-  const [toYear, toMonth, toDay] = to.split("-").map(Number);
-  const months = (toYear - fromYear) * MONTHS_PER_YEAR + (toMonth - fromMonth);
-  return toDay < fromDay ? months - 1 : months;
+  const start = parseCalendarDate(from);
+  const end = parseCalendarDate(to);
+  const months =
+    (end.year - start.year) * MONTHS_PER_YEAR + (end.month - start.month);
+  return end.day < start.day ? months - 1 : months;
 }
 
 // Antigüedad del conductor: "New", "8mo", "1y 2mo".
