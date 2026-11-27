@@ -20,6 +20,13 @@ const partsFormat = new Intl.DateTimeFormat("en-US", {
   second: "numeric",
 });
 
+const calendarDateFormat = new Intl.DateTimeFormat("en-CA", {
+  timeZone: MELBOURNE_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
 const weekdayFormat = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
   weekday: "short",
@@ -82,4 +89,10 @@ export function startOfMelbourneDay(now: Date): Date {
 // el huso del teléfono no la corra de día.
 export function formatWeekday(calendarDate: string): string {
   return weekdayFormat.format(new Date(`${calendarDate}T00:00:00.000Z`));
+}
+
+// "YYYY-MM-DD" del día de Melbourne en `now`, el mismo formato que trae
+// `byDay[].date` del back.
+export function melbourneCalendarDate(now: Date): string {
+  return calendarDateFormat.format(now);
 }

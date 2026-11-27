@@ -30,16 +30,20 @@ const ICON_VIEWBOX = "0 0 20 20";
 const ICON_SIZE = 20;
 const BADGE_SIZE = 40;
 
-type EventLook = { path: string; background: string; foreground: string };
+export type EventLook = {
+  path: string;
+  background: string;
+  foreground: string;
+};
 
-const EVENT_LOOKS: Record<FatigueEventType, EventLook> = {
+export const EVENT_LOOKS: Record<FatigueEventType, EventLook> = {
   DAY_START: {
-    path: "M10 12a2 2 0 100-4 2 2 0 000 4zM.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z",
+    path: "M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z",
     background: palette.emerald100,
     foreground: palette.emerald700,
   },
   BREAK_START: {
-    path: "M5 4a1 1 0 011 1v4a1 1 0 11-2 0V5a1 1 0 011-1zm10 0a1 1 0 011 1v4a1 1 0 11-2 0V5a1 1 0 011-1z",
+    path: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z",
     background: palette.amber100,
     foreground: palette.amber700,
   },
@@ -124,9 +128,9 @@ function countLabel(count: number): string {
 
 function EventRow({ entry }: { entry: TimelineEntry }): React.JSX.Element {
   const look = EVENT_LOOKS[entry.type];
-  const time = formatMelbourneTime(entry.at);
+  // La hora va solo a la derecha; debajo del título queda lo que no se ve
+  // en otro lado (cuánto duró el break, cuál es el evento actual).
   const details = [
-    time,
     entry.durationMs === undefined ? null : formatBreakLength(entry.durationMs),
     entry.isCurrent ? CURRENT_LABEL : null,
   ]
@@ -142,18 +146,13 @@ function EventRow({ entry }: { entry: TimelineEntry }): React.JSX.Element {
       </View>
       <View style={styles.text}>
         <Text style={styles.label}>{entry.label}</Text>
-        <Text style={styles.details}>{details}</Text>
+        {details ? <Text style={styles.details}>{details}</Text> : null}
       </View>
       <Text style={[styles.clock, entry.isCurrent && styles.clockCurrent]}>
-        {shortClock(time)}
+        {formatMelbourneTime(entry.at)}
       </Text>
     </View>
   );
-}
-
-// "12:30 PM" se muestra como "12:30" al borde, como en el mockup.
-function shortClock(time: string): string {
-  return time.replace(/\s?[AP]M$/, "");
 }
 
 const styles = StyleSheet.create({

@@ -14,7 +14,7 @@ import {
 } from "@/test/fatigue-fixtures";
 import { renderWithQuery } from "@/test/render";
 import { apiUrl, server } from "@/test/server";
-import { fontSize, semantic } from "@/theme/tokens";
+import { colors, fontSize, semantic } from "@/theme/tokens";
 
 import { FatigueScreen } from "./fatigue-screen";
 import { DAILY_LIMIT_HOURS, WEEKLY_LIMIT_HOURS } from "./types";
@@ -74,6 +74,22 @@ describe("This week", () => {
     expect(week.getByText("7h 48m")).toBeOnTheScreen();
     expect(week.getByText("Fri")).toBeOnTheScreen();
     expect(week.getByText("5h 30m")).toBeOnTheScreen();
+  });
+
+  it("marks only today's row, by Melbourne date, in blue", async () => {
+    await renderWeek();
+
+    const names = screen
+      .getAllByTestId("week-day")
+      .map((row) =>
+        StyleSheet.flatten(
+          within(row).getByText(/^(Mon|Tue|Wed|Thu|Fri)$/).props.style,
+        ),
+      );
+    expect(names[4]?.color).toBe(colors.primary);
+    for (const name of names.slice(0, 4)) {
+      expect(name?.color).not.toBe(colors.primary);
+    }
   });
 
   it("names the range of the week in the header", async () => {

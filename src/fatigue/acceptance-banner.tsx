@@ -48,11 +48,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: fontFamily.bold,
-    fontSize: fontSize.body,
+    fontSize: fontSize.lead,
     color: semantic.danger.text,
   },
   reason: {
-    fontFamily: fontFamily.semibold,
+    fontFamily: fontFamily.regular,
     fontSize: fontSize.body,
     color: semantic.danger.text,
   },

@@ -3,6 +3,7 @@ import {
   formatHoursMinutes,
   formatMelbourneTime,
   formatWeekday,
+  melbourneCalendarDate,
   startOfMelbourneDay,
 } from "./time";
 
@@ -106,5 +107,14 @@ describe("formatWeekday", () => {
 
   it("does not shift with the device time zone", () => {
     expect(formatWeekday("2026-11-27")).toBe("Fri");
+  });
+});
+
+describe("melbourneCalendarDate", () => {
+  it("gives the Melbourne day, not the UTC one", () => {
+    // 2026-11-26T19:35Z ya es el 27 en Melbourne (UTC+11).
+    expect(melbourneCalendarDate(new Date("2026-11-26T19:35:00.000Z"))).toBe(
+      "2026-11-27",
+    );
   });
 });
