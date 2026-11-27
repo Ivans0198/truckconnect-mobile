@@ -108,7 +108,10 @@ describe("ACCEPTANCE_BLOCK_MESSAGES", () => {
 
 function wrapper(): ({ children }: { children: ReactNode }) => ReactNode {
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+    defaultOptions: {
+      queries: { retry: false, gcTime: Infinity },
+      mutations: { gcTime: Infinity },
+    },
   });
   return function Wrapper({ children }) {
     return (
