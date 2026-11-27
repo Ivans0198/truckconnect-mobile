@@ -10,6 +10,7 @@ import {
 
 import { colors, fontFamily, fontSize, radius, spacing } from "@/theme/tokens";
 
+import { FatigueActionBar } from "./fatigue-action-bar";
 import { FatigueStats } from "./fatigue-stats";
 import { HoursRing } from "./hours-ring";
 import { useFatigueStatus, useWeekSummary } from "./queries";
@@ -82,6 +83,7 @@ export function FatigueScreen(): React.JSX.Element {
                 nextBreak={nextBreakFor(status.data, now)}
                 weekHours={week.data.totalHoursWorked}
               />
+              <FatigueActionBar state={status.data.state} />
             </>
           ) : status.isError || week.isError ? (
             <SectionError
