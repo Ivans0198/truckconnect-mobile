@@ -8,6 +8,7 @@ import { apiUrl, server } from "@/test/server";
 import { fontSize, palette } from "@/theme/tokens";
 
 import { FatigueScreen } from "./fatigue-screen";
+import { EVENT_LOOKS } from "./today-events";
 import type { FatigueEvent } from "./types";
 
 jest.mock("expo-router", () => {
@@ -76,24 +77,34 @@ describe("Today's events", () => {
   it("adds the length to a finished break (3.3)", async () => {
     await renderWithQuery(<FatigueScreen />);
 
-    expect(await screen.findByText("9:48 AM · 15 min")).toBeOnTheScreen();
-    expect(screen.getByText("12:00 PM · 30 min")).toBeOnTheScreen();
+    const rows = await screen.findAllByTestId("today-event");
+    expect(await within(rows[1]!).findByText("15 min")).toBeOnTheScreen();
+    expect(within(rows[1]!).getByText("9:48 AM")).toBeOnTheScreen();
+    expect(within(rows[3]!).getByText("30 min")).toBeOnTheScreen();
+  });
+
+  it("shows the time once on a row with nothing else to add", async () => {
+    await renderWithQuery(<FatigueScreen />);
+
+    const rows = await screen.findAllByTestId("today-event");
+    expect(await within(rows[0]!).findByText("6:35 AM")).toBeOnTheScreen();
+    expect(within(rows[0]!).getAllByText(/6:35/)).toHaveLength(1);
   });
 
   it("leaves the length out of a break that has not ended", async () => {
     serveEvents(fatigueEventsFixture.slice(0, 2));
     await renderWithQuery(<FatigueScreen />);
 
-    expect(await screen.findByText(/^9:48 AM/)).toBeOnTheScreen();
+    expect(await screen.findByText("9:48 AM")).toBeOnTheScreen();
     expect(screen.queryByText(/min$/)).not.toBeOnTheScreen();
   });
 
   it("marks the last event as current with its time in green (3.4)", async () => {
     await renderWithQuery(<FatigueScreen />);
 
-    expect(await screen.findByText("12:30 PM · current")).toBeOnTheScreen();
+    expect(await screen.findByText("current")).toBeOnTheScreen();
     const rows = screen.getAllByTestId("today-event");
-    const time = within(rows[4]!).getByText("12:30");
+    const time = within(rows[4]!).getByText("12:30 PM");
     expect(StyleSheet.flatten(time.props.style)?.color).toBe(
       palette.emerald700,
     );
@@ -173,4 +184,32 @@ describe("Today's events", () => {
       expect(size).toBeGreaterThanOrEqual(fontSize.body);
     }
   });
+
+  it("gives each event icon at least 3:1 against its badge (WCAG 1.4.11)", () => {
+    for (const look of Object.values(EVENT_LOOKS)) {
+      expect(
+        contrastRatio(look.foreground, look.background),
+      ).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it("does not draw Day started with the eye icon", () => {
+    expect(EVENT_LOOKS.DAY_START.path).not.toBe(EVENT_LOOKS.BREAK_START.path);
+    expect(EVENT_LOOKS.DAY_START.path).toMatch(/^M10 18a8 8 0 100-16/);
+  });
 });
+
+function luminance(hex: string): number {
+  const [r, g, b] = [1, 3, 5].map((start) => {
+    const channel = parseInt(hex.slice(start, start + 2), 16) / 255;
+    return channel <= 0.03928
+      ? channel / 12.92
+      : ((channel + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!;
+}
+
+function contrastRatio(a: string, b: string): number {
+  const [light, dark] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (light! + 0.05) / (dark! + 0.05);
+}

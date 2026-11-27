@@ -36,7 +36,7 @@
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
 import { shouldCreateMissingSnapshot } from "./support/missing-snapshot-policy";
 import { snapshotCreatedNotice } from "./support/visual-baseline-notice";
@@ -146,6 +146,22 @@ async function expectFullPageScreenshot(
   await expect(page).toHaveScreenshot(name, {
     ...SCREENSHOT_OPTIONS,
     fullPage: true,
+    maxDiffPixels: PAGE_MAX_DIFF_PIXELS,
+  });
+}
+
+// Captura un solo bloque, para secciones que la captura de página completa
+// no alcanza porque la pantalla hace scroll por dentro.
+async function expectElementScreenshot(
+  element: Locator,
+  name: string,
+): Promise<void> {
+  await element.page().evaluate(() => document.fonts.ready);
+  await createMissingLocalBaseline(name, () =>
+    element.screenshot({ ...SCREENSHOT_OPTIONS }),
+  );
+  await expect(element).toHaveScreenshot(name, {
+    ...SCREENSHOT_OPTIONS,
     maxDiffPixels: PAGE_MAX_DIFF_PIXELS,
   });
 }
@@ -475,9 +491,11 @@ for (const vp of viewports) {
       await openFatigue(page);
 
       await expect(page.getByText("5 events")).toBeVisible();
-      await expect(page.getByText("9:48 AM · 15 min")).toBeVisible();
-      await expect(page.getByText("12:30 PM · current")).toBeVisible();
-      await expectFullPageScreenshot(page, `fatigue-events-${vp.name}.png`);
+      await expect(page.getByText("15 min", { exact: true })).toBeVisible();
+      await expect(page.getByText("12:30 PM", { exact: true })).toBeVisible();
+      const events = page.getByTestId("today-events");
+      await events.scrollIntoViewIfNeeded();
+      await expectElementScreenshot(events, `fatigue-events-${vp.name}.png`);
     });
 
     test("says there are no events yet", async ({ page }) => {
@@ -575,8 +593,12 @@ for (const vp of viewports) {
       await mockFatigue(page);
       await openFatigue(page);
 
+      const week = page.getByTestId("week-summary");
+      await week.scrollIntoViewIfNeeded();
       await expect(page.getByText("Total worked")).toBeVisible();
-      await expectFullPageScreenshot(page, `fatigue-week-${vp.name}.png`);
+      // La página completa no muestra la sección (la pantalla hace scroll
+      // por dentro): se captura el bloque con sus cinco días.
+      await expectElementScreenshot(week, `fatigue-week-${vp.name}.png`);
     });
 
     test("asks End your day? and has no accessibility violations", async ({

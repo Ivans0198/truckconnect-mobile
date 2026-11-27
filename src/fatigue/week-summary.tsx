@@ -1,6 +1,10 @@
 import { StyleSheet, Text, View } from "react-native";
 
-import { formatHoursMinutes, formatWeekday } from "@/format/time";
+import {
+  formatHoursMinutes,
+  formatWeekday,
+  melbourneCalendarDate,
+} from "@/format/time";
 import {
   colors,
   fontFamily,
@@ -72,12 +76,18 @@ function rangeLabel({ byDay }: WeekSummaryData): string {
 }
 
 function WeekBody({ week }: { week: WeekSummaryData }): React.JSX.Element {
+  const today = melbourneCalendarDate(new Date());
   return (
     <>
       {week.byDay.length > 0 ? (
         <View style={styles.list}>
           {week.byDay.map((day) => (
-            <DayRow key={day.date} date={day.date} hours={day.hours} />
+            <DayRow
+              key={day.date}
+              date={day.date}
+              hours={day.hours}
+              isToday={day.date === today}
+            />
           ))}
         </View>
       ) : (
@@ -99,15 +109,19 @@ function WeekBody({ week }: { week: WeekSummaryData }): React.JSX.Element {
 function DayRow({
   date,
   hours,
+  isToday,
 }: {
   date: string;
   hours: number;
+  isToday: boolean;
 }): React.JSX.Element {
   const tone = fatigueTone(hours);
   const fraction = Math.min(Math.max(hours / DAILY_LIMIT_HOURS, 0), 1);
   return (
     <View testID="week-day" style={styles.row}>
-      <Text style={styles.dayName}>{formatWeekday(date)}</Text>
+      <Text style={[styles.dayName, isToday && styles.today]}>
+        {formatWeekday(date)}
+      </Text>
       <View testID="week-day-bar" style={styles.track}>
         <View
           testID="week-day-fill"
@@ -120,7 +134,9 @@ function DayRow({
           ]}
         />
       </View>
-      <Text style={styles.hours}>{formatHoursMinutes(hours)}</Text>
+      <Text style={[styles.hours, isToday && styles.today]}>
+        {formatHoursMinutes(hours)}
+      </Text>
       <Text style={[styles.tone, { color: semantic[tone].text }]}>
         {TONE_LABELS[tone]}
       </Text>
@@ -181,6 +197,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: colors.border,
   },
+  today: { fontFamily: fontFamily.bold, color: colors.primary },
   fill: { height: "100%", borderRadius: radius.full },
   hours: {
     width: HOURS_WIDTH,

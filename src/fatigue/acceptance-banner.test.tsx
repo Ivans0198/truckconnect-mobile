@@ -149,4 +149,20 @@ describe("acceptance banner on FatigueScreen", () => {
     const banner = await screen.findByTestId("acceptance-banner");
     expect(banner.props.accessibilityLiveRegion).toBe("polite");
   });
+
+  it("sets the title apart from the reasons by size and weight", async () => {
+    serveStatus({ hoursRemaining: 0 });
+
+    await renderWithQuery(<FatigueScreen />);
+
+    const title = StyleSheet.flatten(
+      (await screen.findByText(TITLE)).props.style,
+    );
+    const reason = StyleSheet.flatten(
+      screen.getByText("Daily limit reached").props.style,
+    );
+    expect(title?.fontSize).toBe(fontSize.lead);
+    expect(reason?.fontSize).toBe(fontSize.body);
+    expect(reason?.fontFamily).not.toBe(title?.fontFamily);
+  });
 });
