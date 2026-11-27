@@ -29,13 +29,23 @@ describe("useCurrentAccount", () => {
   beforeEach(() => saveTokens({ accessToken: "a", refreshToken: "r" }));
 
   it("starts from the stored account and replaces it with the server response", async () => {
+    // The handler answers only when the test releases it, so the first
+    // assertion never races the mock response.
+    let release!: () => void;
+    const released = new Promise<void>((resolve) => {
+      release = resolve;
+    });
     server.use(
-      http.get(apiUrl("/auth/me"), () => HttpResponse.json(freshAccount)),
+      http.get(apiUrl("/auth/me"), async () => {
+        await released;
+        return HttpResponse.json(freshAccount);
+      }),
     );
 
     const { result } = await setup(true);
 
     expect(result.current.data?.fullName).toBe("Stored Name");
+    release();
     await waitFor(() =>
       expect(result.current.data?.fullName).toBe("Fresh Name"),
     );
