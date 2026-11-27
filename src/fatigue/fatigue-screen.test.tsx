@@ -1,4 +1,10 @@
-import { act, fireEvent, screen, waitFor } from "@testing-library/react-native";
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react-native";
 import { http, HttpResponse } from "msw";
 import { processColor, StyleSheet } from "react-native";
 
@@ -65,7 +71,9 @@ describe("FatigueScreen", () => {
     await renderWithQuery(<FatigueScreen />);
 
     expect(await screen.findByText("Working")).toBeOnTheScreen();
-    expect(screen.getByText("5h 30m")).toBeOnTheScreen();
+    expect(
+      within(screen.getByTestId("hours-ring")).getByText("5h 30m"),
+    ).toBeOnTheScreen();
     expect(screen.getByText("of 12h shift limit")).toBeOnTheScreen();
   });
 
@@ -151,7 +159,7 @@ describe("FatigueScreen", () => {
     expect(screen.getByText("6h 30m")).toBeOnTheScreen();
     expect(screen.getByText("Next break in")).toBeOnTheScreen();
     expect(screen.getByText("2h 12m")).toBeOnTheScreen();
-    expect(screen.getByText("This week")).toBeOnTheScreen();
+    expect(screen.getAllByText("This week")).toHaveLength(2);
     expect(screen.getByText("38h / 72h")).toBeOnTheScreen();
   });
 

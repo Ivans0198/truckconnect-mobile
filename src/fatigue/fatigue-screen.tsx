@@ -22,6 +22,7 @@ import { nextBreakFor } from "./next-break";
 import { SectionError } from "./section-error";
 import { TodayEvents } from "./today-events";
 import { useNow } from "./use-now";
+import { WeekSummary } from "./week-summary";
 
 const ERROR_MESSAGE = "Could not load your hours. Check your connection.";
 const SKELETON_BLOCKS = 3;
@@ -109,6 +110,11 @@ export function FatigueScreen(): React.JSX.Element {
             onRetry={() => void refetchEvents()}
           />
         ) : null}
+        <WeekSummary
+          week={week.data}
+          isError={week.isError}
+          onRetry={() => void refetchWeek()}
+        />
       </ScrollView>
     </View>
   );
