@@ -393,9 +393,14 @@ async function mockFatigue(
         fulfill({ totalHoursWorked: 28, remainingHours: 44, byDay: [] }),
       );
     }
+    if (url.includes("/fatigue/end-day")) {
+      return route.fulfill(fulfill({ ...endedDay }));
+    }
     return route.fulfill(fulfill([]));
   });
 }
+
+const endedDay = { state: "off_duty", hoursWorked: 5.5, hoursRemaining: 6.5 };
 
 // La app reintenta una lectura fallida 3 veces (1 s, 2 s, 4 s) antes del error.
 const QUERY_RETRY_TIMEOUT_MS = 15_000;
@@ -449,6 +454,35 @@ for (const vp of viewports) {
         { timeout: QUERY_RETRY_TIMEOUT_MS },
       );
       await expectFullPageScreenshot(page, `fatigue-error-${vp.name}.png`);
+    });
+
+    test("asks End your day? and has no accessibility violations", async ({
+      page,
+    }) => {
+      await mockFatigue(page);
+      await openFatigue(page);
+      await page.getByRole("button", { name: "End Day" }).click();
+
+      await expect(page.getByRole("dialog")).toBeVisible();
+      await expect(page.getByText("End your day?")).toBeVisible();
+      await expectFullPageScreenshot(page, `fatigue-end-day-${vp.name}.png`);
+      const results = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa"])
+        .analyze();
+      expect(
+        results.violations,
+        JSON.stringify(results.violations, null, 2),
+      ).toEqual([]);
+    });
+
+    test("shows the action buttons while working", async ({ page }) => {
+      await mockFatigue(page);
+      await openFatigue(page);
+
+      await expect(
+        page.getByRole("button", { name: "Take Break" }),
+      ).toBeVisible();
+      await expect(page.getByRole("button", { name: "End Day" })).toBeVisible();
     });
 
     test("shows the loading skeleton before the data arrives", async ({

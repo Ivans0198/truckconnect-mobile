@@ -10,6 +10,7 @@ import {
 
 import { colors, fontFamily, fontSize, radius, spacing } from "@/theme/tokens";
 
+import { FatigueActionBar } from "./fatigue-action-bar";
 import { FatigueStats } from "./fatigue-stats";
 import { HoursRing } from "./hours-ring";
 import { useFatigueStatus, useWeekSummary } from "./queries";
@@ -92,6 +93,7 @@ export function FatigueScreen(): React.JSX.Element {
             <Skeleton />
           )}
         </View>
+        {status.data ? <FatigueActionBar state={status.data.state} /> : null}
       </ScrollView>
     </View>
   );
@@ -136,7 +138,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.body,
     color: colors.textMuted,
   },
-  content: { padding: spacing.lg },
+  content: { gap: spacing.lg, padding: spacing.lg },
   card: {
     gap: spacing.xl,
     padding: spacing.lg,
