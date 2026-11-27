@@ -98,8 +98,9 @@ export async function uploadWithPresignedUrl(input: {
   // Una sola renovación por subida, venga del vencimiento o de un 403.
   let hasRenewed = false;
   for (;;) {
-    const target = await requestTarget(requestUrl, sizeBytes);
+    // Se mide desde antes de pedirla: una pedida lenta también gasta vigencia.
     const requestedAt = now();
+    const target = await requestTarget(requestUrl, sizeBytes);
     const hasExpired =
       now() - requestedAt >= target.expiresInSeconds * MS_PER_SECOND;
     if (hasExpired && !hasRenewed) {
