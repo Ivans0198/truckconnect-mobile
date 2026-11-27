@@ -39,7 +39,8 @@ export function evaluateOrderAcceptance({
     : { kind: "allowed" };
 }
 
-// Comparte las queries (y su refresco) con la pantalla de fatiga.
+// Comparte las queries (y su refresco) con la pantalla de fatiga. Si un
+// refresco falla, queda el último dato conocido: solo es "unknown" sin dato.
 export function useOrderAcceptance(): OrderAcceptance {
   const status = useFatigueStatus();
   const week = useWeekSummary();
