@@ -163,6 +163,7 @@ describe("This week", () => {
     expect(screen.getByText("Working")).toBeOnTheScreen();
     expect(screen.getByText("Remaining")).toBeOnTheScreen();
     expect(screen.getByText("Next break in")).toBeOnTheScreen();
+    expect(screen.getByText("--")).toBeOnTheScreen();
     expect(screen.getAllByRole("button", { name: "Try again" })).toHaveLength(
       1,
     );
