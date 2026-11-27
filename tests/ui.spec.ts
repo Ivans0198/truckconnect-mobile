@@ -99,7 +99,14 @@ const APP_URL = process.env.APP_URL ?? "http://localhost:3741";
 // la API se responde aquí, con la forma de docs/openapi.json. El patrón cubre
 // cualquier host, así que nunca toca un API real (ni el de otro proyecto en
 // localhost:3000).
+// El reloj del navegador queda fijo en un día de la semana de los datos de
+// prueba (viernes 27 de noviembre de 2026, 12:35 en Melbourne). Sin esto, la
+// fila de "hoy" de Fatigue y las cuentas regresivas cambian con la fecha real
+// y las capturas dejan de coincidir.
+const FIXED_NOW = new Date("2026-11-27T01:35:00.000Z");
+
 test.beforeEach(async ({ page }) => {
+  await page.clock.setFixedTime(FIXED_NOW);
   await page.route("**/auth/**", (route) =>
     route.fulfill({
       status: 401,
@@ -382,7 +389,7 @@ async function mockFatigue(
   status: Record<string, unknown> = {},
   events: unknown[] | "error" = [],
 ): Promise<void> {
-  const now = Date.now();
+  const now = FIXED_NOW.getTime();
   const fulfill = (body: unknown, code = 200) => ({
     status: code,
     contentType: "application/json",
@@ -542,7 +549,9 @@ for (const vp of viewports) {
       await mockFatigue(page, {
         hoursWorked: 12,
         hoursRemaining: 0,
-        nextBreakDueAt: new Date(Date.now() - 30 * 60_000).toISOString(),
+        nextBreakDueAt: new Date(
+          FIXED_NOW.getTime() - 30 * 60_000,
+        ).toISOString(),
       });
       await openFatigue(page);
 
