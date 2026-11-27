@@ -451,6 +451,23 @@ for (const vp of viewports) {
       await expectFullPageScreenshot(page, `fatigue-error-${vp.name}.png`);
     });
 
+    test("keeps the day's hours when only the week summary fails", async ({
+      page,
+    }) => {
+      await mockFatigue(page);
+      await page.route("**/fatigue/week-summary", (route) =>
+        route.fulfill({ status: 500 }),
+      );
+      await openFatigue(page);
+
+      await expect(page.getByText("5h 30m", { exact: true })).toBeVisible();
+      await expect(page.getByText("Remaining")).toBeVisible();
+      await expect(page.getByRole("button", { name: "Try again" })).toBeVisible(
+        { timeout: QUERY_RETRY_TIMEOUT_MS },
+      );
+      await expectFullPageScreenshot(page, `fatigue-week-error-${vp.name}.png`);
+    });
+
     test("shows the loading skeleton before the data arrives", async ({
       page,
     }) => {

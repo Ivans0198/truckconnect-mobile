@@ -31,6 +31,7 @@ jest.mock("expo-router", () => {
 });
 
 const ONE_MINUTE_MS = 60_000;
+const WEEK_ERROR_MESSAGE = "Could not load this week. Check your connection.";
 
 function serveStatus(status: FatigueStatus): { calls: () => number } {
   let calls = 0;
@@ -268,6 +269,51 @@ describe("FatigueScreen", () => {
     await fireEvent.press(retry);
 
     expect(await screen.findByText("Working")).toBeOnTheScreen();
+    expect(
+      screen.queryByRole("button", { name: "Try again" }),
+    ).not.toBeOnTheScreen();
+  });
+
+  it("keeps the day's hours and shows the error only in This week", async () => {
+    server.use(
+      http.get(apiUrl("/fatigue/week-summary"), () =>
+        HttpResponse.json(null, { status: 500 }),
+      ),
+    );
+
+    await renderWithQuery(<FatigueScreen />);
+
+    expect(await screen.findByText("Working")).toBeOnTheScreen();
+    expect(screen.getByText("Remaining")).toBeOnTheScreen();
+    expect(screen.getByText("6h 30m")).toBeOnTheScreen();
+    expect(screen.getByText("Next break in")).toBeOnTheScreen();
+    expect(await screen.findByText(WEEK_ERROR_MESSAGE)).toBeOnTheScreen();
+    expect(screen.queryByText("38h / 72h")).not.toBeOnTheScreen();
+  });
+
+  it("retries only the week summary from the This week error", async () => {
+    let weekFailing = true;
+    let weekCalls = 0;
+    server.use(
+      http.get(apiUrl("/fatigue/week-summary"), () => {
+        weekCalls += 1;
+        return weekFailing
+          ? new HttpResponse(null, { status: 500 })
+          : HttpResponse.json(weekSummaryFixture);
+      }),
+    );
+    const status = serveStatus(fatigueStatusFixture);
+    await renderWithQuery(<FatigueScreen />);
+    const retry = await screen.findByRole("button", { name: "Try again" });
+    const statusBefore = status.calls();
+    const weekBefore = weekCalls;
+
+    weekFailing = false;
+    await fireEvent.press(retry);
+
+    expect(await screen.findByText("38h / 72h")).toBeOnTheScreen();
+    expect(weekCalls).toBeGreaterThan(weekBefore);
+    expect(status.calls()).toBe(statusBefore);
     expect(
       screen.queryByRole("button", { name: "Try again" }),
     ).not.toBeOnTheScreen();

@@ -19,7 +19,8 @@ const MINUTES_PER_HOUR = 60;
 type FatigueStatsProps = {
   hoursRemaining: number;
   nextBreak: NextBreak;
-  weekHours: number;
+  // Sin dato todavía (cargando o con error): la tarjeta no se dibuja.
+  weekHours: number | undefined;
 };
 
 function nextBreakText(nextBreak: NextBreak): string {
@@ -53,10 +54,12 @@ export function FatigueStats({
         value={nextBreakText(nextBreak)}
         tone={isDue ? "danger" : isCounting ? "warning" : undefined}
       />
-      <Stat
-        label="This week"
-        value={`${Math.round(weekHours)}h / ${WEEKLY_LIMIT_HOURS}h`}
-      />
+      {weekHours !== undefined && (
+        <Stat
+          label="This week"
+          value={`${Math.round(weekHours)}h / ${WEEKLY_LIMIT_HOURS}h`}
+        />
+      )}
     </View>
   );
 }
