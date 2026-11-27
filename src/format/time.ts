@@ -33,7 +33,8 @@ export function formatMelbourneTime(instant: string | Date): string {
 export function formatHoursMinutes(hours: number): string {
   const totalMinutes = Math.round(hours * MINUTES_PER_HOUR);
   const wholeHours = Math.floor(totalMinutes / MINUTES_PER_HOUR);
-  return `${wholeHours}h ${totalMinutes % MINUTES_PER_HOUR}m`;
+  const minutes = String(totalMinutes % MINUTES_PER_HOUR).padStart(2, "0");
+  return `${wholeHours}h ${minutes}m`;
 }
 
 export function formatBreakLength(ms: number): string {

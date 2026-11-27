@@ -1,5 +1,5 @@
-import { TitleScreen } from "@/navigation/title-screen";
+import { FatigueScreen } from "@/fatigue/fatigue-screen";
 
-export default function FatigueScreen(): React.JSX.Element {
-  return <TitleScreen title="Fatigue" />;
+export default function FatigueTab(): React.JSX.Element {
+  return <FatigueScreen />;
 }
