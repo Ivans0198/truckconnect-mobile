@@ -14,31 +14,51 @@ import {
 } from "@/theme/tokens";
 
 import {
+  ComplianceIcon,
+  DOC_TYPE_ICONS,
+  type ComplianceIconName,
+} from "./icons";
+import {
   expiryAttentionOf,
   formatDaysLabel,
   type ExpiryAttention,
 } from "./expiry-text";
 import { DOC_TYPE_NAMES, type DocType, type DocumentCard } from "./types";
 
-type Badge = { label: string; tone: SemanticTone };
+type Badge = {
+  label: string;
+  tone: SemanticTone;
+  icon: ComplianceIconName;
+};
 
 type ComplianceDocumentCardProps = {
   card: DocumentCard;
   onUpload: (docType: DocType) => void;
 };
 
+const ICON_SIZE = 20;
+const BADGE_ICON_SIZE = 16;
+const TILE_SIZE = 44;
 const NO_REASON = "No reason was given.";
 
 function expiryBadge(expiry: ExpiryAttention): Badge {
   switch (expiry.kind) {
     case "valid":
-      return { label: "Valid", tone: "success" };
+      return { label: "Valid", tone: "success", icon: "check" };
     case "expiring":
-      return { label: formatDaysLabel(expiry.days), tone: "warning" };
+      return {
+        label: formatDaysLabel(expiry.days),
+        tone: "warning",
+        icon: "exclamation",
+      };
     case "urgent":
-      return { label: formatDaysLabel(expiry.days), tone: "danger" };
+      return {
+        label: formatDaysLabel(expiry.days),
+        tone: "danger",
+        icon: "exclamation",
+      };
     case "expired":
-      return { label: "Expired", tone: "danger" };
+      return { label: "Expired", tone: "danger", icon: "exclamation" };
   }
 }
 
@@ -60,8 +80,8 @@ function viewOf(card: DocumentCard): CardView {
   if (attention.kind === "under-review" || attention.kind === "rejected") {
     const own: Badge =
       attention.kind === "rejected"
-        ? { label: "Rejected", tone: "danger" }
-        : { label: "Under review", tone: "info" };
+        ? { label: "Rejected", tone: "danger", icon: "exclamation" }
+        : { label: "Under review", tone: "info", icon: "clock" };
     const badges = [own, ...expiryBadges];
     return {
       badges,
@@ -96,17 +116,35 @@ export function ComplianceDocumentCard({
   const view = viewOf(card);
   const expiryDate = (card.current ?? card.latest).expiryDate;
   const actionTone = view.border ?? "danger";
+  const tileTone = view.badges[0]?.tone ?? "info";
 
   return (
     <View
       testID="document-card"
       style={[
         styles.card,
-        view.border && { borderColor: semantic[view.border].accent },
+        view.border && {
+          borderWidth: 2,
+          borderColor: semantic[view.border].accent,
+        },
       ]}
     >
       <View style={styles.header}>
-        <Text style={styles.name}>{name}</Text>
+        <View style={styles.title}>
+          <View
+            style={[
+              styles.tile,
+              { backgroundColor: semantic[tileTone].background },
+            ]}
+          >
+            <ComplianceIcon
+              name={DOC_TYPE_ICONS[docType]}
+              color={semantic[tileTone].text}
+              size={ICON_SIZE}
+            />
+          </View>
+          <Text style={styles.name}>{name}</Text>
+        </View>
         <View style={styles.badges}>
           {view.badges.map((badge) => (
             <BadgeView key={badge.label} badge={badge} />
@@ -122,7 +160,14 @@ export function ComplianceDocumentCard({
         <View style={styles.row}>
           <View style={styles.expires}>
             <Text style={styles.muted}>Expires</Text>
-            <Text style={styles.date}>{formatMelbourneDate(expiryDate)}</Text>
+            <Text
+              style={[
+                styles.date,
+                view.actionNeeded && { color: semantic[actionTone].text },
+              ]}
+            >
+              {formatMelbourneDate(expiryDate)}
+            </Text>
           </View>
           {view.timeLeft ? (
             <Text style={styles.muted}>{view.timeLeft}</Text>
@@ -147,6 +192,11 @@ export function ComplianceDocumentCard({
             pressed && styles.pressed,
           ]}
         >
+          <ComplianceIcon
+            name="upload"
+            color={actionTone === "warning" ? colors.text : colors.onPrimary}
+            size={ICON_SIZE}
+          />
           <Text
             style={[
               styles.buttonText,
@@ -165,6 +215,11 @@ function BadgeView({ badge }: { badge: Badge }): React.JSX.Element {
   const tone = semantic[badge.tone];
   return (
     <View style={[styles.badge, { backgroundColor: tone.background }]}>
+      <ComplianceIcon
+        name={badge.icon}
+        color={tone.text}
+        size={BADGE_ICON_SIZE}
+      />
       <Text style={[styles.badgeText, { color: tone.text }]}>
         {badge.label}
       </Text>
@@ -177,7 +232,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg,
     borderRadius: radius.xl,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
@@ -195,6 +250,9 @@ const styles = StyleSheet.create({
   },
   badges: { alignItems: "flex-end", gap: spacing.xs },
   badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderRadius: radius.full,
@@ -220,7 +278,22 @@ const styles = StyleSheet.create({
   },
   action: { fontFamily: fontFamily.semibold, fontSize: fontSize.body },
   reason: { fontFamily: fontFamily.regular, fontSize: fontSize.body },
+  title: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  tile: {
+    width: TILE_SIZE,
+    height: TILE_SIZE,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: radius.lg,
+  },
   button: {
+    flexDirection: "row",
+    gap: spacing.sm,
     minHeight: TOUCH_TARGET_MIN,
     alignItems: "center",
     justifyContent: "center",

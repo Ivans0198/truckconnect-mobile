@@ -24,11 +24,13 @@ import {
 import { summarizeDocuments } from "./attention";
 import { AttentionBanner } from "./attention-banner";
 import { ComplianceDocumentCard } from "./document-card";
+import { ComplianceIcon } from "./icons";
 import { useComplianceDocuments } from "./queries";
 import type { DocType } from "./types";
 
 const ERROR_MESSAGE = "Could not load your documents. Check your connection.";
 const SKELETON_CARDS = 3;
+const INFO_ICON_SIZE = 20;
 const ALERTS_TEXT =
   "We notify you 90, 60, 30, 14 and 7 days before expiry. At 7 days you can finish current orders but can't accept new ones until you renew.";
 
@@ -101,6 +103,9 @@ export function ComplianceScreen(): React.JSX.Element {
           ) : (
             <>
               <AttentionBanner summary={summary} />
+              <Text style={styles.sectionLabel}>
+                {`Your documents · ${summary.cards.length} total`}
+              </Text>
               {summary.cards.map((card) => (
                 <ComplianceDocumentCard
                   key={card.docType}
@@ -109,7 +114,14 @@ export function ComplianceScreen(): React.JSX.Element {
                 />
               ))}
               <View style={styles.info}>
-                <Text style={styles.infoTitle}>How alerts work</Text>
+                <View style={styles.infoHeader}>
+                  <ComplianceIcon
+                    name="info"
+                    color={semantic.info.accent}
+                    size={INFO_ICON_SIZE}
+                  />
+                  <Text style={styles.infoTitle}>How alerts work</Text>
+                </View>
                 <Text style={styles.infoText}>{ALERTS_TEXT}</Text>
               </View>
             </>
@@ -131,7 +143,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }): React.JSX.Element {
   return (
     <View style={styles.empty}>
       <Text style={styles.emptyTitle}>No documents yet</Text>
-      <Text style={styles.infoText}>
+      <Text style={styles.emptyText}>
         Add your licence and the vehicle papers so you can keep taking orders.
       </Text>
       <Pressable
@@ -192,7 +204,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   pressed: { opacity: 0.85 },
-  content: { gap: spacing.lg, padding: spacing.lg },
+  content: { gap: spacing.lg, padding: spacing.xl },
   info: {
     gap: spacing.xs,
     padding: spacing.lg,
@@ -208,6 +220,19 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.regular,
     fontSize: fontSize.body,
     color: semantic.info.text,
+  },
+  sectionLabel: {
+    fontFamily: fontFamily.bold,
+    fontSize: fontSize.body,
+    color: colors.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  infoHeader: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  emptyText: {
+    fontFamily: fontFamily.regular,
+    fontSize: fontSize.body,
+    color: colors.textMuted,
   },
   empty: {
     gap: spacing.md,

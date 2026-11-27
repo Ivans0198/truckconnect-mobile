@@ -57,6 +57,17 @@ describe("AttentionBanner", () => {
     ).toBeOnTheScreen();
   });
 
+  it("talks about the rejection, not the old expiry, when the renewal was rejected", async () => {
+    await bannerFor([
+      approvedExpiringIn("old", "TRAILER_REGO", 20),
+      { ...rejectedDocument },
+    ]);
+
+    expect(
+      screen.getByText(/^Trailer Registration was rejected\./),
+    ).toBeOnTheScreen();
+  });
+
   it("draws nothing when no document needs attention", async () => {
     await bannerFor([approvedExpiringIn("d", "DRIVER_LICENCE", 400)]);
 

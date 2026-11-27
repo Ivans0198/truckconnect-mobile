@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { formatMelbourneDate } from "@/format/time";
 import {
+  colors,
   fontFamily,
   fontSize,
   radius,
@@ -9,6 +10,7 @@ import {
   spacing,
 } from "@/theme/tokens";
 
+import { ComplianceIcon } from "./icons";
 import { expiryAttentionOf, formatDaysLabel } from "./expiry-text";
 import {
   DOC_TYPE_NAMES,
@@ -16,6 +18,8 @@ import {
   type DocumentCard,
 } from "./types";
 
+const ICON_SIZE = 20;
+const CIRCLE_SIZE = 40;
 const BLOCKED_NOTE = "to avoid being blocked from new orders.";
 
 function isRed(card: DocumentCard): boolean {
@@ -36,6 +40,9 @@ function countTitle(count: number): string {
 // La frase del documento más urgente. Las fechas son de Melbourne.
 function messageFor(card: DocumentCard): string {
   const name = DOC_TYPE_NAMES[card.docType];
+  if (card.attention.kind === "rejected") {
+    return `${name} was rejected. Upload it again.`;
+  }
   const expiry = expiryAttentionOf(card.attention);
   const expiryDate = (card.current ?? card.latest).expiryDate;
   if (expiry?.kind === "expired") {
@@ -68,23 +75,42 @@ export function AttentionBanner({
       ]}
       testID="attention-banner"
     >
-      <Text style={[styles.title, { color: tone.text }]}>
-        {countTitle(summary.attentionCount)}
-      </Text>
-      <Text style={[styles.message, { color: tone.text }]}>
-        {messageFor(mostUrgent)}
-      </Text>
+      <View style={[styles.circle, { backgroundColor: tone.accent }]}>
+        <ComplianceIcon
+          name="alert"
+          color={colors.onPrimary}
+          size={ICON_SIZE}
+        />
+      </View>
+      <View style={styles.texts}>
+        <Text style={[styles.title, { color: tone.text }]}>
+          {countTitle(summary.attentionCount)}
+        </Text>
+        <Text style={[styles.message, { color: tone.text }]}>
+          {messageFor(mostUrgent)}
+        </Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   banner: {
-    gap: spacing.xs,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: spacing.md,
     padding: spacing.lg,
     borderRadius: radius.xl,
     borderWidth: 1,
   },
+  circle: {
+    width: CIRCLE_SIZE,
+    height: CIRCLE_SIZE,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: radius.full,
+  },
+  texts: { flex: 1, gap: spacing.xs },
   title: {
     fontFamily: fontFamily.bold,
     fontSize: fontSize.lead,
