@@ -16,15 +16,15 @@ con la primera épica que la usa, no como épica propia.
 
 ## Épicas
 
-| #   | Épica                               | Alcance                                                                                                                                                              | Tamaño | Depende de | Spec                              |
-| --- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ---------- | --------------------------------- |
-| E1  | Sesión y navegación                 | Login (mockup 09), tokens en secure store, refresh automático, guard de rutas, solo rol DRIVER, `GET /auth/me`, tab bar (Home, Fatigue, Docs, Profile), logout       | M      | (ninguna)  | `specs/3-sesion-navegacion/` (#3) |
-| E2  | Órdenes y run activo                | Home/Today (10) con Start Day, detalle de orden (11) con accept/reject y navegación externa, orden activa (03) con avance de estado, cola offline, GPS en background | L      | E1         |                                   |
-| E3  | POD                                 | Foto (15), firma (04), confirmación y upload a R2 (16), POD encolado offline con archivos en disco y estado "pending sync"                                           | M      | E2         |                                   |
-| E4  | Fatiga HVNL                         | Pantalla de fatiga (12): ring, stats, break y fin de día, timeline, resumen semanal; bloqueo de "Accept" cuando el conductor excede las horas                        | M      | E1         | `specs/26-fatiga-hvnl/` (#26)     |
-| E5  | Compliance, perfil y notificaciones | Documentos (13) con renovación por upload y banner en Home, perfil (14) con stats y preferencias, logout, lista de notificaciones in-app                             | M      | E1         |                                   |
-| E6  | Incidentes                          | Reportar, mis reportes y detalle (sin mockup), evidencia por upload, `reasonOther` condicional, registros redactados por retención                                   | M      | E1, E2     |                                   |
-| E7  | Endurecimiento                      | Estados loading/empty/error parejos en todas las pantallas, auditoría del consumo contra `openapi.json`, accesibilidad (contraste, targets ≥60px, texto ≥16pt)       | S      | E2 a E6    |                                   |
+| #   | Épica                               | Alcance                                                                                                                                                                                                                                       | Tamaño | Depende de | Spec                                |
+| --- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ---------- | ----------------------------------- |
+| E1  | Sesión y navegación                 | Login (mockup 09), tokens en secure store, refresh automático, guard de rutas, solo rol DRIVER, `GET /auth/me`, tab bar (Home, Fatigue, Docs, Profile), logout                                                                                | M      | (ninguna)  | `specs/3-sesion-navegacion/` (#3)   |
+| E2  | Órdenes y run activo                | Home/Today (10) con Start Day, detalle de orden (11) con accept/reject y navegación externa, orden activa (03) con avance de estado, cola offline, GPS en background, fila "Background location" en Preferences del perfil (E5 la deja fuera) | L      | E1         |                                     |
+| E3  | POD                                 | Foto (15), firma (04), confirmación y upload a R2 (16), POD encolado offline con archivos en disco y estado "pending sync"                                                                                                                    | M      | E2         |                                     |
+| E4  | Fatiga HVNL                         | Pantalla de fatiga (12): ring, stats, break y fin de día, timeline, resumen semanal; bloqueo de "Accept" cuando el conductor excede las horas                                                                                                 | M      | E1         | `specs/26-fatiga-hvnl/` (#26)       |
+| E5  | Compliance, perfil y notificaciones | Documentos (13) con renovación por upload y banner en Home, perfil (14) con stats y preferencias, logout, lista de notificaciones in-app                                                                                                      | M      | E1         | `specs/54-compliance-perfil/` (#54) |
+| E6  | Incidentes                          | Reportar, mis reportes y detalle (sin mockup), evidencia por upload, `reasonOther` condicional, registros redactados por retención                                                                                                            | M      | E1, E2     |                                     |
+| E7  | Endurecimiento                      | Estados loading/empty/error parejos en todas las pantallas, auditoría del consumo contra `openapi.json`, accesibilidad (contraste, targets ≥60px, texto ≥16pt)                                                                                | S      | E2 a E6    |                                     |
 
 Fuera de las épicas, porque no hay código que un worker escriba:
 
@@ -95,11 +95,15 @@ E2.
    se manda como POSTs sucesivos y una posición atrasada queda con la hora del
    servidor. Afecta a E2.
 2. **No hay endpoint para registrar el push token.** Sin él el back no puede
-   mandar push. E5 hace solo las notificaciones in-app hasta que exista.
+   mandar push. E5 hace solo las notificaciones in-app hasta que exista. La épica que
+   traiga push también agrega la fila "Push notifications" en Preferences del
+   perfil: E5 omite esa sección entera (decisión del 2026-11-28).
 3. **`PATCH /users/{id}` no tiene preferencias** (`UpdateUserDto`: fullName,
    phone, abn, licenceClass, licenceNumber, emergencyContact). Los toggles de
    push y ubicación en background del perfil serían ajustes locales del
-   teléfono. Afecta a E5.
+   teléfono. Resuelto en la spec de E5 (2026-11-28): Preferences no se
+   muestra en E5; la fila de ubicación la agrega E2 y la de push, la épica
+   que traiga push.
 4. **Incidentes**: offline sí o no, dónde vive "Report incident" en la
    navegación y cuántos adjuntos por reporte. Son las preguntas abiertas del
    requerimiento; se cierran en la spec de E6.
