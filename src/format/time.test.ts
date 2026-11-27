@@ -1,9 +1,14 @@
 import {
   formatBreakLength,
   formatHoursMinutes,
+  formatMelbourneDate,
   formatMelbourneTime,
+  formatNotificationTime,
+  formatTenure,
+  formatTimeLeft,
   formatWeekday,
   melbourneCalendarDate,
+  melbourneDaysUntil,
   startOfMelbourneDay,
 } from "./time";
 
@@ -115,6 +120,124 @@ describe("melbourneCalendarDate", () => {
     // 2026-11-26T19:35Z ya es el 27 en Melbourne (UTC+11).
     expect(melbourneCalendarDate(new Date("2026-11-26T19:35:00.000Z"))).toBe(
       "2026-11-27",
+    );
+  });
+});
+
+describe("melbourneDaysUntil", () => {
+  const noon = new Date("2026-11-27T01:35:00.000Z"); // 12:35 PM in Melbourne
+
+  it("is 0 on the expiry day", () => {
+    expect(melbourneDaysUntil("2026-11-27", noon)).toBe(0);
+  });
+
+  it("is negative the day after the expiry", () => {
+    expect(melbourneDaysUntil("2026-11-26", noon)).toBe(-1);
+  });
+
+  it("counts calendar days ahead", () => {
+    expect(melbourneDaysUntil("2026-12-05", noon)).toBe(8);
+  });
+
+  it("counts Melbourne midnight, not UTC midnight", () => {
+    // 00:30 on the 27th in Melbourne, still the 26th in UTC.
+    const afterMelbourneMidnight = new Date("2026-11-26T13:30:00.000Z");
+    expect(melbourneDaysUntil("2026-11-27", afterMelbourneMidnight)).toBe(0);
+    expect(melbourneDaysUntil("2026-11-26", afterMelbourneMidnight)).toBe(-1);
+  });
+
+  it("reads a date-time expiry as its Melbourne calendar day", () => {
+    expect(melbourneDaysUntil("2026-11-27T00:00:00.000Z", noon)).toBe(0);
+  });
+
+  it("is not moved by a daylight saving change in between", () => {
+    const beforeSummerTime = new Date("2026-10-01T01:00:00.000Z");
+    expect(melbourneDaysUntil("2026-10-10", beforeSummerTime)).toBe(9);
+  });
+});
+
+describe("formatMelbourneDate", () => {
+  it("writes day, short month and year", () => {
+    expect(formatMelbourneDate("2028-03-14")).toBe("14 Mar 2028");
+  });
+
+  it("reads a date-time as its Melbourne day", () => {
+    expect(formatMelbourneDate("2026-06-17T00:00:00.000Z")).toBe("17 Jun 2026");
+  });
+});
+
+describe("formatTimeLeft", () => {
+  it("says years and months for more than a year", () => {
+    expect(formatTimeLeft(670)).toBe("in 1y 10m");
+  });
+
+  it("says only months from two months out", () => {
+    expect(formatTimeLeft(185)).toBe("in 6m");
+  });
+
+  it("says days under two months", () => {
+    expect(formatTimeLeft(32)).toBe("in 32 days");
+    expect(formatTimeLeft(1)).toBe("in 1 day");
+  });
+
+  it("says today on the expiry day", () => {
+    expect(formatTimeLeft(0)).toBe("today");
+  });
+
+  it("drops the months when they are zero", () => {
+    expect(formatTimeLeft(366)).toBe("in 1y");
+  });
+});
+
+describe("formatTenure", () => {
+  const now = new Date("2026-11-27T01:35:00.000Z");
+
+  it("is New under a month", () => {
+    expect(formatTenure("2026-11-02T00:00:00.000Z", now)).toBe("New");
+  });
+
+  it("counts whole months", () => {
+    expect(formatTenure("2026-03-20T00:00:00.000Z", now)).toBe("8mo");
+  });
+
+  it("counts years and months", () => {
+    expect(formatTenure("2025-09-10T00:00:00.000Z", now)).toBe("1y 2mo");
+  });
+
+  it("drops the months on a whole year", () => {
+    expect(formatTenure("2025-11-20T00:00:00.000Z", now)).toBe("1y");
+  });
+
+  it("does not count a month that is not complete yet", () => {
+    expect(formatTenure("2026-10-28T00:00:00.000Z", now)).toBe("New");
+  });
+});
+
+describe("formatNotificationTime", () => {
+  const now = new Date("2026-11-27T01:35:00.000Z"); // 12:35 PM, 27 Nov
+
+  it("shows the time for today", () => {
+    expect(formatNotificationTime("2026-11-26T22:41:00.000Z", now)).toBe(
+      "9:41 AM",
+    );
+  });
+
+  it("says Yesterday for the previous Melbourne day", () => {
+    expect(formatNotificationTime("2026-11-26T01:00:00.000Z", now)).toBe(
+      "Yesterday",
+    );
+  });
+
+  it("counts the Melbourne day, not the UTC one", () => {
+    // 00:10 on the 27th in Melbourne is still the 26th in UTC: it is today.
+    expect(formatNotificationTime("2026-11-26T13:10:00.000Z", now)).toBe(
+      "12:10 AM",
+    );
+  });
+
+  it("shows day and month for older ones", () => {
+    expect(formatNotificationTime("2026-11-12T03:00:00.000Z", now)).toBe(
+      "12 Nov",
     );
   });
 });

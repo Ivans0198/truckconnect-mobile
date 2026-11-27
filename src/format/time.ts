@@ -96,3 +96,104 @@ export function formatWeekday(calendarDate: string): string {
 export function melbourneCalendarDate(now: Date): string {
   return calendarDateFormat.format(now);
 }
+
+const MS_PER_DAY = 86_400_000;
+const MONTHS_PER_YEAR = 12;
+const DAYS_PER_MONTH = 30;
+const DAYS_PER_YEAR = 365;
+const MONTHS_FROM_DAYS = 60;
+const CALENDAR_DATE_LENGTH = "YYYY-MM-DD".length;
+
+// en-US da siempre la abreviatura de tres letras ("Jun", "Sep"); en-AU
+// escribe "June" y "Sept" según la versión de ICU.
+const dateFormat = new Intl.DateTimeFormat("en-US", {
+  timeZone: "UTC",
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+const dayMonthFormat = new Intl.DateTimeFormat("en-US", {
+  timeZone: MELBOURNE_TIME_ZONE,
+  day: "numeric",
+  month: "short",
+});
+
+function formatDayMonth(format: Intl.DateTimeFormat, date: Date): string {
+  const parts = format.formatToParts(date);
+  const part = (type: string): string | undefined =>
+    parts.find((candidate) => candidate.type === type)?.value;
+  const day = part("day");
+  const month = part("month");
+  if (day === undefined || month === undefined) {
+    throw new Error("Intl returned no day or month");
+  }
+  const year = part("year");
+  return year === undefined ? `${day} ${month}` : `${day} ${month} ${year}`;
+}
+
+// El back manda `YYYY-MM-DD` o un instante; ambos terminan en el día de
+// calendario de Melbourne.
+function toMelbourneCalendarDate(value: string): string {
+  if (value.length === CALENDAR_DATE_LENGTH) return value;
+  return melbourneCalendarDate(new Date(value));
+}
+
+function calendarDateToUtcMs(calendarDate: string): number {
+  return new Date(`${calendarDate}T00:00:00.000Z`).getTime();
+}
+
+// Días de calendario de Melbourne hasta el vencimiento: 0 el mismo día,
+// negativo después.
+export function melbourneDaysUntil(expiryDate: string, now: Date): number {
+  const expiry = calendarDateToUtcMs(toMelbourneCalendarDate(expiryDate));
+  const today = calendarDateToUtcMs(melbourneCalendarDate(now));
+  return Math.round((expiry - today) / MS_PER_DAY);
+}
+
+// "14 Mar 2028".
+export function formatMelbourneDate(value: string): string {
+  const date = new Date(calendarDateToUtcMs(toMelbourneCalendarDate(value)));
+  return formatDayMonth(dateFormat, date);
+}
+
+// "in 1y 10m", "in 6m", "in 32 days", "today". Un valor negativo se lee
+// como "today": quien lo llama decide antes si el documento ya venció.
+export function formatTimeLeft(days: number): string {
+  if (days <= 0) return "today";
+  if (days < MONTHS_FROM_DAYS)
+    return `in ${days} ${days === 1 ? "day" : "days"}`;
+  const years = Math.floor(days / DAYS_PER_YEAR);
+  const months = Math.floor((days % DAYS_PER_YEAR) / DAYS_PER_MONTH);
+  if (years === 0) return `in ${months}m`;
+  return months === 0 ? `in ${years}y` : `in ${years}y ${months}m`;
+}
+
+function wholeMonthsBetween(from: string, to: string): number {
+  const [fromYear, fromMonth, fromDay] = from.split("-").map(Number);
+  const [toYear, toMonth, toDay] = to.split("-").map(Number);
+  const months = (toYear - fromYear) * MONTHS_PER_YEAR + (toMonth - fromMonth);
+  return toDay < fromDay ? months - 1 : months;
+}
+
+// Antigüedad del conductor: "New", "8mo", "1y 2mo".
+export function formatTenure(createdAt: string, now: Date): string {
+  const months = wholeMonthsBetween(
+    toMelbourneCalendarDate(createdAt),
+    melbourneCalendarDate(now),
+  );
+  if (months < 1) return "New";
+  const years = Math.floor(months / MONTHS_PER_YEAR);
+  const rest = months % MONTHS_PER_YEAR;
+  if (years === 0) return `${rest}mo`;
+  return rest === 0 ? `${years}y` : `${years}y ${rest}mo`;
+}
+
+// "9:41 AM" hoy, "Yesterday" ayer, "12 Nov" antes.
+export function formatNotificationTime(instant: string, now: Date): string {
+  const sent = new Date(instant);
+  const days = melbourneDaysUntil(melbourneCalendarDate(sent), now);
+  if (days === 0) return formatMelbourneTime(sent);
+  if (days === -1) return "Yesterday";
+  return formatDayMonth(dayMonthFormat, sent);
+}
