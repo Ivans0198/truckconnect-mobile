@@ -1,5 +1,5 @@
-import { TitleScreen } from "@/navigation/title-screen";
+import { HomeHeader } from "@/home/home-header";
 
 export default function HomeScreen(): React.JSX.Element {
-  return <TitleScreen title="Home" />;
+  return <HomeHeader />;
 }
