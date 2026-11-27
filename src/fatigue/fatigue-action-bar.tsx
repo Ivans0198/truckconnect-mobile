@@ -196,6 +196,9 @@ function FailureMessage({
   );
 }
 
+const OUTLINE_WIDTH = 2;
+const DISABLED_OPACITY = 0.6;
+
 const BUTTON_STYLES = {
   primary: {
     box: { backgroundColor: colors.primary },
@@ -210,7 +213,7 @@ const BUTTON_STYLES = {
   end: {
     box: {
       backgroundColor: colors.surface,
-      borderWidth: 2,
+      borderWidth: OUTLINE_WIDTH,
       borderColor: palette.red200,
     },
     pressed: { backgroundColor: palette.red50 },
@@ -233,7 +236,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
   },
   buttonLarge: { minHeight: LARGE_BUTTON_HEIGHT },
-  disabled: { opacity: 0.6 },
+  disabled: { opacity: DISABLED_OPACITY },
   buttonText: { fontFamily: fontFamily.bold, fontSize: fontSize.lead },
   error: {
     gap: spacing.md,
