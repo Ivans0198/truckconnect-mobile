@@ -20,6 +20,8 @@ import type { FatigueEvent, FatigueEventType, FatigueStatus } from "./types";
 const ERROR_MESSAGE = "Could not load today's events.";
 const EMPTY_MESSAGE = "No events yet today.";
 const CURRENT_LABEL = "current";
+const SKELETON_ROWS = 3;
+const SKELETON_BAR_HEIGHT = 16;
 const SEPARATOR = " · ";
 
 // Íconos y colores del mockup 12 (Heroicons, viewBox 20). El mockup no
@@ -91,8 +93,27 @@ export function TodayEvents({
       ) : isError ? (
         <SectionError message={ERROR_MESSAGE} onRetry={onRetry} />
       ) : (
-        <Text style={styles.empty}>Loading today&apos;s events...</Text>
+        <EventsSkeleton />
       )}
+    </View>
+  );
+}
+
+function EventsSkeleton(): React.JSX.Element {
+  return (
+    <View
+      testID="today-events-skeleton"
+      accessibilityLabel="Loading today's events"
+      style={styles.list}
+    >
+      {Array.from({ length: SKELETON_ROWS }, (_, index) => (
+        <View key={index} style={styles.row}>
+          <View style={[styles.badge, styles.skeletonFill]} />
+          <View style={styles.text}>
+            <View style={[styles.skeletonBar, styles.skeletonFill]} />
+          </View>
+        </View>
+      ))}
     </View>
   );
 }
@@ -140,6 +161,8 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     padding: spacing.lg,
     borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
     backgroundColor: colors.surface,
   },
   header: {
@@ -178,6 +201,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   clock: {
+    fontVariant: ["tabular-nums"],
     fontFamily: fontFamily.regular,
     fontSize: fontSize.body,
     color: colors.textMuted,
@@ -186,6 +210,8 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.bold,
     color: semantic.success.text,
   },
+  skeletonFill: { backgroundColor: colors.border },
+  skeletonBar: { height: SKELETON_BAR_HEIGHT, borderRadius: radius.md },
   empty: {
     fontFamily: fontFamily.regular,
     fontSize: fontSize.body,

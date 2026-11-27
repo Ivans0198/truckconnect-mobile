@@ -129,6 +129,18 @@ describe("Today's events", () => {
     expect(screen.queryByText("0 events")).not.toBeOnTheScreen();
   });
 
+  it("shows a skeleton while the events load", async () => {
+    server.use(
+      http.get(apiUrl("/fatigue/events"), () => new Promise(() => undefined)),
+    );
+    await renderWithQuery(<FatigueScreen />);
+
+    expect(
+      await screen.findByTestId("today-events-skeleton"),
+    ).toBeOnTheScreen();
+    expect(screen.queryByText("No events yet today.")).not.toBeOnTheScreen();
+  });
+
   it("shows its own error and keeps the ring and the buttons (3.7)", async () => {
     server.use(
       http.get(
