@@ -1,6 +1,17 @@
 /** @type {import('jest').Config} */
 module.exports = {
   preset: "jest-expo",
+  // Sin caché cada worker transforma todo desde cero; con un worker por
+  // núcleo y el host cargado, la primera corrida se alarga. Menos workers lo
+  // suaviza.
+  maxWorkers: "50%",
+  // Medido con la caché borrada: el primer test de cada suite tarda 15 a 30 s
+  // (transforma react-native, Testing Library y la pantalla), y fallan suites
+  // distintas en cada corrida, así que no se puede acotar a unas pocas. Con
+  // la caché tibia el mismo test tarda milisegundos y la suite entera menos
+  // de 5 s: un test lento de verdad se ve en el tiempo de la suite, y uno
+  // colgado sigue fallando, solo a los 30 s.
+  testTimeout: 30_000,
   testEnvironment: "<rootDir>/tests/jest/environment.js",
   setupFiles: ["<rootDir>/src/test/env.ts"],
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
