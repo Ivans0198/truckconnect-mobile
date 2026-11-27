@@ -391,7 +391,11 @@ async function mockFatigue(
     }
     if (url.includes("/fatigue/week-summary")) {
       return route.fulfill(
-        fulfill({ totalHoursWorked: 28, remainingHours: 44, byDay: [] }),
+        fulfill({
+          totalHoursWorked: 38.1667,
+          remainingHours: 33.8333,
+          byDay: weekByDay,
+        }),
       );
     }
     if (url.includes("/fatigue/end-day")) {
@@ -405,6 +409,15 @@ async function mockFatigue(
     return route.fulfill(fulfill([]));
   });
 }
+
+// La semana del mockup 12, de lunes a viernes.
+const weekByDay = [
+  { date: "2026-11-23", hours: 7.8 },
+  { date: "2026-11-24", hours: 9 },
+  { date: "2026-11-25", hours: 6.0333 },
+  { date: "2026-11-26", hours: 9.8333 },
+  { date: "2026-11-27", hours: 5.5 },
+];
 
 // Cinco eventos de hoy, a hora fija de Melbourne para que la captura no varíe.
 const todayEvents = [
@@ -440,9 +453,11 @@ for (const vp of viewports) {
       await mockFatigue(page);
       await openFatigue(page);
 
-      await expect(page.getByText("5h 30m", { exact: true })).toBeVisible();
+      await expect(
+        page.getByText("5h 30m", { exact: true }).first(),
+      ).toBeVisible();
       await expect(page.getByText("2h 12m")).toBeVisible();
-      await expect(page.getByText("28h / 72h")).toBeVisible();
+      await expect(page.getByText("38h / 72h")).toBeVisible();
       await expectFullPageScreenshot(page, `fatigue-${vp.name}.png`);
     });
 
@@ -471,7 +486,9 @@ for (const vp of viewports) {
       await expect(
         page.getByText("Could not load today's events."),
       ).toBeVisible({ timeout: QUERY_RETRY_TIMEOUT_MS });
-      await expect(page.getByText("5h 30m", { exact: true })).toBeVisible();
+      await expect(
+        page.getByText("5h 30m", { exact: true }).first(),
+      ).toBeVisible();
       await expectFullPageScreenshot(
         page,
         `fatigue-events-error-${vp.name}.png`,
@@ -502,10 +519,31 @@ for (const vp of viewports) {
       );
       await openFatigue(page);
 
-      await expect(page.getByRole("button", { name: "Try again" })).toBeVisible(
-        { timeout: QUERY_RETRY_TIMEOUT_MS },
-      );
+      await expect(
+        page.getByRole("button", { name: "Try again" }).first(),
+      ).toBeVisible({ timeout: QUERY_RETRY_TIMEOUT_MS });
       await expectFullPageScreenshot(page, `fatigue-error-${vp.name}.png`);
+    });
+
+    test("shows the week section error with Try again", async ({ page }) => {
+      await mockFatigue(page);
+      await page.route("**/fatigue/week-summary", (route) =>
+        route.fulfill({ status: 500 }),
+      );
+      await openFatigue(page);
+
+      await expect(page.getByText("Could not load this week.")).toBeVisible({
+        timeout: QUERY_RETRY_TIMEOUT_MS,
+      });
+      await expectFullPageScreenshot(page, `fatigue-week-error-${vp.name}.png`);
+    });
+
+    test("shows the week with a row per day", async ({ page }) => {
+      await mockFatigue(page);
+      await openFatigue(page);
+
+      await expect(page.getByText("Total worked")).toBeVisible();
+      await expectFullPageScreenshot(page, `fatigue-week-${vp.name}.png`);
     });
 
     test("asks End your day? and has no accessibility violations", async ({
@@ -550,7 +588,7 @@ for (const vp of viewports) {
     test("has no horizontal scroll", async ({ page }) => {
       await mockFatigue(page);
       await openFatigue(page);
-      await page.getByText("5h 30m", { exact: true }).waitFor();
+      await page.getByText("5h 30m", { exact: true }).first().waitFor();
 
       const overflow = await page.evaluate(
         () =>
@@ -563,7 +601,7 @@ for (const vp of viewports) {
     test("has no accessibility violations (axe-core)", async ({ page }) => {
       await mockFatigue(page, {}, todayEvents);
       await openFatigue(page);
-      await page.getByText("5h 30m", { exact: true }).waitFor();
+      await page.getByText("5h 30m", { exact: true }).first().waitFor();
       await page.getByText("5 events").waitFor();
 
       const results = await new AxeBuilder({ page })
