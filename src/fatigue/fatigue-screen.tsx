@@ -10,6 +10,7 @@ import {
 
 import { colors, fontFamily, fontSize, radius, spacing } from "@/theme/tokens";
 
+import { AcceptanceBanner } from "./acceptance-banner";
 import { FatigueActionBar } from "./fatigue-action-bar";
 import { FatigueStats } from "./fatigue-stats";
 import { HoursRing } from "./hours-ring";
@@ -19,6 +20,7 @@ import {
   useWeekSummary,
 } from "./queries";
 import { nextBreakFor } from "./next-break";
+import { useOrderAcceptance } from "./order-acceptance";
 import { SectionError } from "./section-error";
 import { TodayEvents } from "./today-events";
 import { useNow } from "./use-now";
@@ -32,6 +34,7 @@ export function FatigueScreen(): React.JSX.Element {
   const week = useWeekSummary();
   const events = useTodayFatigueEvents();
   const now = useNow();
+  const acceptance = useOrderAcceptance();
   const [isPulling, setIsPulling] = useState(false);
 
   const { refetch: refetchStatus } = status;
@@ -101,6 +104,7 @@ export function FatigueScreen(): React.JSX.Element {
             <Skeleton />
           )}
         </View>
+        <AcceptanceBanner acceptance={acceptance} />
         {status.data ? <FatigueActionBar state={status.data.state} /> : null}
         {status.data ? (
           <TodayEvents
