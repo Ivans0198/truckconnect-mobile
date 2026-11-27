@@ -1,0 +1,40 @@
+# El encabezado de Fatigue queda debajo de la barra de estado, no encima. Entra
+# con el conductor de prueba, abre la pestaña y toma una captura nativa:
+# Playwright es web y no tiene barra de estado, así que solo aquí se ve.
+#
+# Corre con `pnpm e2e:android` (emulador o teléfono por USB, dev build
+# instalado con `pnpm android`, Metro corriendo con `pnpm start`). Sin
+# EXPO_PUBLIC_API_URL no hay back: los datos de Fatigue pueden salir en estado
+# de error, pero el encabezado es el mismo. Fuera del gate a propósito: ver
+# CLAUDE.md → Testing layers.
+appId: au.com.truckconnect.driver
+env:
+  DEV_CLIENT_LINK: "exp+truckconnect-driver://?__expo_url=http%3A%2F%2Flocalhost%3A8081&__expo_disable_fab=1&__expo_disable_auto_launch=1&__expo_disable_onboarding=1"
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Development Build"
+    timeout: 60000
+- openLink: ${DEV_CLIENT_LINK}
+- extendedWaitUntil:
+    visible: "Welcome back"
+    timeout: 180000
+- tapOn: "Email"
+- inputText: driver@truckconnect.test
+- tapOn: "Password"
+- inputText: driver-password
+- hideKeyboard
+- tapOn: "Sign in"
+# El nombre "Fatigue" también es el de la pestaña, así que el subtítulo es lo
+# que prueba que el encabezado de la pantalla se pintó.
+- extendedWaitUntil:
+    visible: "Fatigue"
+    timeout: 30000
+- tapOn: "Fatigue"
+- extendedWaitUntil:
+    visible: "Standard Hours · HVNL compliant"
+    timeout: 30000
+- assertVisible: "Fatigue"
+# Revisar a ojo (o en android-e2e): el título no toca la hora ni los íconos.
+- takeScreenshot: fatigue-header
