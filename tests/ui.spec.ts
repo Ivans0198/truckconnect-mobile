@@ -463,6 +463,7 @@ for (const vp of viewports) {
       await openFatigue(page);
       await page.getByRole("button", { name: "End Day" }).click();
 
+      await expect(page.getByRole("dialog")).toBeVisible();
       await expect(page.getByText("End your day?")).toBeVisible();
       await expectFullPageScreenshot(page, `fatigue-end-day-${vp.name}.png`);
       const results = await new AxeBuilder({ page })
