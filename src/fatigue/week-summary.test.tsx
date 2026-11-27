@@ -7,7 +7,11 @@ import {
 import { http, HttpResponse } from "msw";
 import { StyleSheet } from "react-native";
 
-import { FATIGUE_NOW, weekSummaryFixture } from "@/test/fatigue-fixtures";
+import {
+  FATIGUE_NOW,
+  fatigueStatusFixture,
+  weekSummaryFixture,
+} from "@/test/fatigue-fixtures";
 import { renderWithQuery } from "@/test/render";
 import { apiUrl, server } from "@/test/server";
 import { fontSize, semantic } from "@/theme/tokens";
@@ -139,8 +143,55 @@ describe("This week", () => {
     ).toBeOnTheScreen();
 
     fail = false;
-    fireEvent.press(week.getByRole("button", { name: "Try again" }));
+    await fireEvent.press(week.getByRole("button", { name: "Try again" }));
 
     await waitFor(() => expect(week.getByText("7h 48m")).toBeOnTheScreen());
+  });
+  it("keeps the day's hours when only the week fails", async () => {
+    server.use(
+      http.get(
+        apiUrl("/fatigue/week-summary"),
+        () => new HttpResponse(null, { status: 500 }),
+      ),
+    );
+    await renderWithQuery(<FatigueScreen />);
+
+    const week = within(await screen.findByTestId("week-summary"));
+    expect(
+      await week.findByText("Could not load this week."),
+    ).toBeOnTheScreen();
+    expect(await screen.findByText("Working")).toBeOnTheScreen();
+    expect(screen.getByText("Remaining")).toBeOnTheScreen();
+    expect(screen.getByText("Next break in")).toBeOnTheScreen();
+    expect(screen.getByText("--")).toBeOnTheScreen();
+    expect(screen.getAllByRole("button", { name: "Try again" })).toHaveLength(
+      1,
+    );
+  });
+
+  it("retries only week-summary from its own Try again", async () => {
+    let statusCalls = 0;
+    let weekCalls = 0;
+    server.use(
+      http.get(apiUrl("/fatigue/status"), () => {
+        statusCalls += 1;
+        return HttpResponse.json(fatigueStatusFixture);
+      }),
+      http.get(apiUrl("/fatigue/week-summary"), () => {
+        weekCalls += 1;
+        return weekCalls === 1
+          ? new HttpResponse(null, { status: 500 })
+          : HttpResponse.json(weekSummaryFixture);
+      }),
+    );
+    await renderWithQuery(<FatigueScreen />);
+    const week = within(await screen.findByTestId("week-summary"));
+    await week.findByText("Could not load this week.");
+    const statusBefore = statusCalls;
+
+    await fireEvent.press(week.getByRole("button", { name: "Try again" }));
+
+    await waitFor(() => expect(week.getByText("7h 48m")).toBeOnTheScreen());
+    expect(statusCalls).toBe(statusBefore);
   });
 });
