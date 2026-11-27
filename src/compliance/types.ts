@@ -45,6 +45,8 @@ export type ComplianceBlockReason = {
 export type DocumentCard = {
   docType: DocType;
   latest: ComplianceDocument;
+  // El último aprobado o vencido: el que rige mientras `latest` se revisa.
+  current: ComplianceDocument | null;
   attention: Attention;
   needsAttention: boolean;
   blocksAcceptance: ComplianceBlockReason | null;

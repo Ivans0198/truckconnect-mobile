@@ -116,6 +116,7 @@ function buildCard(
   return {
     docType,
     latest,
+    current: current ?? null,
     attention,
     needsAttention: needsAttention(attention),
     blocksAcceptance: blockReasonOf(docType, attention),

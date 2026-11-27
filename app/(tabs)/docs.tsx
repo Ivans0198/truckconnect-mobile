@@ -1,5 +1,5 @@
-import { TitleScreen } from "@/navigation/title-screen";
+import { ComplianceScreen } from "@/compliance/compliance-screen";
 
-export default function DocsScreen(): React.JSX.Element {
-  return <TitleScreen title="Docs" />;
+export default function DocsTab(): React.JSX.Element {
+  return <ComplianceScreen />;
 }
