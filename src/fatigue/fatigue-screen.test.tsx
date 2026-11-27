@@ -31,7 +31,6 @@ jest.mock("expo-router", () => {
 });
 
 const ONE_MINUTE_MS = 60_000;
-const WEEK_ERROR_MESSAGE = "Could not load this week. Check your connection.";
 
 function serveStatus(status: FatigueStatus): { calls: () => number } {
   let calls = 0;
@@ -287,8 +286,24 @@ describe("FatigueScreen", () => {
     expect(screen.getByText("Remaining")).toBeOnTheScreen();
     expect(screen.getByText("6h 30m")).toBeOnTheScreen();
     expect(screen.getByText("Next break in")).toBeOnTheScreen();
-    expect(await screen.findByText(WEEK_ERROR_MESSAGE)).toBeOnTheScreen();
+    expect(await screen.findByText("Unavailable")).toBeOnTheScreen();
+    expect(screen.getByText("This week")).toBeOnTheScreen();
     expect(screen.queryByText("38h / 72h")).not.toBeOnTheScreen();
+  });
+
+  it("keeps the This week card in place while the week is loading", async () => {
+    server.use(
+      http.get(apiUrl("/fatigue/week-summary"), async () => {
+        await new Promise(() => undefined);
+        return HttpResponse.json(weekSummaryFixture);
+      }),
+    );
+
+    await renderWithQuery(<FatigueScreen />);
+
+    expect(await screen.findByText("Working")).toBeOnTheScreen();
+    expect(screen.getByText("This week")).toBeOnTheScreen();
+    expect(screen.getByTestId("week-skeleton")).toBeOnTheScreen();
   });
 
   it("retries only the week summary from the This week error", async () => {

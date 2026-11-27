@@ -10,14 +10,13 @@ import {
 
 import { colors, fontFamily, fontSize, radius, spacing } from "@/theme/tokens";
 
-import { FatigueStats } from "./fatigue-stats";
+import { FatigueStats, type WeekStat } from "./fatigue-stats";
 import { HoursRing } from "./hours-ring";
 import { useFatigueStatus, useWeekSummary } from "./queries";
 import { nextBreakFor } from "./next-break";
 import { SectionError } from "./section-error";
 import { useNow } from "./use-now";
 
-const WEEK_ERROR_MESSAGE = "Could not load this week. Check your connection.";
 const ERROR_MESSAGE = "Could not load your hours. Check your connection.";
 const SKELETON_BLOCKS = 3;
 
@@ -56,6 +55,16 @@ export function FatigueScreen(): React.JSX.Element {
     }
   }, [refetchAll]);
 
+  const weekStat: WeekStat = week.data
+    ? { kind: "ready", hours: week.data.totalHoursWorked }
+    : week.isError
+      ? {
+          kind: "error",
+          retrying: week.isFetching,
+          onRetry: () => void refetchWeek(),
+        }
+      : { kind: "loading" };
+
   return (
     <View style={styles.screen}>
       <View style={styles.header}>
@@ -81,14 +90,8 @@ export function FatigueScreen(): React.JSX.Element {
               <FatigueStats
                 hoursRemaining={status.data.hoursRemaining}
                 nextBreak={nextBreakFor(status.data, now)}
-                weekHours={week.data?.totalHoursWorked}
+                week={weekStat}
               />
-              {week.isError && !week.data ? (
-                <SectionError
-                  message={WEEK_ERROR_MESSAGE}
-                  onRetry={() => void refetchWeek()}
-                />
-              ) : null}
             </>
           ) : status.isError ? (
             <SectionError
