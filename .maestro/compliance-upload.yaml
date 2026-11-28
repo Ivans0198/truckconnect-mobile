@@ -13,8 +13,12 @@ env:
   DEV_CLIENT_LINK: "exp+truckconnect-driver://?__expo_url=http%3A%2F%2Flocalhost%3A8081&__expo_disable_fab=1&__expo_disable_auto_launch=1&__expo_disable_onboarding=1"
 ---
 - launchApp:
-    # clearState también revoca los permisos: la cámara se pide de nuevo.
+    # launchApp concede todos los permisos por defecto, también con
+    # clearState. `unset` deja la cámara sin decidir para que el diálogo del
+    # sistema aparezca de verdad.
     clearState: true
+    permissions:
+      camera: unset
 - extendedWaitUntil:
     visible: "Development Build"
     timeout: 60000
@@ -45,6 +49,12 @@ env:
 - tapOn:
     text: "While using the app|Only this time|Allow"
     optional: false
+# La cámara del sistema se abrió: el formulario ya no está y aparece su
+# botón de captura (el id y la descripción varían según la app de cámara).
 - extendedWaitUntil:
     notVisible: "Upload document"
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      id: "(?i).*(shutter|capture).*"
     timeout: 15000
