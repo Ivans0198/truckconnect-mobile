@@ -37,7 +37,9 @@ describe("AttentionBanner", () => {
 
     expect(screen.getByText("2 documents need attention")).toBeOnTheScreen();
     expect(
-      screen.getByText(/^Trailer Registration expires in 5 days\./),
+      screen.getByText(
+        "Trailer Registration expires in 5 days. You can't accept new orders until it's renewed.",
+      ),
     ).toBeOnTheScreen();
   });
 
@@ -45,7 +47,9 @@ describe("AttentionBanner", () => {
     await bannerFor([expiredDocument]);
 
     expect(
-      screen.getByText(/^Vehicle Registration has expired\./),
+      screen.getByText(
+        "Vehicle Registration expired. You can't accept new orders until it's renewed.",
+      ),
     ).toBeOnTheScreen();
   });
 

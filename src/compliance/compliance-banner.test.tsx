@@ -75,7 +75,9 @@ describe("ComplianceBanner", () => {
     await renderWithQuery(<ComplianceBanner />);
 
     expect(
-      await screen.findByText(/^Public Liability expires in 7 days\./),
+      await screen.findByText(
+        "Public Liability expires in 7 days. You can't accept new orders until it's renewed.",
+      ),
     ).toBeOnTheScreen();
     expect(screen.getByTestId("compliance-banner")).toHaveStyle({
       borderColor: semantic.danger.accent,
@@ -88,7 +90,9 @@ describe("ComplianceBanner", () => {
     await renderWithQuery(<ComplianceBanner />);
 
     expect(
-      await screen.findByText(/^Public Liability expires today\./),
+      await screen.findByText(
+        "Public Liability expires today. You can't accept new orders until it's renewed.",
+      ),
     ).toBeOnTheScreen();
   });
 
@@ -98,7 +102,9 @@ describe("ComplianceBanner", () => {
     await renderWithQuery(<ComplianceBanner />);
 
     expect(
-      await screen.findByText(/^Vehicle Registration has expired\./),
+      await screen.findByText(
+        "Vehicle Registration expired. You can't accept new orders until it's renewed.",
+      ),
     ).toBeOnTheScreen();
     expect(screen.getByTestId("compliance-banner")).toHaveStyle({
       borderColor: semantic.danger.accent,
@@ -115,7 +121,9 @@ describe("ComplianceBanner", () => {
     await renderWithQuery(<ComplianceBanner />);
 
     expect(
-      await screen.findByText(/^Trailer Registration expires in 5 days\./),
+      await screen.findByText(
+        "Trailer Registration expires in 5 days. You can't accept new orders until it's renewed.",
+      ),
     ).toBeOnTheScreen();
     expect(screen.getByText("and 2 more")).toBeOnTheScreen();
   });

@@ -125,7 +125,9 @@ for (const vp of viewports) {
       await signInAsDriver(page);
 
       await expect(
-        page.getByText(/^Public Liability expires in 5 days\./),
+        page.getByText(
+          "Public Liability expires in 5 days. You can't accept new orders until it's renewed.",
+        ),
       ).toBeVisible();
       await expect(page.getByText("and 1 more")).toBeVisible();
       await expectFullPageScreenshot(page, `home-red-${vp.name}.png`);
@@ -165,7 +167,11 @@ for (const vp of viewports) {
       await signInAsDriver(page);
       await page.getByRole("tab", { name: /Fatigue/ }).click();
 
-      await expect(page.getByText("You can't accept new orders")).toBeVisible();
+      await expect(
+        page
+          .getByTestId("acceptance-banner")
+          .getByText("You can't accept new orders", { exact: true }),
+      ).toBeVisible();
       await expect(
         page
           .getByTestId("acceptance-banner")

@@ -10,7 +10,12 @@ import {
   spacing,
 } from "@/theme/tokens";
 
-import { expiryAttentionOf, formatDaysLabel, isRedCard } from "./expiry-text";
+import {
+  expiryAttentionOf,
+  formatDaysLabel,
+  isRedCard,
+  redExpiryMessage,
+} from "./expiry-text";
 import { ComplianceIcon } from "./icons";
 import { useComplianceAttention } from "./queries";
 import { DOC_TYPE_NAMES, type DocumentCard } from "./types";
@@ -26,8 +31,8 @@ function messageFor(card: DocumentCard): string {
   if (card.attention.kind === "under-review") {
     return `${name} renewal under review. You can't accept new orders until it's approved.`;
   }
-  if (expiry?.kind === "expired") {
-    return `${name} has expired. Upload a renewed document to take new orders again.`;
+  if (expiry?.kind === "expired" || expiry?.kind === "urgent") {
+    return redExpiryMessage(name, expiry);
   }
   if (expiry && expiry.kind !== "valid") {
     const when =

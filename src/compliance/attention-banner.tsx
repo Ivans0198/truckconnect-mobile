@@ -11,7 +11,12 @@ import {
 } from "@/theme/tokens";
 
 import { ComplianceIcon } from "./icons";
-import { expiryAttentionOf, formatDaysLabel, isRedCard } from "./expiry-text";
+import {
+  expiryAttentionOf,
+  formatDaysLabel,
+  isRedCard,
+  redExpiryMessage,
+} from "./expiry-text";
 import {
   DOC_TYPE_NAMES,
   type ComplianceSummary,
@@ -36,8 +41,8 @@ function messageFor(card: DocumentCard): string {
   }
   const expiry = expiryAttentionOf(card.attention);
   const expiryDate = (card.current ?? card.latest).expiryDate;
-  if (expiry?.kind === "expired") {
-    return `${name} has expired. Upload a renewed document to take new orders again.`;
+  if (expiry?.kind === "expired" || expiry?.kind === "urgent") {
+    return redExpiryMessage(name, expiry);
   }
   if (expiry && expiry.kind !== "valid") {
     const when =

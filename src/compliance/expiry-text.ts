@@ -6,6 +6,20 @@ export function formatDaysLabel(days: number): string {
   return `${days} ${days === 1 ? "day" : "days"}`;
 }
 
+// El motivo en rojo: el bloqueo ya rige, así que el texto lo dice en presente.
+export function redExpiryMessage(
+  name: string,
+  expiry: { kind: "expired" } | { kind: "urgent"; days: number },
+): string {
+  const when =
+    expiry.kind === "expired"
+      ? "expired"
+      : expiry.days === 0
+        ? "expires today"
+        : `expires in ${formatDaysLabel(expiry.days)}`;
+  return `${name} ${when}. You can't accept new orders until it's renewed.`;
+}
+
 export type ExpiryAttention = Exclude<
   Attention,
   { kind: "under-review" | "rejected" }
