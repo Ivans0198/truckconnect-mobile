@@ -1,4 +1,49 @@
-import { emergencyContactOf, initialsOf, licenceLabel } from "./profile-format";
+import {
+  emergencyContactOf,
+  formatAbn,
+  formatAuPhone,
+  initialsOf,
+  licenceLabel,
+} from "./profile-format";
+
+describe("formatAbn", () => {
+  it("groups a raw ABN as NN NNN NNN NNN", () => {
+    expect(formatAbn("72629318504")).toBe("72 629 318 504");
+  });
+
+  it("keeps an ABN that is already formatted", () => {
+    expect(formatAbn("12 345 678 901")).toBe("12 345 678 901");
+  });
+
+  it.each(["1234", "ABC", "123456789012", ""])(
+    "returns %p as it is when it does not fit",
+    (value) => {
+      expect(formatAbn(value)).toBe(value);
+    },
+  );
+});
+
+describe("formatAuPhone", () => {
+  it("formats a raw mobile as +61 4NN NNN NNN", () => {
+    expect(formatAuPhone("+61400777888")).toBe("+61 400 777 888");
+  });
+
+  it("formats a raw landline as +61 N NNNN NNNN", () => {
+    expect(formatAuPhone("+61390001234")).toBe("+61 3 9000 1234");
+  });
+
+  it("keeps a phone that is already formatted", () => {
+    expect(formatAuPhone("+61 412 555 102")).toBe("+61 412 555 102");
+    expect(formatAuPhone("+61 3 9000 1234")).toBe("+61 3 9000 1234");
+  });
+
+  it.each(["0400777888", "+14155550123", "+6140077", "n/a", ""])(
+    "returns %p as it is when it does not fit",
+    (value) => {
+      expect(formatAuPhone(value)).toBe(value);
+    },
+  );
+});
 
 describe("initialsOf", () => {
   it("takes the first letter of the first and last name", () => {

@@ -19,10 +19,10 @@ const fullAccount = {
   ...driverAccount,
   fullName: "David Chen",
   email: "david.chen@truckconnect.com.au",
-  phone: "+61 412 555 102",
-  abn: "12 345 678 901",
+  phone: "+61412555102",
+  abn: "12345678901",
   licenceClass: "HC",
-  emergencyContact: { name: "Anna Chen", phone: "+61 412 555 199" },
+  emergencyContact: { name: "Anna Chen", phone: "+61412555199" },
   createdAt: "2026-03-10T00:00:00.000Z",
 };
 

@@ -12,7 +12,7 @@ import {
   TOUCH_TARGET_MIN,
 } from "@/theme/tokens";
 
-import { emergencyContactOf } from "./profile-format";
+import { emergencyContactOf, formatAuPhone } from "./profile-format";
 
 // Heroicons del mockup 14.
 const EMAIL_ICON =
@@ -33,11 +33,20 @@ export function PersonalInfo({
   return (
     <View style={styles.card}>
       <Row icon={EMAIL_ICON} label="Email" value={account.email} />
-      <Row icon={PHONE_ICON} label="Phone" value={account.phone} divided />
+      <Row
+        icon={PHONE_ICON}
+        label="Phone"
+        value={formatAuPhone(account.phone)}
+        divided
+      />
       <Row
         icon={EMERGENCY_ICON}
         label="Emergency contact"
-        value={contact ? `${contact.name} · ${contact.phone}` : NOT_SET}
+        value={
+          contact
+            ? `${contact.name} · ${formatAuPhone(contact.phone)}`
+            : NOT_SET
+        }
         divided
       />
     </View>
