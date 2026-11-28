@@ -81,7 +81,7 @@ export function ComplianceBanner(): React.JSX.Element | null {
 const styles = StyleSheet.create({
   banner: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: spacing.md,
     minHeight: BANNER_MIN_HEIGHT,
     paddingHorizontal: spacing.lg,

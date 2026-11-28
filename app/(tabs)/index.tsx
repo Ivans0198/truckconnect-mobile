@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 import { ComplianceBanner } from "@/compliance/compliance-banner";
 import { HomeHeader } from "@/home/home-header";
@@ -6,16 +6,21 @@ import { colors, spacing } from "@/theme/tokens";
 
 export default function HomeScreen(): React.JSX.Element {
   return (
-    <View style={styles.screen}>
+    <ScrollView contentContainerStyle={styles.content} style={styles.screen}>
+      <View style={styles.header}>
+        <HomeHeader />
+      </View>
       <View style={styles.banner}>
         <ComplianceBanner />
       </View>
-      <HomeHeader />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  banner: { paddingHorizontal: spacing.xl, paddingTop: spacing.md },
+  content: { flexGrow: 1 },
+  // El encabezado no crece: el aviso queda debajo de él, no al pie.
+  header: { flexGrow: 0 },
+  banner: { paddingHorizontal: spacing.xl },
 });
