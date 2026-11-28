@@ -30,7 +30,11 @@ conductor autenticado.
 2. `PUT uploadUrl` con los bytes, sin `Authorization`.
 3. `POST /compliance/documents` con `docType`, `issueDate`, `expiryDate`
    (`YYYY-MM-DD`), `fileKey`, `fileMimeType` y `fileSizeBytes`. Sin
-   `driverId` (el back usa al conductor autenticado) y sin `vehicleId`.
+   `driverId` (el back usa al conductor autenticado). `vehicleId` va solo
+   en `VEHICLE_REGO` y `TRAILER_REGO`, donde el back lo exige ("vehicleId
+   is required for VEHICLE_REGO", aunque el `openapi.json` lo marca
+   opcional): es el vehículo activo del conductor, o el que elija si tiene
+   varios. Los demás tipos van sin `vehicleId`.
 
 ### Account (`UserResponseDto`, de E1)
 

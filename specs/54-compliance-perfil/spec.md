@@ -212,7 +212,7 @@ no queda ninguna sin leer.
 - **FR-005**: Con al menos un documento que pide atención, la pantalla MUST mostrar arriba el aviso con la cantidad y el más urgente (el de menos días).
 - **FR-006**: La pantalla MUST mostrar la tarjeta "How alerts work" con el esquema 90/60/30/14/7 días.
 - **FR-007**: El "+" del encabezado MUST abrir el formulario de documento nuevo, con el tipo a elegir entre los cinco del contrato.
-- **FR-008**: El formulario MUST pedir el tipo, la fecha de emisión, la fecha de vencimiento (posterior a la emisión) y un archivo PDF, JPEG o PNG, tomado con la cámara o elegido del teléfono.
+- **FR-008**: El formulario MUST pedir el tipo, la fecha de emisión, la fecha de vencimiento (posterior a la emisión) y un archivo PDF, JPEG o PNG, tomado con la cámara o elegido del teléfono. Para Vehicle Registration y Trailer Registration MUST además indicar el vehículo: el activo si hay uno solo, a elegir si hay varios; sin vehículo, esos dos tipos MUST NOT poder enviarse y el formulario MUST explicar por qué.
 - **FR-009**: La subida MUST seguir tres pasos: pedir la URL de subida, subir el archivo directo al almacenamiento sin el token de sesión, y registrar el documento en el back. Si la URL venció, MUST pedir otra en lugar de fallar.
 - **FR-010**: Una subida en curso MUST impedir un segundo envío y mostrar que avanza.
 - **FR-011**: Si la subida falla, la app MUST decir que el documento no se subió, conservar lo cargado y ofrecer reintentar. La subida MUST NOT encolarse sin conexión.
