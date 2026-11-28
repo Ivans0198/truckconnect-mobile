@@ -89,7 +89,8 @@ async function refresh(request: Request): Promise<Response> {
 
 export type DevRoute = {
   method: string;
-  url: string;
+  // Un texto es la URL exacta; una expresión sirve a las rutas con parámetros.
+  url: string | RegExp;
   handle: (request: Request) => Response | Promise<Response>;
 };
 

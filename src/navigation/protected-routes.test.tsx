@@ -81,9 +81,9 @@ describe("protected routes", () => {
   });
 
   it.each([
-    ["/documents/new", "New document"],
+    ["/documents/new", "Upload document"],
     ["/notifications", "Notifications"],
-  ])("shows the placeholder at %s with a session", async (url, heading) => {
+  ])("shows the screen at %s with a session", async (url, heading) => {
     signedIn();
 
     await renderRouter(routes, { initialUrl: url });
@@ -101,7 +101,9 @@ describe("protected routes", () => {
       await renderRouter(routes, { initialUrl: url });
 
       expect(await screen.findByText("Welcome back")).toBeOnTheScreen();
-      expect(screen.queryByRole("header", { name: "New document" })).toBeNull();
+      expect(
+        screen.queryByRole("header", { name: "Upload document" }),
+      ).toBeNull();
       expect(
         screen.queryByRole("header", { name: "Notifications" }),
       ).toBeNull();

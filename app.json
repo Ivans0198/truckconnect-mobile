@@ -20,7 +20,14 @@
       "expo-font",
       "expo-status-bar",
       "expo-secure-store",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      "@react-native-community/datetimepicker",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "TruckConnect uses the camera to photograph your compliance documents."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
