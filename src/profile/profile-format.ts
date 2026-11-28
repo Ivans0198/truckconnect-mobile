@@ -30,3 +30,21 @@ export function emergencyContactOf(value: unknown): EmergencyContact | null {
   if (typeof name !== "string" || typeof phone !== "string") return null;
   return { name, phone };
 }
+
+// "72629318504" → "72 629 318 504"; lo que no sean 11 dígitos se muestra tal cual.
+export function formatAbn(abn: string): string {
+  const digits = abn.replace(/\s/g, "");
+  const match = /^(\d{2})(\d{3})(\d{3})(\d{3})$/.exec(digits);
+  return match ? match.slice(1).join(" ") : abn;
+}
+
+// "+61400777888" → "+61 400 777 888" (móvil); "+61390001234" → "+61 3 9000 1234" (fijo).
+// Lo que no sea un número australiano internacional se muestra tal cual.
+export function formatAuPhone(phone: string): string {
+  const compact = phone.replace(/\s/g, "");
+  const mobile = /^\+61(4\d{2})(\d{3})(\d{3})$/.exec(compact);
+  if (mobile) return `+61 ${mobile.slice(1).join(" ")}`;
+  const landline = /^\+61([2378])(\d{4})(\d{4})$/.exec(compact);
+  if (landline) return `+61 ${landline.slice(1).join(" ")}`;
+  return phone;
+}

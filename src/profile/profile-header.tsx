@@ -12,7 +12,7 @@ import {
   spacing,
 } from "@/theme/tokens";
 
-import { initialsOf, licenceLabel } from "./profile-format";
+import { formatAbn, initialsOf, licenceLabel } from "./profile-format";
 import type { DriverStats } from "./queries";
 
 // El mockup deja la calificación vacía: el back todavía no la entrega.
@@ -50,7 +50,7 @@ export function ProfileHeader({
           </Text>
           {licence ? <Text style={styles.muted}>{licence}</Text> : null}
           {account.abn ? (
-            <Text style={styles.muted}>{`ABN ${account.abn}`}</Text>
+            <Text style={styles.muted}>{`ABN ${formatAbn(account.abn)}`}</Text>
           ) : null}
         </View>
       </View>
