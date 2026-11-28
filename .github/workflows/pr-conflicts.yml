@@ -18,9 +18,9 @@ permissions:
 
 jobs:
   conflicts:
-    uses: Ivans0198/fabrica-plugin/.github/workflows/pr-conflicts.yml@v0.5.29
+    uses: Ivans0198/fabrica-plugin/.github/workflows/pr-conflicts.yml@v0.5.30
     with:
       fabrica_repo: Ivans0198/fabrica-plugin
-      fabrica_ref: v0.5.29
+      fabrica_ref: v0.5.30
     secrets:
       FABRICA_PLUGIN_TOKEN: ${{ secrets.FABRICA_PLUGIN_TOKEN }}
