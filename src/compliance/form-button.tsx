@@ -28,12 +28,14 @@ export function FormButton({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={{ busy: isBusy }}
+      accessibilityState={{ busy: isBusy, disabled: isBusy }}
+      disabled={isBusy}
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
         isPrimary ? styles.primary : styles.secondary,
         pressed && styles.pressed,
+        isBusy && styles.busy,
       ]}
     >
       <Text style={[styles.text, isPrimary && styles.primaryText]}>
@@ -58,6 +60,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   pressed: { opacity: 0.85 },
+  busy: { opacity: 0.6 },
   text: {
     fontFamily: fontFamily.bold,
     fontSize: fontSize.lead,

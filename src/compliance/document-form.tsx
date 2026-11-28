@@ -2,7 +2,6 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { SectionError } from "@/fatigue/section-error";
 import { DateField } from "@/ui/date-field";
 import {
   colors,
@@ -101,107 +100,113 @@ export function DocumentForm({
   const issueError = errorOf("missing-issue-date");
 
   return (
-    <ScrollView contentContainerStyle={styles.content} style={styles.screen}>
-      <View style={styles.header}>
-        <Text accessibilityRole="header" style={styles.title}>
-          Upload document
-        </Text>
-        <FormButton label="Close" onPress={() => router.back()} />
-      </View>
+    <View style={styles.screen}>
+      <ScrollView contentContainerStyle={styles.content} style={styles.scroll}>
+        <View style={styles.header}>
+          <Text accessibilityRole="header" style={styles.title}>
+            Upload document
+          </Text>
+          <FormButton label="Close" onPress={() => router.back()} />
+        </View>
 
-      <Section label="Document type" error={typeError}>
-        {isChoosingType ? (
-          <TypePicker
-            selected={draft.docType}
-            onSelect={(docType) => {
-              update({ docType });
-              setIsChoosingType(false);
-            }}
-          />
-        ) : (
-          <View style={styles.chosen}>
-            <Text style={styles.chosenName}>
-              {draft.docType ? DOC_TYPE_NAMES[draft.docType] : ""}
-            </Text>
-            <FormButton
-              label="Change type"
-              onPress={() => setIsChoosingType(true)}
+        <Section label="Document type" error={typeError}>
+          {isChoosingType ? (
+            <TypePicker
+              selected={draft.docType}
+              onSelect={(docType) => {
+                update({ docType });
+                setIsChoosingType(false);
+              }}
             />
-          </View>
-        )}
-      </Section>
+          ) : (
+            <View style={styles.chosen}>
+              <Text style={styles.chosenName}>
+                {draft.docType ? DOC_TYPE_NAMES[draft.docType] : ""}
+              </Text>
+              <FormButton
+                label="Change type"
+                onPress={() => setIsChoosingType(true)}
+              />
+            </View>
+          )}
+        </Section>
 
-      <Section label="Document" error={fileError}>
-        {draft.file ? <FilePreview file={draft.file} /> : null}
-        {camera === "explaining" ? (
-          <CameraRationale
-            onContinue={onTakePhoto}
-            onCancel={() => setCamera("idle")}
-          />
-        ) : (
+        <Section label="Document" error={fileError}>
+          {draft.file ? <FilePreview file={draft.file} /> : null}
+          {camera === "explaining" ? (
+            <CameraRationale
+              onContinue={onTakePhoto}
+              onCancel={() => setCamera("idle")}
+            />
+          ) : (
+            <FormButton
+              label="Take photo"
+              onPress={() => setCamera("explaining")}
+            />
+          )}
+          {camera === "denied" ? (
+            <Text accessibilityLiveRegion="polite" style={styles.notice}>
+              Camera access is off. To take a photo, allow the camera for
+              TruckConnect in your phone&apos;s Settings. You can also choose a
+              file instead.
+            </Text>
+          ) : null}
           <FormButton
-            label="Take photo"
-            onPress={() => setCamera("explaining")}
+            label="Choose file"
+            onPress={() => void pick(chooseFile)}
           />
-        )}
-        {camera === "denied" ? (
-          <Text accessibilityLiveRegion="polite" style={styles.notice}>
-            Camera access is off. To take a photo, allow the camera for
-            TruckConnect in your phone&apos;s Settings. You can also choose a
-            file instead.
-          </Text>
-        ) : null}
-        <FormButton label="Choose file" onPress={() => void pick(chooseFile)} />
-        {pickerError ? (
-          <Text accessibilityLiveRegion="polite" style={styles.error}>
-            {pickerError}
-          </Text>
-        ) : null}
-      </Section>
+          {pickerError ? (
+            <Text accessibilityLiveRegion="polite" style={styles.error}>
+              {pickerError}
+            </Text>
+          ) : null}
+        </Section>
 
-      <Section label="Dates" error={null}>
-        <DateField
-          label="Issue date"
-          value={draft.issueDate}
-          hasError={issueError !== null}
-          onChange={(issueDate) => update({ issueDate })}
-        />
-        {issueError ? (
-          <Text accessibilityRole="alert" style={styles.error}>
-            {issueError}
-          </Text>
-        ) : null}
-        <DateField
-          label="Expiry date"
-          value={draft.expiryDate}
-          hasError={expiryError !== null}
-          onChange={(expiryDate) => update({ expiryDate })}
-        />
-        {expiryError ? (
-          <Text accessibilityRole="alert" style={styles.error}>
-            {expiryError}
-          </Text>
-        ) : null}
-      </Section>
+        <Section label="Dates" error={null}>
+          <DateField
+            label="Issue date"
+            value={draft.issueDate}
+            hasError={issueError !== null}
+            onChange={(issueDate) => update({ issueDate })}
+          />
+          {issueError ? (
+            <Text accessibilityRole="alert" style={styles.error}>
+              {issueError}
+            </Text>
+          ) : null}
+          <DateField
+            label="Expiry date"
+            value={draft.expiryDate}
+            hasError={expiryError !== null}
+            onChange={(expiryDate) => update({ expiryDate })}
+          />
+          {expiryError ? (
+            <Text accessibilityRole="alert" style={styles.error}>
+              {expiryError}
+            </Text>
+          ) : null}
+        </Section>
 
-      {submitDocument.isError ? (
-        <SectionError
-          message={submitFailureMessage(submitDocument.error)}
-          onRetry={send}
+        {submitDocument.isError ? (
+          <Text accessibilityLiveRegion="polite" style={styles.failure}>
+            {submitFailureMessage(submitDocument.error)}
+          </Text>
+        ) : null}
+        {submitDocument.isPending ? (
+          <Text accessibilityLiveRegion="polite" style={styles.progress}>
+            Uploading your document...
+          </Text>
+        ) : null}
+      </ScrollView>
+      <View style={styles.footer}>
+        <FormButton
+          label={submitDocument.isError ? "Try again" : "Submit"}
+          variant="primary"
+          isBusy={submitDocument.isPending}
+          onPress={send}
         />
-      ) : null}
-      {submitDocument.isPending ? (
-        <Text accessibilityLiveRegion="polite" style={styles.progress}>
-          Uploading your document...
-        </Text>
-      ) : null}
-      <FormButton
-        label="Submit"
-        variant="primary"
-        isBusy={submitDocument.isPending}
-        onPress={send}
-      />
-    </ScrollView>
+      </View>
+    </View>
   );
 }
 
@@ -243,6 +248,22 @@ function FilePreview({ file }: { file: PickedFile }): React.JSX.Element {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
+  scroll: { flex: 1 },
+  // El envío queda siempre a la vista, también con el formulario largo.
+  footer: {
+    padding: spacing.xl,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.background,
+  },
+  failure: {
+    padding: spacing.lg,
+    borderRadius: radius.xl,
+    fontFamily: fontFamily.semibold,
+    fontSize: fontSize.body,
+    color: semantic.danger.text,
+    backgroundColor: semantic.danger.background,
+  },
   content: { gap: spacing.xl, padding: spacing.xl },
   header: {
     flexDirection: "row",
@@ -271,7 +292,9 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   preview: {
-    alignItems: "center",
+    alignItems: "flex-start",
+    borderWidth: 1,
+    borderColor: colors.border,
     gap: spacing.sm,
     padding: spacing.md,
     borderRadius: radius.xl,
