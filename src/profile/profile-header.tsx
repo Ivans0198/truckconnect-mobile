@@ -17,6 +17,7 @@ import type { DriverStats } from "./queries";
 
 // El mockup deja la calificación vacía: el back todavía no la entrega.
 const EMPTY_RATING = "— —";
+const LOADING_VALUE = "…";
 const AVATAR_SIZE = 80;
 const STATS_ERROR = "Could not load your stats. Check your connection.";
 
@@ -65,7 +66,9 @@ export function ProfileHeader({
           >
             <Stat
               value={
-                stats.status === "ready" ? String(stats.stats.totalOrders) : "…"
+                stats.status === "ready"
+                  ? String(stats.stats.totalOrders)
+                  : LOADING_VALUE
               }
               label="Deliveries"
             />
@@ -86,7 +89,12 @@ type StatProps = { value: string; label: string; bordered?: boolean };
 function Stat({ value, label, bordered }: StatProps): React.JSX.Element {
   return (
     <View style={[styles.stat, bordered && styles.statBordered]}>
-      <Text style={styles.statValue}>{value}</Text>
+      <Text
+        style={styles.statValue}
+        importantForAccessibility={value === LOADING_VALUE ? "no" : "auto"}
+      >
+        {value}
+      </Text>
       <Text style={styles.statLabel}>{label}</Text>
     </View>
   );

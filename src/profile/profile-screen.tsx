@@ -13,12 +13,16 @@ import { SignOutButton } from "@/auth/sign-out-button";
 import { useCurrentAccount } from "@/auth/use-current-account";
 import { SectionError } from "@/fatigue/section-error";
 import { useNow } from "@/fatigue/use-now";
-import { colors, fontFamily, fontSize, spacing } from "@/theme/tokens";
+import { colors, fontFamily, fontSize, radius, spacing } from "@/theme/tokens";
 
 import { PersonalInfo } from "./personal-info";
 import { ProfileHeader } from "./profile-header";
 import { useActiveVehicles, useDriverStats } from "./queries";
 import { VehicleCard } from "./vehicle-card";
+
+function versionLine(version: string | undefined): string {
+  return version ? `TruckConnect Driver · v${version}` : "TruckConnect Driver";
+}
 
 const ACCOUNT_ERROR = "Could not load your profile. Check your connection.";
 const VEHICLE_ERROR = "Could not load your vehicle. Check your connection.";
@@ -111,7 +115,7 @@ export function ProfileScreen(): React.JSX.Element {
       <View style={styles.footer}>
         <SignOutButton />
         <Text style={styles.version}>
-          {`TruckConnect Driver · v${Constants.expoConfig?.version ?? ""}`}
+          {versionLine(Constants.expoConfig?.version)}
         </Text>
       </View>
     </ScrollView>
@@ -139,7 +143,7 @@ function VehicleSection({
   }
   if (vehicles.data.length === 0) {
     return (
-      <View style={styles.section}>
+      <View style={styles.emptyCard}>
         <Text style={styles.empty}>No vehicle on file</Text>
       </View>
     );
@@ -186,6 +190,14 @@ const styles = StyleSheet.create({
   },
   section: { marginHorizontal: spacing.xl },
   vehicles: { gap: spacing.md },
+  emptyCard: {
+    marginHorizontal: spacing.xl,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    backgroundColor: colors.surface,
+  },
   empty: {
     fontFamily: fontFamily.medium,
     fontSize: fontSize.body,
