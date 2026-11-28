@@ -1,5 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { InfiniteData, UseMutationResult } from "@tanstack/react-query";
+import type {
+  InfiniteData,
+  QueryClient,
+  UseMutationResult,
+} from "@tanstack/react-query";
 
 import { api } from "@/api/client";
 
@@ -10,15 +14,16 @@ import {
 } from "./queries";
 
 type ListCache = InfiniteData<NotificationsPage, number>;
-type Snapshot = { list: ListCache | undefined; count: number | undefined };
+// Solo lo que hace falta para deshacer ESTA lectura, sin tocar las otras.
+type Snapshot = { wasUnread: boolean };
 
-function markReadInList(list: ListCache, id: string): ListCache {
+function setReadInList(list: ListCache, id: string, read: boolean): ListCache {
   return {
     ...list,
     pages: list.pages.map((page) => ({
       ...page,
       items: page.items.map((item) =>
-        item.id === id ? { ...item, read: true } : item,
+        item.id === id ? { ...item, read } : item,
       ),
     })),
   };
@@ -30,6 +35,12 @@ function wasUnread(list: ListCache | undefined, id: string): boolean {
       page.items.some((item) => item.id === id && !item.read),
     ) ?? false
   );
+}
+
+function adjustUnreadCount(client: QueryClient, delta: number): void {
+  const count = client.getQueryData<number>(UNREAD_COUNT_KEY);
+  if (count === undefined) return;
+  client.setQueryData<number>(UNREAD_COUNT_KEY, Math.max(0, count + delta));
 }
 
 // La lectura se ve al instante; si el PATCH falla, vuelve a como estaba.
@@ -56,22 +67,25 @@ export function useMarkRead(): UseMutationResult<
       await client.cancelQueries({ queryKey: NOTIFICATIONS_KEY });
       await client.cancelQueries({ queryKey: UNREAD_COUNT_KEY });
       const list = client.getQueryData<ListCache>(NOTIFICATIONS_KEY);
-      const count = client.getQueryData<number>(UNREAD_COUNT_KEY);
+      const isUnread = wasUnread(list, id);
       if (list) {
         client.setQueryData<ListCache>(
           NOTIFICATIONS_KEY,
-          markReadInList(list, id),
+          setReadInList(list, id, true),
         );
       }
-      if (count !== undefined && wasUnread(list, id)) {
-        client.setQueryData<number>(UNREAD_COUNT_KEY, Math.max(0, count - 1));
-      }
-      return { list, count };
+      if (isUnread) adjustUnreadCount(client, -1);
+      return { wasUnread: isUnread };
     },
-    onError: (_error, _id, snapshot) => {
-      if (!snapshot) return;
-      client.setQueryData(NOTIFICATIONS_KEY, snapshot.list);
-      client.setQueryData(UNREAD_COUNT_KEY, snapshot.count);
+    onError: (_error, id, snapshot) => {
+      const list = client.getQueryData<ListCache>(NOTIFICATIONS_KEY);
+      if (list) {
+        client.setQueryData<ListCache>(
+          NOTIFICATIONS_KEY,
+          setReadInList(list, id, false),
+        );
+      }
+      if (snapshot?.wasUnread) adjustUnreadCount(client, 1);
     },
   });
 }

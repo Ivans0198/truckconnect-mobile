@@ -121,7 +121,10 @@ export function NotificationsScreen(): React.JSX.Element {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Mark all read"
-            onPress={() => markAllRead.mutate()}
+            onPress={() => {
+              markRead.reset();
+              markAllRead.mutate();
+            }}
             style={styles.markAll}
           >
             <Text style={styles.markAllText}>Mark all read</Text>
@@ -152,7 +155,10 @@ export function NotificationsScreen(): React.JSX.Element {
             <NotificationRow
               notification={item}
               now={now}
-              onPress={(id) => markRead.mutate(id)}
+              onPress={(id) => {
+                markAllRead.reset();
+                markRead.mutate(id);
+              }}
             />
           )}
           contentContainerStyle={styles.listContent}
