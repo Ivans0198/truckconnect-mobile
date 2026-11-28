@@ -45,7 +45,7 @@ con el estado, el color y el aviso que corresponden, sin tocar nada.
 3. **Given** un documento vence en 7 días o menos, o ya venció, **When** ve la lista, **Then** su tarjeta y su etiqueta están en rojo ("7 days", "Expired") y ofrece "Upload renewed document".
 4. **Given** el último documento de un tipo está en revisión, **When** ve la lista, **Then** su tarjeta dice "Under review" en azul y no ofrece subir otro. Si el documento aprobado que reemplaza está en rojo, la tarjeta sigue mostrando su vencimiento ("Expired" o "<N> days") en rojo.
 5. **Given** el último documento de un tipo fue rechazado, **When** ve la lista, **Then** su tarjeta dice "Rejected" en rojo, muestra el motivo del rechazo y ofrece "Upload again".
-6. **Given** uno o más documentos piden atención, **When** abre la pestaña, **Then** arriba ve "N document(s) need(s) attention" con el más urgente. En ámbar: "<Tipo> expires in N days. Renew before <fecha> to avoid being blocked from new orders." En rojo (7 días o menos, o vencido), que ya no puede aceptar órdenes: "<Tipo> expires in N days. You can't accept new orders until it's renewed." o "<Tipo> expired. You can't accept new orders until it's renewed."
+6. **Given** uno o más documentos piden atención, **When** abre la pestaña, **Then** arriba ve "N document(s) need(s) attention" con el más urgente: "<Tipo> expires in N days. Renew before <fecha> to avoid being blocked from new orders."
 7. **Given** ningún documento pide atención, **When** abre la pestaña, **Then** no hay aviso arriba.
 8. **Given** la lista está abierta, **When** baja hasta el final, **Then** ve la tarjeta "How alerts work" que explica los avisos a 90, 60, 30, 14 y 7 días y que a 7 días no se aceptan órdenes nuevas.
 9. **Given** el conductor no tiene ningún documento cargado, **When** abre la pestaña, **Then** ve un estado vacío que lo invita a agregar el primero.
@@ -103,7 +103,7 @@ aceptar" da "no" con su motivo.
 
 **Acceptance Scenarios**:
 
-1. **Given** un documento pide atención, **When** el conductor abre Home, **Then** ve un aviso ámbar "<Tipo> expires in N days. Renew now to avoid being blocked from new orders." Si faltan 7 días o menos, o ya venció, el aviso es rojo y dice "<Tipo> expires in N days. You can't accept new orders until it's renewed." (o "<Tipo> expired. You can't accept new orders until it's renewed.").
+1. **Given** un documento pide atención, **When** el conductor abre Home, **Then** ve un aviso ámbar "<Tipo> expires in N days. Renew now to avoid being blocked from new orders." (rojo si faltan 7 días o menos o ya venció).
 2. **Given** varios documentos piden atención, **When** ve Home, **Then** el aviso nombra el más urgente y dice cuántos más hay.
 3. **Given** el aviso en Home, **When** lo toca, **Then** va a la pestaña Docs.
 4. **Given** algún documento pide atención, **When** ve la barra de pestañas, **Then** Docs tiene un punto ámbar, anunciado para lectores de pantalla.
