@@ -184,6 +184,57 @@ for (const vp of viewports) {
       await expectNoAxeViolations(page);
     });
 
+    test("asks which vehicle for a registration and has no accessibility violations", async ({
+      page,
+    }) => {
+      const vehicle = (id: string, make: string, plate: string) => ({
+        id,
+        driverId: "11111111-1111-4111-8111-111111111111",
+        type: "RIGID",
+        registrationNumber: plate,
+        state: "VIC",
+        make,
+        model: "FRR",
+        year: 2021,
+        gvmKg: 11_000,
+        maxPayloadKg: 6_000,
+        palletCapacity: 10,
+        cargoLengthM: 6.5,
+        cargoWidthM: 2.4,
+        cargoHeightM: 2.4,
+        hasTailLift: true,
+        isActive: true,
+        createdAt: "2024-03-01T00:00:00.000Z",
+        updatedAt: "2024-03-01T00:00:00.000Z",
+      });
+      await serveBackend(page);
+      let releaseVehicles: () => void = () => undefined;
+      const held = new Promise<void>((resolve) => {
+        releaseVehicles = resolve;
+      });
+      await page.route("**/vehicles**", async (route) => {
+        await held;
+        return route.fulfill(
+          listOf([
+            vehicle("v-1", "Isuzu", "1AB-2CD"),
+            vehicle("v-2", "Hino", "7XY-321"),
+          ]),
+        );
+      });
+      await signInAsDriver(page);
+      await page.getByRole("tab", { name: /Docs/ }).click();
+      await page.getByRole("button", { name: "Add document" }).click();
+      await page.getByRole("radio", { name: "Vehicle Registration" }).click();
+
+      await expect(page.getByLabel("Loading your vehicles")).toBeVisible();
+      await expectNoAxeViolations(page);
+
+      releaseVehicles();
+      await expect(page.getByRole("radio", { name: /Isuzu/ })).toBeVisible();
+      await expect(page.getByRole("radio", { name: /Hino/ })).toBeVisible();
+      await expectNoAxeViolations(page);
+    });
+
     test("marks the fields that are missing and sends nothing", async ({
       page,
     }) => {

@@ -24,9 +24,13 @@ type VehicleSectionProps = {
   onSelect: (vehicleId: string) => void;
 };
 
+function vehicleName(vehicle: Vehicle): string {
+  return [vehicle.make, vehicle.model].filter(Boolean).join(" ");
+}
+
 // "Isuzu FRR 110-260 · 1AB-2CD"; make y model pueden faltar.
 function vehicleLabel(vehicle: Vehicle): string {
-  const name = [vehicle.make, vehicle.model].filter(Boolean).join(" ");
+  const name = vehicleName(vehicle);
   return name
     ? `${name} · ${vehicle.registrationNumber}`
     : vehicle.registrationNumber;
@@ -46,6 +50,7 @@ export function VehicleSection({
       <Text style={styles.label}>Vehicle</Text>
       {vehicles.isPending ? (
         <View
+          role="img"
           accessibilityLabel="Loading your vehicles"
           style={styles.skeleton}
         />
@@ -91,7 +96,14 @@ export function VehicleSection({
                 >
                   {isSelected ? <View style={styles.radioDot} /> : null}
                 </View>
-                <Text style={styles.name}>{vehicleLabel(vehicle)}</Text>
+                <View style={styles.optionText}>
+                  {vehicleName(vehicle) ? (
+                    <Text style={styles.name}>{vehicleName(vehicle)}</Text>
+                  ) : null}
+                  <Text numberOfLines={1} style={styles.name}>
+                    {vehicle.registrationNumber}
+                  </Text>
+                </View>
               </Pressable>
             );
           })
@@ -144,10 +156,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  pressed: {
-    borderColor: semantic.info.accent,
-    backgroundColor: semantic.info.background,
-  },
+  pressed: { opacity: 0.85 },
+  optionText: { flexShrink: 1 },
   selected: {
     borderColor: semantic.info.accent,
     backgroundColor: semantic.info.background,
