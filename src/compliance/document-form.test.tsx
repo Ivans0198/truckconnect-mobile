@@ -183,6 +183,22 @@ describe("DocumentForm: the file", () => {
     expect(await screen.findByText("policy.pdf")).toBeOnTheScreen();
   });
 
+  it("shortens a long file name instead of overflowing", async () => {
+    mockChooseFile.mockResolvedValueOnce({
+      kind: "picked",
+      file: {
+        ...PDF,
+        name: "Public_Liability_Certificate_2026_renewal_final_signed_copy.pdf",
+      },
+    });
+    await renderWithQuery(<DocumentForm initialType="PUBLIC_LIABILITY" />);
+
+    await fireEvent.press(screen.getByRole("button", { name: "Choose file" }));
+
+    const name = await screen.findByText(/Public_Liability_Certificate/);
+    expect(name.props.numberOfLines).toBe(1);
+  });
+
   it("keeps the previous file when the picker is cancelled", async () => {
     mockChooseFile
       .mockResolvedValueOnce({ kind: "picked", file: PDF })

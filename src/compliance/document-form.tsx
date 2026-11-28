@@ -186,7 +186,8 @@ export function DocumentForm({
             </Text>
           ) : null}
         </Section>
-
+      </ScrollView>
+      <View style={styles.footer}>
         {submitDocument.isError ? (
           <Text accessibilityLiveRegion="polite" style={styles.failure}>
             {submitFailureMessage(submitDocument.error)}
@@ -197,8 +198,6 @@ export function DocumentForm({
             Uploading your document...
           </Text>
         ) : null}
-      </ScrollView>
-      <View style={styles.footer}>
         <FormButton
           label={submitDocument.isError ? "Try again" : "Submit"}
           variant="primary"
@@ -241,7 +240,9 @@ function FilePreview({ file }: { file: PickedFile }): React.JSX.Element {
           style={styles.previewImage}
         />
       ) : null}
-      <Text style={styles.fileName}>{file.name}</Text>
+      <Text numberOfLines={1} ellipsizeMode="middle" style={styles.fileName}>
+        {file.name}
+      </Text>
     </View>
   );
 }
@@ -251,6 +252,7 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   // El envío queda siempre a la vista, también con el formulario largo.
   footer: {
+    gap: spacing.md,
     padding: spacing.xl,
     borderTopWidth: 1,
     borderTopColor: colors.border,
@@ -306,6 +308,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
   },
   fileName: {
+    alignSelf: "stretch",
     fontFamily: fontFamily.semibold,
     fontSize: fontSize.body,
     color: colors.text,

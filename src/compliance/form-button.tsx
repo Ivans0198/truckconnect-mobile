@@ -29,6 +29,7 @@ export function FormButton({
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ busy: isBusy, disabled: isBusy }}
+      aria-busy={isBusy}
       disabled={isBusy}
       onPress={onPress}
       style={({ pressed }) => [
