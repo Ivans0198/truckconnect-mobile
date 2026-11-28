@@ -1,6 +1,7 @@
 import { act, fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { http, HttpResponse } from "msw";
-import { StyleSheet } from "react-native";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text } from "react-native";
 
 import {
   emptyNotificationsPage,
@@ -12,6 +13,7 @@ import { apiUrl, server } from "@/test/server";
 import { fontSize, TOUCH_TARGET_MIN } from "@/theme/tokens";
 
 import { NotificationsScreen } from "./notifications-screen";
+import { useUnreadCount } from "./queries";
 
 const mockBack = jest.fn();
 jest.mock("expo-router", () => ({
@@ -297,6 +299,39 @@ describe("NotificationsScreen", () => {
     await fireEvent.press(screen.getByRole("button", { name: "Back" }));
 
     expect(mockBack).toHaveBeenCalled();
+  });
+
+  it("asks the unread count again when the list closes", async () => {
+    let countCalls = 0;
+    server.use(
+      http.get(apiUrl("/notifications"), ({ request }) => {
+        if (new URL(request.url).searchParams.get("unread") === "true") {
+          countCalls += 1;
+        }
+        return HttpResponse.json(emptyNotificationsPage);
+      }),
+    );
+    // Home queda montada debajo de la lista y sigue mirando el contador.
+    function HomeWithList(): React.JSX.Element {
+      const [open, setOpen] = useState(true);
+      useUnreadCount();
+      return (
+        <>
+          <Pressable accessibilityRole="button" onPress={() => setOpen(false)}>
+            <Text>Close list</Text>
+          </Pressable>
+          {open ? <NotificationsScreen /> : null}
+        </>
+      );
+    }
+    await renderWithQuery(<HomeWithList />);
+    await screen.findByText("You're all caught up");
+    await waitFor(() => expect(countCalls).toBeGreaterThan(0));
+    const before = countCalls;
+
+    await fireEvent.press(screen.getByRole("button", { name: "Close list" }));
+
+    await waitFor(() => expect(countCalls).toBeGreaterThan(before));
   });
 
   it("keeps a long body whole and rows and text at driver sizes", async () => {
