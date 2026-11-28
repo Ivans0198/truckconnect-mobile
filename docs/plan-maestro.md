@@ -26,6 +26,17 @@ con la primera épica que la usa, no como épica propia.
 | E6  | Incidentes                          | Reportar, mis reportes y detalle (sin mockup), evidencia por upload, `reasonOther` condicional, registros redactados por retención                                                                                                            | M      | E1, E2     |                                     |
 | E7  | Endurecimiento                      | Estados loading/empty/error parejos en todas las pantallas, auditoría del consumo contra `openapi.json`, accesibilidad (contraste, targets ≥60px, texto ≥16pt)                                                                                | S      | E2 a E6    |                                     |
 
+**Traspaso de E5 a E2.** E5 ya dejó tres piezas que E2 usa:
+
+- La regla de aceptar (`evaluateOrderAcceptance`) ya trae los motivos de
+  compliance junto a los de fatiga; el texto de cada motivo sale de
+  `describeBlockReason` (`src/fatigue/order-acceptance.ts`). El detalle de
+  orden solo la consulta.
+- Home ya tiene `HomeHeader` (con la campana de notificaciones) y
+  `ComplianceBanner`. "Your day" se arma alrededor de ellos.
+- El helper de subidas con URL prefirmada vive en `src/uploads/`
+  (`uploadWithPresignedUrl`). E3 y E6 lo reutilizan para fotos y evidencia.
+
 Fuera de las épicas, porque no hay código que un worker escriba:
 
 - **Verificación en dispositivo** (después de E3): GPS en background
