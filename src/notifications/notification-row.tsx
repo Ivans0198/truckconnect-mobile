@@ -68,10 +68,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border,
+    borderLeftWidth: ACCENT_BAR_WIDTH,
     backgroundColor: colors.surface,
   },
   unread: {
-    borderLeftWidth: ACCENT_BAR_WIDTH,
     borderLeftColor: semantic.info.accent,
     backgroundColor: semantic.info.background,
   },

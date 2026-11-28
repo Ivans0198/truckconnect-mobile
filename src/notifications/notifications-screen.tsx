@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   Pressable,
   RefreshControl,
@@ -97,7 +98,10 @@ export function NotificationsScreen(): React.JSX.Element {
           accessibilityRole="button"
           accessibilityLabel="Back"
           onPress={goBack}
-          style={styles.iconButton}
+          style={({ pressed }) => [
+            styles.iconButton,
+            pressed && styles.pressed,
+          ]}
         >
           <Svg
             width={ICON_SIZE}
@@ -117,15 +121,20 @@ export function NotificationsScreen(): React.JSX.Element {
         <Text accessibilityRole="header" style={styles.title}>
           Notifications
         </Text>
-        {hasUnread ? (
+        {hasUnread && list.data ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Mark all read"
+            accessibilityState={{ busy: markAllRead.isPending }}
+            disabled={markAllRead.isPending}
             onPress={() => {
               markRead.reset();
               markAllRead.mutate();
             }}
-            style={styles.markAll}
+            style={({ pressed }) => [
+              styles.markAll,
+              (pressed || markAllRead.isPending) && styles.pressed,
+            ]}
           >
             <Text style={styles.markAllText}>Mark all read</Text>
           </Pressable>
@@ -163,6 +172,15 @@ export function NotificationsScreen(): React.JSX.Element {
           )}
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={Separator}
+          ListFooterComponent={
+            list.isFetchingNextPage ? (
+              <ActivityIndicator
+                accessibilityLabel="Loading more notifications"
+                color={colors.primary}
+                style={styles.footer}
+              />
+            ) : undefined
+          }
           ListEmptyComponent={
             <Text style={styles.empty}>You&apos;re all caught up</Text>
           }
@@ -205,7 +223,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing.md,
     backgroundColor: colors.surface,
   },
   iconButton: {
@@ -239,8 +257,10 @@ const styles = StyleSheet.create({
     color: semantic.danger.text,
     backgroundColor: semantic.danger.background,
   },
-  padded: { padding: spacing.lg },
-  listContent: { flexGrow: 1, padding: spacing.lg },
+  pressed: { opacity: 0.6 },
+  padded: { padding: spacing.xl },
+  listContent: { flexGrow: 1, padding: spacing.xl },
+  footer: { paddingVertical: spacing.lg },
   separator: { height: spacing.md },
   empty: {
     paddingVertical: spacing.xxl,
