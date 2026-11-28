@@ -10,9 +10,21 @@ import {
 } from "@/test/fatigue-fixtures";
 import { apiUrl, server } from "@/test/server";
 
+import { summarizeDocuments } from "@/compliance/attention";
+import type { ComplianceDocument, DocumentCard } from "@/compliance/types";
+import {
+  COMPLIANCE_NOW,
+  approvedExpiringIn,
+  documentsPage,
+  expiredDocument,
+  pendingRenewal,
+  redApprovedPublicLiability,
+  rejectedDocument,
+} from "@/test/compliance-fixtures";
+
 import { useFatigueAction } from "./mutations";
 import {
-  ACCEPTANCE_BLOCK_MESSAGES,
+  describeBlockReason,
   evaluateOrderAcceptance,
   useOrderAcceptance,
 } from "./order-acceptance";
@@ -25,12 +37,18 @@ const PAST_BREAK_DUE = "2026-11-27T01:00:00.000Z";
 function evaluate(
   statusOverrides: Partial<FatigueStatus> = {},
   weekOverrides: Partial<WeekSummary> = {},
+  compliance: DocumentCard[] | undefined = undefined,
 ): ReturnType<typeof evaluateOrderAcceptance> {
   return evaluateOrderAcceptance({
     status: { ...fatigueStatusFixture, ...statusOverrides },
     week: { ...weekSummaryFixture, ...weekOverrides },
+    compliance,
     now: FATIGUE_NOW,
   });
+}
+
+function cardsOf(documents: ComplianceDocument[]): DocumentCard[] {
+  return summarizeDocuments(documents, COMPLIANCE_NOW).cards;
 }
 
 describe("evaluateOrderAcceptance", () => {
@@ -41,7 +59,7 @@ describe("evaluateOrderAcceptance", () => {
   it.each([0, -0.5])("blocks on daily-limit with %s hours remaining", (h) => {
     expect(evaluate({ hoursRemaining: h })).toEqual({
       kind: "blocked",
-      reasons: ["daily-limit"],
+      reasons: [{ kind: "daily-limit" }],
     });
   });
 
@@ -52,21 +70,21 @@ describe("evaluateOrderAcceptance", () => {
   it.each([0, -3])("blocks on weekly-limit with %s hours remaining", (h) => {
     expect(evaluate({}, { remainingHours: h })).toEqual({
       kind: "blocked",
-      reasons: ["weekly-limit"],
+      reasons: [{ kind: "weekly-limit" }],
     });
   });
 
   it("blocks on break-overdue when working past the break time", () => {
     expect(evaluate({ nextBreakDueAt: PAST_BREAK_DUE })).toEqual({
       kind: "blocked",
-      reasons: ["break-overdue"],
+      reasons: [{ kind: "break-overdue" }],
     });
   });
 
   it("blocks when the break time is exactly now", () => {
     expect(evaluate({ nextBreakDueAt: FATIGUE_NOW.toISOString() })).toEqual({
       kind: "blocked",
-      reasons: ["break-overdue"],
+      reasons: [{ kind: "break-overdue" }],
     });
   });
 
@@ -91,18 +109,177 @@ describe("evaluateOrderAcceptance", () => {
       ),
     ).toEqual({
       kind: "blocked",
-      reasons: ["daily-limit", "weekly-limit", "break-overdue"],
+      reasons: [
+        { kind: "daily-limit" },
+        { kind: "weekly-limit" },
+        { kind: "break-overdue" },
+      ],
     });
   });
 });
 
-describe("ACCEPTANCE_BLOCK_MESSAGES", () => {
-  it("has the English text of each reason", () => {
-    expect(ACCEPTANCE_BLOCK_MESSAGES).toEqual({
-      "daily-limit": "Daily limit reached",
-      "weekly-limit": "Weekly limit reached",
-      "break-overdue": "Break overdue",
+describe("evaluateOrderAcceptance with compliance", () => {
+  it("adds nothing when the documents did not load", () => {
+    expect(evaluate({}, {}, undefined)).toEqual({ kind: "allowed" });
+  });
+
+  it("adds nothing for valid, amber or rejected documents", () => {
+    expect(
+      evaluate(
+        {},
+        {},
+        cardsOf([
+          approvedExpiringIn("a", "DRIVER_LICENCE", 400),
+          approvedExpiringIn("b", "PUBLIC_LIABILITY", 32),
+          rejectedDocument,
+        ]),
+      ),
+    ).toEqual({ kind: "allowed" });
+  });
+
+  it("blocks with the days left when an approved document is at 7 days or fewer", () => {
+    expect(
+      evaluate(
+        {},
+        {},
+        cardsOf([approvedExpiringIn("a", "PUBLIC_LIABILITY", 5)]),
+      ),
+    ).toEqual({
+      kind: "blocked",
+      reasons: [
+        {
+          kind: "compliance",
+          docType: "PUBLIC_LIABILITY",
+          state: "expiring",
+          days: 5,
+        },
+      ],
     });
+  });
+
+  it("blocks with expired for an expired document", () => {
+    expect(evaluate({}, {}, cardsOf([expiredDocument]))).toEqual({
+      kind: "blocked",
+      reasons: [
+        {
+          kind: "compliance",
+          docType: "VEHICLE_REGO",
+          state: "expired",
+          days: null,
+        },
+      ],
+    });
+  });
+
+  it("keeps blocking with under-review when the red document is being renewed", () => {
+    expect(
+      evaluate({}, {}, cardsOf([redApprovedPublicLiability, pendingRenewal])),
+    ).toEqual({
+      kind: "blocked",
+      reasons: [
+        {
+          kind: "compliance",
+          docType: "PUBLIC_LIABILITY",
+          state: "under-review",
+          days: null,
+        },
+      ],
+    });
+  });
+
+  it("lifts the compliance reason once the renewal is approved", () => {
+    const approvedRenewal = {
+      ...pendingRenewal,
+      status: "APPROVED" as const,
+    };
+    expect(
+      evaluate({}, {}, cardsOf([redApprovedPublicLiability, approvedRenewal])),
+    ).toEqual({ kind: "allowed" });
+  });
+
+  it("puts compliance reasons after the fatigue ones, in DocType order", () => {
+    expect(
+      evaluate(
+        { hoursRemaining: 0 },
+        {},
+        cardsOf([
+          approvedExpiringIn("t", "TRAILER_REGO", 2),
+          approvedExpiringIn("l", "DRIVER_LICENCE", 3),
+        ]),
+      ),
+    ).toEqual({
+      kind: "blocked",
+      reasons: [
+        { kind: "daily-limit" },
+        {
+          kind: "compliance",
+          docType: "DRIVER_LICENCE",
+          state: "expiring",
+          days: 3,
+        },
+        {
+          kind: "compliance",
+          docType: "TRAILER_REGO",
+          state: "expiring",
+          days: 2,
+        },
+      ],
+    });
+  });
+});
+
+describe("describeBlockReason", () => {
+  it.each([
+    [{ kind: "daily-limit" }, "Daily limit reached"],
+    [{ kind: "weekly-limit" }, "Weekly limit reached"],
+    [{ kind: "break-overdue" }, "Break overdue"],
+    [
+      {
+        kind: "compliance",
+        docType: "PUBLIC_LIABILITY",
+        state: "expiring",
+        days: 5,
+      },
+      "Public Liability expires in 5 days",
+    ],
+    [
+      {
+        kind: "compliance",
+        docType: "PUBLIC_LIABILITY",
+        state: "expiring",
+        days: 1,
+      },
+      "Public Liability expires in 1 day",
+    ],
+    [
+      {
+        kind: "compliance",
+        docType: "PUBLIC_LIABILITY",
+        state: "expiring",
+        days: 0,
+      },
+      "Public Liability expires today",
+    ],
+    [
+      {
+        kind: "compliance",
+        docType: "DRIVER_LICENCE",
+        state: "expired",
+        days: null,
+      },
+      "Driver Licence expired",
+    ],
+    [
+      {
+        kind: "compliance",
+        docType: "PUBLIC_LIABILITY",
+        state: "under-review",
+        days: null,
+      },
+      "Public Liability under review",
+    ],
+  ] as const)("describes %j", (reason, text) => {
+    expect(describeBlockReason(reason)).toBe(text);
   });
 });
 
@@ -192,7 +369,7 @@ describe("useOrderAcceptance", () => {
     await waitFor(() =>
       expect(result.current).toEqual({
         kind: "blocked",
-        reasons: ["daily-limit"],
+        reasons: [{ kind: "daily-limit" }],
       }),
     );
   });
@@ -215,7 +392,7 @@ describe("useOrderAcceptance", () => {
     await waitFor(() =>
       expect(result.current.acceptance).toEqual({
         kind: "blocked",
-        reasons: ["break-overdue"],
+        reasons: [{ kind: "break-overdue" }],
       }),
     );
 
@@ -225,6 +402,55 @@ describe("useOrderAcceptance", () => {
 
     await waitFor(() =>
       expect(result.current.acceptance).toEqual({ kind: "allowed" }),
+    );
+  });
+
+  it("is blocked by compliance when a document is about to expire", async () => {
+    server.use(
+      http.get(apiUrl("/compliance/documents"), () =>
+        HttpResponse.json(
+          documentsPage([approvedExpiringIn("a", "PUBLIC_LIABILITY", 5)]),
+        ),
+      ),
+    );
+
+    const { result } = await renderHook(() => useOrderAcceptance(), {
+      wrapper: wrapper(),
+    });
+
+    await waitFor(() =>
+      expect(result.current).toEqual({
+        kind: "blocked",
+        reasons: [
+          {
+            kind: "compliance",
+            docType: "PUBLIC_LIABILITY",
+            state: "expiring",
+            days: expect.any(Number),
+          },
+        ],
+      }),
+    );
+  });
+
+  it("answers with the fatigue alone when the documents fail", async () => {
+    server.use(
+      http.get(
+        apiUrl("/compliance/documents"),
+        () => new HttpResponse(null, { status: 500 }),
+      ),
+    );
+    serveStatus({ ...fatigueStatusFixture, hoursRemaining: 0 });
+
+    const { result } = await renderHook(() => useOrderAcceptance(), {
+      wrapper: wrapper(),
+    });
+
+    await waitFor(() =>
+      expect(result.current).toEqual({
+        kind: "blocked",
+        reasons: [{ kind: "daily-limit" }],
+      }),
     );
   });
 });

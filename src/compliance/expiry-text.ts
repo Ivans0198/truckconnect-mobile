@@ -1,9 +1,23 @@
-import type { Attention } from "./types";
+import type { Attention, DocumentCard } from "./types";
 
 // "32 days", "1 day", "Today": la etiqueta de un documento que vence pronto.
 export function formatDaysLabel(days: number): string {
   if (days === 0) return "Today";
   return `${days} ${days === 1 ? "day" : "days"}`;
+}
+
+// El motivo en rojo: el bloqueo ya rige, así que el texto lo dice en presente.
+export function redExpiryMessage(
+  name: string,
+  expiry: { kind: "expired" } | { kind: "urgent"; days: number },
+): string {
+  const when =
+    expiry.kind === "expired"
+      ? "expired"
+      : expiry.days === 0
+        ? "expires today"
+        : `expires in ${formatDaysLabel(expiry.days)}`;
+  return `${name} ${when}. You can't accept new orders until it's renewed.`;
 }
 
 export type ExpiryAttention = Exclude<
@@ -20,4 +34,14 @@ export function expiryAttentionOf(
     return attention.current ? expiryAttentionOf(attention.current) : null;
   }
   return attention;
+}
+
+// Rojo: vence en 7 días o menos, ya venció o fue rechazado.
+export function isRedCard(card: DocumentCard): boolean {
+  const kind = expiryAttentionOf(card.attention)?.kind;
+  return (
+    kind === "urgent" ||
+    kind === "expired" ||
+    card.attention.kind === "rejected"
+  );
 }

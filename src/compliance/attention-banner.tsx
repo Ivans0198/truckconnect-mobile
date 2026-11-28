@@ -11,7 +11,12 @@ import {
 } from "@/theme/tokens";
 
 import { ComplianceIcon } from "./icons";
-import { expiryAttentionOf, formatDaysLabel } from "./expiry-text";
+import {
+  expiryAttentionOf,
+  formatDaysLabel,
+  isRedCard,
+  redExpiryMessage,
+} from "./expiry-text";
 import {
   DOC_TYPE_NAMES,
   type ComplianceSummary,
@@ -21,15 +26,6 @@ import {
 const ICON_SIZE = 20;
 const CIRCLE_SIZE = 40;
 const BLOCKED_NOTE = "to avoid being blocked from new orders.";
-
-function isRed(card: DocumentCard): boolean {
-  const kind = expiryAttentionOf(card.attention)?.kind;
-  return (
-    kind === "urgent" ||
-    kind === "expired" ||
-    card.attention.kind === "rejected"
-  );
-}
 
 function countTitle(count: number): string {
   return count === 1
@@ -45,8 +41,8 @@ function messageFor(card: DocumentCard): string {
   }
   const expiry = expiryAttentionOf(card.attention);
   const expiryDate = (card.current ?? card.latest).expiryDate;
-  if (expiry?.kind === "expired") {
-    return `${name} has expired. Upload a renewed document to take new orders again.`;
+  if (expiry?.kind === "expired" || expiry?.kind === "urgent") {
+    return redExpiryMessage(name, expiry);
   }
   if (expiry && expiry.kind !== "valid") {
     const when =
@@ -65,7 +61,7 @@ export function AttentionBanner({
 }): React.JSX.Element | null {
   const { mostUrgent } = summary;
   if (!mostUrgent) return null;
-  const tone = semantic[isRed(mostUrgent) ? "danger" : "warning"];
+  const tone = semantic[isRedCard(mostUrgent) ? "danger" : "warning"];
   return (
     <View
       accessibilityLiveRegion="polite"

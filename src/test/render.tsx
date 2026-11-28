@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react-native";
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 
 type RenderResult = Awaited<ReturnType<typeof render>>;
 
@@ -16,4 +16,28 @@ export function renderWithQuery(ui: ReactElement): Promise<RenderResult> {
   return render(
     <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
   );
+}
+
+function newTestClient(): QueryClient {
+  return new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: Infinity },
+      mutations: { gcTime: Infinity },
+    },
+  });
+}
+
+// Para las pruebas de rutas que montan un layout fuera del RootLayout: les da
+// el QueryClientProvider que la app pone arriba, uno nuevo por montaje.
+export function withQueryClient(
+  Component: () => React.JSX.Element,
+): () => React.JSX.Element {
+  return function WithQueryClient() {
+    const [client] = useState(newTestClient);
+    return (
+      <QueryClientProvider client={client}>
+        <Component />
+      </QueryClientProvider>
+    );
+  };
 }
