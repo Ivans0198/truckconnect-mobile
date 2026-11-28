@@ -121,7 +121,9 @@ export function NotificationsScreen(): React.JSX.Element {
         <Text accessibilityRole="header" numberOfLines={1} style={styles.title}>
           Notifications
         </Text>
-        {hasUnread && list.data ? (
+      </View>
+      {hasUnread && list.data ? (
+        <View style={styles.markAllRow}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Mark all read"
@@ -138,8 +140,8 @@ export function NotificationsScreen(): React.JSX.Element {
           >
             <Text style={styles.markAllText}>Mark all read</Text>
           </Pressable>
-        ) : null}
-      </View>
+        </View>
+      ) : null}
       {actionError ? (
         <Text accessibilityLiveRegion="polite" style={styles.actionError}>
           {actionError}
@@ -240,6 +242,12 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.bold,
     fontSize: fontSize.title,
     color: colors.text,
+  },
+  markAllRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingHorizontal: spacing.xl,
+    backgroundColor: colors.surface,
   },
   markAll: {
     minHeight: TOUCH_TARGET_MIN,

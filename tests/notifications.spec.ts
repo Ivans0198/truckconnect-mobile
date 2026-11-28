@@ -98,9 +98,16 @@ for (const vp of viewports) {
         .getByRole("button", { name: "Notifications, 2 unread" })
         .click();
 
+      const heading = page.getByRole("heading", { name: "Notifications" });
+      await expect(heading).toBeVisible();
       await expect(
-        page.getByRole("heading", { name: "Notifications" }),
+        page.getByRole("button", { name: "Mark all read" }),
       ).toBeVisible();
+      // El título entero, sin "Notificatio...", también a 360 px.
+      const headingOverflow = await heading.evaluate(
+        (node) => node.scrollWidth - node.clientWidth,
+      );
+      expect(headingOverflow).toBeLessThanOrEqual(0);
       await expect(page.getByText("Order TC-1042 assigned")).toBeVisible();
       await expect(page.getByText("9:41 AM")).toBeVisible();
       await expect(page.getByText("12 Nov")).toBeVisible();
