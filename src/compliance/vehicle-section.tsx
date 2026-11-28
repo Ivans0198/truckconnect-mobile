@@ -45,9 +45,10 @@ export function VehicleSection({
     <View style={styles.section}>
       <Text style={styles.label}>Vehicle</Text>
       {vehicles.isPending ? (
-        <Text accessibilityLiveRegion="polite" style={styles.note}>
-          Loading vehicles...
-        </Text>
+        <View
+          accessibilityLabel="Loading your vehicles"
+          style={styles.skeleton}
+        />
       ) : null}
       {vehicles.isError ? (
         <>
@@ -67,7 +68,7 @@ export function VehicleSection({
         </Text>
       ) : null}
       {list?.length === 1 ? (
-        <Text style={styles.name}>{vehicleLabel(list[0] as Vehicle)}</Text>
+        <Text style={styles.chosen}>{vehicleLabel(list[0] as Vehicle)}</Text>
       ) : null}
       {list && list.length > 1
         ? list.map((vehicle) => {
@@ -79,7 +80,11 @@ export function VehicleSection({
                 accessibilityLabel={vehicleLabel(vehicle)}
                 aria-checked={isSelected}
                 onPress={() => onSelect(vehicle.id)}
-                style={[styles.option, isSelected && styles.selected]}
+                style={({ pressed }) => [
+                  styles.option,
+                  isSelected && styles.selected,
+                  pressed && styles.pressed,
+                ]}
               >
                 <View
                   style={[styles.radio, isSelected && styles.radioSelected]}
@@ -91,7 +96,7 @@ export function VehicleSection({
             );
           })
         : null}
-      {error ? (
+      {error && list && list.length > 1 ? (
         <Text accessibilityRole="alert" style={styles.error}>
           {error}
         </Text>
@@ -109,10 +114,10 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
-  note: {
-    fontFamily: fontFamily.semibold,
-    fontSize: fontSize.body,
-    color: semantic.info.text,
+  skeleton: {
+    minHeight: TOUCH_TARGET_MIN,
+    borderRadius: radius.xl,
+    backgroundColor: colors.border,
   },
   warning: {
     padding: spacing.lg,
@@ -133,10 +138,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.md,
     paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderRadius: radius.xl,
     borderWidth: 2,
     borderColor: colors.border,
     backgroundColor: colors.surface,
+  },
+  pressed: {
+    borderColor: semantic.info.accent,
+    backgroundColor: semantic.info.background,
   },
   selected: {
     borderColor: semantic.info.accent,
@@ -157,6 +167,11 @@ const styles = StyleSheet.create({
     height: RADIO_DOT_SIZE,
     borderRadius: radius.full,
     backgroundColor: semantic.info.accent,
+  },
+  chosen: {
+    fontFamily: fontFamily.bold,
+    fontSize: fontSize.lead,
+    color: colors.text,
   },
   name: {
     flexShrink: 1,

@@ -515,7 +515,9 @@ describe("DocumentForm: registration documents need a vehicle", () => {
       await renderWithQuery(<DocumentForm initialType={docType} />);
       await fillTheForm();
       await waitFor(() =>
-        expect(screen.queryByText(/Loading vehicles/)).not.toBeOnTheScreen(),
+        expect(
+          screen.queryByLabelText("Loading your vehicles"),
+        ).not.toBeOnTheScreen(),
       );
 
       await submit();
@@ -581,7 +583,7 @@ describe("DocumentForm: registration documents need a vehicle", () => {
     await renderWithQuery(<DocumentForm initialType="VEHICLE_REGO" />);
     await fillTheForm();
 
-    expect(screen.getByText(/Loading vehicles/)).toBeOnTheScreen();
+    expect(screen.getByLabelText("Loading your vehicles")).toBeOnTheScreen();
     await submit();
 
     expect(recorded.registerBody).toBeUndefined();
@@ -597,6 +599,8 @@ describe("DocumentForm: registration documents need a vehicle", () => {
 
     await waitFor(() => expect(mockBack).toHaveBeenCalledTimes(1));
     expect(recorded.registerBody).not.toHaveProperty("vehicleId");
-    expect(screen.queryByText(/Loading vehicles/)).not.toBeOnTheScreen();
+    expect(
+      screen.queryByLabelText("Loading your vehicles"),
+    ).not.toBeOnTheScreen();
   });
 });
