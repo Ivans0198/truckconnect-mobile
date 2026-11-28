@@ -101,6 +101,43 @@ async function serveBackend(
   return backend;
 }
 
+// Un vehículo con la forma del contrato: marca, modelo y patente tal como
+// llegan del back, sin formatear.
+function vehicle(id: string, make: string, model: string, plate: string) {
+  return {
+    id,
+    driverId: "11111111-1111-4111-8111-111111111111",
+    type: "RIGID",
+    registrationNumber: plate,
+    state: "VIC",
+    make,
+    model,
+    year: 2021,
+    gvmKg: 11_000,
+    maxPayloadKg: 6_000,
+    palletCapacity: 10,
+    cargoLengthM: 6.5,
+    cargoWidthM: 2.4,
+    cargoHeightM: 2.4,
+    hasTailLift: true,
+    isActive: true,
+    createdAt: "2024-03-01T00:00:00.000Z",
+    updatedAt: "2024-03-01T00:00:00.000Z",
+  };
+}
+
+async function openTrailerRegistration(
+  page: Page,
+  vehicles: unknown[],
+): Promise<void> {
+  await serveBackend(page);
+  await page.route("**/vehicles**", (route) => route.fulfill(listOf(vehicles)));
+  await signInAsDriver(page);
+  await page.getByRole("tab", { name: /Docs/ }).click();
+  await page.getByRole("button", { name: "Add document" }).click();
+  await page.getByRole("radio", { name: "Trailer Registration" }).click();
+}
+
 async function openFormFromCard(page: Page): Promise<void> {
   await signInAsDriver(page);
   await page.getByRole("tab", { name: /Docs/ }).click();
@@ -187,26 +224,6 @@ for (const vp of viewports) {
     test("asks which vehicle for a registration and has no accessibility violations", async ({
       page,
     }) => {
-      const vehicle = (id: string, make: string, plate: string) => ({
-        id,
-        driverId: "11111111-1111-4111-8111-111111111111",
-        type: "RIGID",
-        registrationNumber: plate,
-        state: "VIC",
-        make,
-        model: "FRR",
-        year: 2021,
-        gvmKg: 11_000,
-        maxPayloadKg: 6_000,
-        palletCapacity: 10,
-        cargoLengthM: 6.5,
-        cargoWidthM: 2.4,
-        cargoHeightM: 2.4,
-        hasTailLift: true,
-        isActive: true,
-        createdAt: "2024-03-01T00:00:00.000Z",
-        updatedAt: "2024-03-01T00:00:00.000Z",
-      });
       await serveBackend(page);
       let releaseVehicles: () => void = () => undefined;
       const held = new Promise<void>((resolve) => {
@@ -216,8 +233,8 @@ for (const vp of viewports) {
         await held;
         return route.fulfill(
           listOf([
-            vehicle("v-1", "Isuzu", "1AB-2CD"),
-            vehicle("v-2", "Hino", "7XY-321"),
+            vehicle("v-1", "Isuzu", "FRR110", "1AB2CD"),
+            vehicle("v-2", "Hino", "300", "7XY321"),
           ]),
         );
       });
@@ -232,6 +249,43 @@ for (const vp of viewports) {
       releaseVehicles();
       await expect(page.getByRole("radio", { name: /Isuzu/ })).toBeVisible();
       await expect(page.getByRole("radio", { name: /Hino/ })).toBeVisible();
+      await expectNoAxeViolations(page);
+    });
+
+    test("shows the only vehicle without asking", async ({ page }) => {
+      await openTrailerRegistration(page, [
+        vehicle("v-1", "Isuzu", "FRR110", "1AB2CD"),
+      ]);
+
+      await expect(page.getByText("Isuzu FRR110 · 1AB2CD")).toBeVisible();
+      await expect(page.getByRole("radio", { name: /Isuzu/ })).toHaveCount(0);
+      await expectFullPageScreenshot(page, `form-vehicle-one-${vp.name}.png`);
+      await expectNoAxeViolations(page);
+    });
+
+    test("lists the vehicles to choose from, none chosen yet", async ({
+      page,
+    }) => {
+      await openTrailerRegistration(page, [
+        vehicle("v-1", "Isuzu", "FRR110", "1AB2CD"),
+        vehicle("v-2", "Hino", "300", "7XY321"),
+      ]);
+
+      await expect(page.getByRole("radio", { name: /Isuzu/ })).toBeVisible();
+      await expect(page.getByRole("radio", { name: /Hino/ })).toBeVisible();
+      await expect(
+        page.getByRole("radio", { name: /Isuzu/ }),
+      ).not.toBeChecked();
+      await expect(page.getByRole("radio", { name: /Hino/ })).not.toBeChecked();
+      await expectFullPageScreenshot(page, `form-vehicle-two-${vp.name}.png`);
+      await expectNoAxeViolations(page);
+    });
+
+    test("explains there is no vehicle and does not send", async ({ page }) => {
+      await openTrailerRegistration(page, []);
+
+      await expect(page.getByText(/You have no active vehicle/)).toBeVisible();
+      await expectFullPageScreenshot(page, `form-vehicle-none-${vp.name}.png`);
       await expectNoAxeViolations(page);
     });
 
