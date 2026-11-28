@@ -55,7 +55,11 @@ export function ComplianceIcon({
   if (name in FILLED_PATHS) {
     return (
       <Svg width={size} height={size} viewBox="0 0 20 20" fill={color}>
-        <Path d={FILLED_PATHS[name as keyof typeof FILLED_PATHS]} />
+        <Path
+          d={FILLED_PATHS[name as keyof typeof FILLED_PATHS]}
+          fillRule="evenodd"
+          clipRule="evenodd"
+        />
       </Svg>
     );
   }
