@@ -212,6 +212,22 @@ describe("ProfileScreen", () => {
     expect(screen.getByRole("button", { name: "Log out" })).toBeOnTheScreen();
   });
 
+  it("shows the stats error when the response has the wrong shape", async () => {
+    server.use(
+      http.get(apiUrl("/drivers/:id/stats"), () =>
+        HttpResponse.json({ items: [], total: 0 }),
+      ),
+    );
+    await openProfile();
+
+    expect(
+      await screen.findByText(/Could not load your stats/),
+    ).toBeOnTheScreen();
+    expect(
+      screen.getAllByRole("button", { name: "Try again" }).length,
+    ).toBeGreaterThan(0);
+  });
+
   it("retries only the failed section", async () => {
     let statsCalls = 0;
     let vehicleCalls = 0;

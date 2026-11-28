@@ -38,6 +38,16 @@ describe("fetchDriverStats", () => {
 
     await expect(fetchDriverStats("x")).rejects.toThrow(/500/);
   });
+
+  it("throws when the body is not the stats shape", async () => {
+    server.use(
+      http.get(apiUrl("/drivers/:id/stats"), () =>
+        HttpResponse.json({ items: [], total: 0, page: 1 }),
+      ),
+    );
+
+    await expect(fetchDriverStats("x")).rejects.toThrow(/shape/);
+  });
 });
 
 describe("fetchActiveVehicles", () => {

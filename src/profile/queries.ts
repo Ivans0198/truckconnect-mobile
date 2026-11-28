@@ -20,6 +20,11 @@ export async function fetchDriverStats(driverId: string): Promise<DriverStats> {
   if (!data) {
     throw new Error(`GET /drivers/{id}/stats failed with ${response.status}`);
   }
+  // Una respuesta 2xx con otra forma (un proxy, un mock) no es un conteo: se
+  // trata como error para que la cabecera no quede en "…" para siempre.
+  if (typeof data.totalOrders !== "number") {
+    throw new Error("GET /drivers/{id}/stats returned an unexpected shape");
+  }
   return data;
 }
 
