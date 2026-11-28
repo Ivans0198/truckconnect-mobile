@@ -5,6 +5,7 @@ import {
   colors,
   fontFamily,
   fontSize,
+  palette,
   radius,
   semantic,
   spacing,
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
   time: {
     fontFamily: fontFamily.regular,
     fontSize: fontSize.body,
-    color: colors.textMuted,
+    color: palette.slate600,
   },
   body: {
     fontFamily: fontFamily.regular,
