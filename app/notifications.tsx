@@ -1,6 +1,3 @@
-import { TitleScreen } from "@/navigation/title-screen";
+import { NotificationsScreen } from "@/notifications/notifications-screen";
 
-// Provisoria: la reemplaza la lista de notificaciones (E5, US4).
-export default function NotificationsScreen(): React.JSX.Element {
-  return <TitleScreen title="Notifications" />;
-}
+export default NotificationsScreen;
