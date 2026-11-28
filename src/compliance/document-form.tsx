@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { useActiveVehicles } from "@/profile/queries";
 import { DateField } from "@/ui/date-field";
 import {
   colors,
@@ -14,6 +15,7 @@ import {
 
 import { CameraRationale } from "./camera-rationale";
 import {
+  needsVehicle,
   toSubmission,
   validateDraft,
   type DocumentDraft,
@@ -24,6 +26,7 @@ import { FormButton } from "./form-button";
 import { chooseFile, takePhoto, type PickResult } from "./pick-file";
 import { submitFailureMessage, useSubmitDocument } from "./submit-document";
 import { TypePicker } from "./type-picker";
+import { VehicleSection } from "./vehicle-section";
 import { DOC_TYPE_NAMES, type DocType } from "./types";
 
 type DocumentFormProps = { initialType?: DocType };
@@ -32,6 +35,7 @@ type CameraState = "idle" | "explaining" | "denied";
 
 const DRAFT_ERROR_MESSAGES: Record<DraftError, string> = {
   "missing-type": "Choose a document type.",
+  "missing-vehicle": "Choose a vehicle.",
   "missing-file": "Add a photo or a file.",
   "missing-issue-date": "Select the issue date.",
   "missing-expiry-date": "Select the expiry date.",
@@ -52,13 +56,22 @@ export function DocumentForm({
     issueDate: null,
     expiryDate: null,
     file: null,
+    vehicleId: null,
   });
+  const vehicles = useActiveVehicles();
   const [isChoosingType, setIsChoosingType] = useState(!initialType);
   const [camera, setCamera] = useState<CameraState>("idle");
   const [pickerError, setPickerError] = useState<string | null>(null);
   const [showErrors, setShowErrors] = useState(false);
 
-  const errors = showErrors ? validateDraft(draft) : [];
+  // Con un solo vehículo activo no se pregunta: se manda ese.
+  const onlyVehicle = vehicles.data?.length === 1 ? vehicles.data[0] : null;
+  const vehicleId = needsVehicle(draft.docType)
+    ? (draft.vehicleId ?? onlyVehicle?.id ?? null)
+    : null;
+  const readyDraft: DocumentDraft = { ...draft, vehicleId };
+
+  const errors = showErrors ? validateDraft(readyDraft) : [];
   const errorOf = (...kinds: DraftError[]): string | null => {
     const found = errors.find((error) => kinds.includes(error));
     return found ? DRAFT_ERROR_MESSAGES[found] : null;
@@ -88,13 +101,14 @@ export function DocumentForm({
 
   const send = (): void => {
     if (submitDocument.isPending) return;
-    const submission = toSubmission(draft);
+    const submission = toSubmission(readyDraft);
     setShowErrors(true);
     if (!submission) return;
     submitDocument.mutate(submission, { onSuccess: () => router.back() });
   };
 
   const typeError = errorOf("missing-type");
+  const vehicleError = errorOf("missing-vehicle");
   const fileError = errorOf("missing-file", "unsupported-file");
   const expiryError = errorOf("missing-expiry-date", "expiry-not-after-issue");
   const issueError = errorOf("missing-issue-date");
@@ -130,6 +144,15 @@ export function DocumentForm({
             </View>
           )}
         </Section>
+
+        {needsVehicle(draft.docType) ? (
+          <VehicleSection
+            vehicles={vehicles}
+            selectedId={vehicleId}
+            error={vehicleError}
+            onSelect={(id) => update({ vehicleId: id })}
+          />
+        ) : null}
 
         <Section label="Document" error={fileError}>
           {draft.file ? <FilePreview file={draft.file} /> : null}

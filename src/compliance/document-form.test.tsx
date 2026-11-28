@@ -3,6 +3,10 @@ import { http, HttpResponse } from "msw";
 import { StyleSheet } from "react-native";
 
 import { documentsPage } from "@/test/compliance-fixtures";
+import {
+  activeVehicleFixture,
+  inactiveVehicleFixture,
+} from "@/test/profile-fixtures";
 import { renderWithQuery } from "@/test/render";
 import { apiUrl, server } from "@/test/server";
 import { fontSize, TOUCH_TARGET_MIN } from "@/theme/tokens";
@@ -477,5 +481,126 @@ describe("DocumentForm: driver ergonomics", () => {
         StyleSheet.flatten(text.props.style)?.fontSize,
       ).toBeGreaterThanOrEqual(fontSize.body);
     }
+  });
+});
+
+const SECOND_VEHICLE = {
+  ...activeVehicleFixture,
+  id: "vehicle-3",
+  registrationNumber: "7XY-321",
+  make: "Hino",
+  model: "500 FC",
+};
+
+function serveVehicles(items: unknown[]): void {
+  server.use(
+    http.get(apiUrl("/vehicles"), () =>
+      HttpResponse.json({
+        items,
+        total: items.length,
+        page: 1,
+        limit: 100,
+        totalPages: 1,
+      }),
+    ),
+  );
+}
+
+describe("DocumentForm: registration documents need a vehicle", () => {
+  it.each(["VEHICLE_REGO", "TRAILER_REGO"] as const)(
+    "sends the only active vehicle with %s without asking",
+    async (docType) => {
+      const recorded = serveUpload();
+      serveVehicles([activeVehicleFixture, inactiveVehicleFixture]);
+      await renderWithQuery(<DocumentForm initialType={docType} />);
+      await fillTheForm();
+      await waitFor(() =>
+        expect(
+          screen.queryByLabelText("Loading your vehicles"),
+        ).not.toBeOnTheScreen(),
+      );
+
+      await submit();
+
+      await waitFor(() => expect(mockBack).toHaveBeenCalledTimes(1));
+      expect(recorded.registerBody).toMatchObject({
+        docType,
+        vehicleId: activeVehicleFixture.id,
+      });
+      expect(screen.queryByRole("radio")).not.toBeOnTheScreen();
+    },
+  );
+
+  it("asks which vehicle when there are two and sends the chosen one", async () => {
+    const recorded = serveUpload();
+    serveVehicles([activeVehicleFixture, SECOND_VEHICLE]);
+    await renderWithQuery(<DocumentForm initialType="VEHICLE_REGO" />);
+    await fillTheForm();
+
+    expect(
+      await screen.findByRole("radio", { name: /Isuzu FRR 110-260.*1AB-2CD/ }),
+    ).toBeOnTheScreen();
+    await fireEvent.press(
+      screen.getByRole("radio", { name: /Hino 500 FC.*7XY-321/ }),
+    );
+    await submit();
+
+    await waitFor(() => expect(mockBack).toHaveBeenCalledTimes(1));
+    expect(recorded.registerBody).toMatchObject({ vehicleId: "vehicle-3" });
+  });
+
+  it("does not send until a vehicle is chosen when there are two", async () => {
+    const recorded = serveUpload();
+    serveVehicles([activeVehicleFixture, SECOND_VEHICLE]);
+    await renderWithQuery(<DocumentForm initialType="TRAILER_REGO" />);
+    await fillTheForm();
+    await screen.findAllByRole("radio");
+
+    await submit();
+
+    expect(await screen.findByText("Choose a vehicle.")).toBeOnTheScreen();
+    expect(recorded.registerBody).toBeUndefined();
+    expect(mockBack).not.toHaveBeenCalled();
+  });
+
+  it("explains there is no vehicle and does not send", async () => {
+    const recorded = serveUpload();
+    serveVehicles([inactiveVehicleFixture]);
+    await renderWithQuery(<DocumentForm initialType="VEHICLE_REGO" />);
+    await fillTheForm();
+
+    expect(await screen.findByText(/no active vehicle/i)).toBeOnTheScreen();
+    await submit();
+
+    expect(recorded.uploadUrlBody).toBeUndefined();
+    expect(recorded.registerBody).toBeUndefined();
+    expect(mockBack).not.toHaveBeenCalled();
+  });
+
+  it("does not send until the vehicles load", async () => {
+    const recorded = serveUpload();
+    server.use(http.get(apiUrl("/vehicles"), () => new Promise(() => {})));
+    await renderWithQuery(<DocumentForm initialType="VEHICLE_REGO" />);
+    await fillTheForm();
+
+    expect(screen.getByLabelText("Loading your vehicles")).toBeOnTheScreen();
+    await submit();
+
+    expect(recorded.registerBody).toBeUndefined();
+  });
+
+  it("does not send a vehicle with the other types", async () => {
+    const recorded = serveUpload();
+    serveVehicles([activeVehicleFixture]);
+    await renderWithQuery(<DocumentForm initialType="PUBLIC_LIABILITY" />);
+    await fillTheForm();
+
+    await submit();
+
+    await waitFor(() => expect(mockBack).toHaveBeenCalledTimes(1));
+    expect(recorded.registerBody).not.toHaveProperty("vehicleId");
+    expect(
+      screen.queryByLabelText("Loading your vehicles"),
+    ).not.toBeOnTheScreen();
   });
 });

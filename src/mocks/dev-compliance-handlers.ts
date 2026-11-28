@@ -181,11 +181,19 @@ export function createDevComplianceRoutes(
         "docType, issueDate, expiryDate, fileKey, fileMimeType and fileSizeBytes are required",
       );
     }
+    if (
+      (body.docType === "VEHICLE_REGO" || body.docType === "TRAILER_REGO") &&
+      !hasText(body.vehicleId)
+    ) {
+      // Igual que el back real: el openapi lo marca opcional, pero lo exige.
+      return badRequest(`vehicleId is required for ${body.docType}`);
+    }
     documentsRegistered += 1;
     const created: ComplianceDocument = {
       ...approvedDocument(now(), body.docType, 0),
       id: `dev-registered-${documentsRegistered}`,
       status: "PENDING_REVIEW",
+      vehicleId: body.vehicleId ?? null,
       issueDate: asInstant(body.issueDate),
       expiryDate: asInstant(body.expiryDate),
       fileKey: body.fileKey,

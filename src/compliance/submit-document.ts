@@ -77,6 +77,7 @@ async function registerDocument(
     .POST("/compliance/documents", {
       body: {
         docType: submission.docType,
+        ...(submission.vehicleId ? { vehicleId: submission.vehicleId } : {}),
         issueDate: submission.issueDate,
         expiryDate: submission.expiryDate,
         fileKey: upload.fileKey,

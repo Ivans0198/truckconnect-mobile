@@ -101,6 +101,45 @@ describe("dev compliance handlers", () => {
     expect(response.status).toBe(400);
   });
 
+  it.each(["VEHICLE_REGO", "TRAILER_REGO"])(
+    "rejects a %s registration without a vehicleId with a 400",
+    async (docType) => {
+      const response = await createFetch()(
+        `${TEST_API_URL}/compliance/documents`,
+        json("POST", {
+          docType,
+          issueDate: "2026-11-27",
+          expiryDate: "2027-11-27",
+          fileKey: "documents/dev-1.pdf",
+          fileMimeType: "application/pdf",
+          fileSizeBytes: 9,
+        }),
+      );
+
+      expect(response.status).toBe(400);
+      expect((await response.json()).message).toBe(
+        `vehicleId is required for ${docType}`,
+      );
+    },
+  );
+
+  it("accepts a VEHICLE_REGO registration that carries its vehicleId", async () => {
+    const response = await createFetch()(
+      `${TEST_API_URL}/compliance/documents`,
+      json("POST", {
+        docType: "VEHICLE_REGO",
+        vehicleId: "dev-vehicle-1",
+        issueDate: "2026-11-27",
+        expiryDate: "2027-11-27",
+        fileKey: "documents/dev-1.pdf",
+        fileMimeType: "application/pdf",
+        fileSizeBytes: 9,
+      }),
+    );
+
+    expect(response.status).toBe(201);
+  });
+
   it("answers the reads the other tabs make so they load", async () => {
     const fetch = createFetch();
 
