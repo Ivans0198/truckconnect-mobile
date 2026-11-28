@@ -105,6 +105,10 @@ for (const vp of viewports) {
       await expect(page.getByText("9:41 AM")).toBeVisible();
       await expect(page.getByText("12 Nov")).toBeVisible();
       await expect(page.getByText("New", { exact: true })).toHaveCount(2);
+      const scrollWidth = await page.evaluate(
+        () => document.documentElement.scrollWidth,
+      );
+      expect(scrollWidth).toBeLessThanOrEqual(vp.width);
       await expectFullPageScreenshot(page, `notifications-list-${vp.name}.png`);
       await expectNoAxeViolations(page);
     });

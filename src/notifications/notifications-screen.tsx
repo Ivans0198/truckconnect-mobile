@@ -118,7 +118,7 @@ export function NotificationsScreen(): React.JSX.Element {
             />
           </Svg>
         </Pressable>
-        <Text accessibilityRole="header" style={styles.title}>
+        <Text accessibilityRole="header" numberOfLines={1} style={styles.title}>
           Notifications
         </Text>
         {hasUnread && list.data ? (
@@ -223,7 +223,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
-    paddingHorizontal: spacing.md,
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.xl,
     backgroundColor: colors.surface,
   },
   iconButton: {
@@ -234,6 +235,8 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
     fontFamily: fontFamily.bold,
     fontSize: fontSize.title,
     color: colors.text,
@@ -243,7 +246,6 @@ const styles = StyleSheet.create({
     minWidth: TOUCH_TARGET_MIN,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: spacing.md,
   },
   markAllText: {
     fontFamily: fontFamily.bold,
@@ -263,6 +265,8 @@ const styles = StyleSheet.create({
   footer: { paddingVertical: spacing.lg },
   separator: { height: spacing.md },
   empty: {
+    flexGrow: 1,
+    textAlignVertical: "center",
     paddingVertical: spacing.xxl,
     textAlign: "center",
     fontFamily: fontFamily.semibold,

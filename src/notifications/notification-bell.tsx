@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   button: {
     width: TOUCH_TARGET_MIN,
     minHeight: TOUCH_TARGET_MIN,
-    alignItems: "center",
+    alignItems: "flex-end",
     justifyContent: "center",
   },
   pressed: { opacity: 0.6 },
