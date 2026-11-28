@@ -194,6 +194,15 @@ export async function waitForAnimationsToFinish(page: Page): Promise<void> {
 
 const EMPTY_PAGE = { items: [], total: 0, page: 1, limit: 100, totalPages: 1 };
 
+// La forma real de DriverStatsResponseDto, de un conductor sin entregas.
+const EMPTY_STATS = {
+  period: "month",
+  hoursWorked: 0,
+  totalEarningsCents: 0,
+  totalOrders: 0,
+  avgMargin: 0,
+};
+
 export function fulfillJson(body: unknown, status = 200) {
   return {
     status,
@@ -209,8 +218,8 @@ export async function mockEmptyLists(page: Page): Promise<void> {
   await page.route("**/compliance/**", (route) =>
     route.fulfill(fulfillJson(EMPTY_PAGE)),
   );
-  await page.route("**/drivers/*/stats", (route) =>
-    route.fulfill(fulfillJson(EMPTY_PAGE)),
+  await page.route("**/drivers/*/stats**", (route) =>
+    route.fulfill(fulfillJson(EMPTY_STATS)),
   );
   await page.route("**/vehicles**", (route) =>
     route.fulfill(fulfillJson(EMPTY_PAGE)),

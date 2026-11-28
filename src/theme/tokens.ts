@@ -34,6 +34,7 @@ export const palette = {
   sky800: "#075985",
   sky700: "#0369A1",
   sky600: "#0284C7",
+  violet600: "#7C3AED",
 } as const;
 
 export const colors = {

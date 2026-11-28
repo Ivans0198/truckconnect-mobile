@@ -27,6 +27,11 @@ appId: au.com.truckconnect.driver
     timeout: 30000
 # Profile -> Log out -> confirmar.
 - tapOn: "Profile"
+# Con el perfil completo, "Log out" queda bajo la sección del vehículo.
+- scrollUntilVisible:
+    element: "Log out"
+    direction: DOWN
+    timeout: 20000
 - tapOn: "Log out"
 - assertVisible: "Log out?"
 # El diálogo es un modal: con él abierto, solo su botón es accesible.
