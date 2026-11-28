@@ -203,9 +203,11 @@ describe("ProfileScreen", () => {
     );
     await openProfile();
 
-    expect(
-      await screen.findAllByRole("button", { name: "Try again" }),
-    ).toHaveLength(2);
+    await waitFor(() =>
+      expect(screen.getAllByRole("button", { name: "Try again" })).toHaveLength(
+        2,
+      ),
+    );
     expect(screen.getByText("Personal info")).toBeOnTheScreen();
     expect(screen.getByRole("button", { name: "Log out" })).toBeOnTheScreen();
   });
