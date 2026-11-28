@@ -1,6 +1,6 @@
 import { act, fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { http, HttpResponse } from "msw";
-import { FlatList, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
 import {
   emptyNotificationsPage,
@@ -81,6 +81,22 @@ const older = notification({
   read: true,
   sentAt: "2026-11-12T00:10:00.000Z",
 });
+
+// Un desplazamiento hasta el final: la lista avisa que llegó al último elemento.
+async function scrollToEnd(): Promise<void> {
+  const list = screen.getByTestId("notifications-list");
+  await fireEvent(list, "layout", {
+    nativeEvent: { layout: { x: 0, y: 0, width: 393, height: 800 } },
+  });
+  await fireEvent(list, "contentSizeChange", 393, 2400);
+  await fireEvent.scroll(list, {
+    nativeEvent: {
+      contentOffset: { x: 0, y: 2000 },
+      contentSize: { width: 393, height: 2400 },
+      layoutMeasurement: { width: 393, height: 800 },
+    },
+  });
+}
 
 describe("NotificationsScreen", () => {
   it("lists title, body and Melbourne time in the order the back sends", async () => {
@@ -206,13 +222,9 @@ describe("NotificationsScreen", () => {
     await renderWithQuery(<NotificationsScreen />);
     await screen.findByText("Notification 1");
 
-    await act(async () => {
-      screen.UNSAFE_getByType(FlatList).props.onEndReached();
-    });
+    await scrollToEnd();
     await screen.findByText("Notification 21");
-    await act(async () => {
-      screen.UNSAFE_getByType(FlatList).props.onEndReached();
-    });
+    await scrollToEnd();
 
     expect(pagesAsked.filter((asked) => asked.startsWith("2"))).toEqual([
       "2/20",
@@ -271,7 +283,7 @@ describe("NotificationsScreen", () => {
 
     await act(async () => {
       await screen
-        .UNSAFE_getByType(FlatList)
+        .getByTestId("notifications-list")
         .props.refreshControl.props.onRefresh();
     });
 
