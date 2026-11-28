@@ -2,6 +2,7 @@ import { toSubmission, validateDraft, type DocumentDraft } from "./draft";
 
 const completeDraft: DocumentDraft = {
   docType: "PUBLIC_LIABILITY",
+  vehicleId: null,
   issueDate: "2026-06-17",
   expiryDate: "2027-06-17",
   file: {
@@ -71,10 +72,22 @@ describe("validateDraft", () => {
     expect(validateDraft({ ...completeDraft, file })).toEqual([]);
   });
 
+  it("asks for a vehicle on the two registration types", () => {
+    for (const docType of ["VEHICLE_REGO", "TRAILER_REGO"] as const) {
+      expect(validateDraft({ ...completeDraft, docType })).toEqual([
+        "missing-vehicle",
+      ]);
+      expect(
+        validateDraft({ ...completeDraft, docType, vehicleId: "v-1" }),
+      ).toEqual([]);
+    }
+  });
+
   it("lists every problem of an empty draft", () => {
     expect(
       validateDraft({
         docType: null,
+        vehicleId: null,
         issueDate: null,
         expiryDate: null,
         file: null,
@@ -90,7 +103,19 @@ describe("validateDraft", () => {
 
 describe("toSubmission", () => {
   it("returns the draft ready to send when it is complete", () => {
-    expect(toSubmission(completeDraft)).toEqual(completeDraft);
+    const { vehicleId: _omitted, ...expected } = completeDraft;
+    expect(toSubmission(completeDraft)).toEqual(expected);
+  });
+
+  it("carries the vehicle only for the registration types", () => {
+    const rego = { ...completeDraft, docType: "VEHICLE_REGO" as const };
+    expect(toSubmission({ ...rego, vehicleId: "v-1" })).toMatchObject({
+      vehicleId: "v-1",
+    });
+    expect(
+      toSubmission({ ...completeDraft, vehicleId: "v-1" }),
+    ).not.toHaveProperty("vehicleId");
+    expect(toSubmission(rego)).toBeNull();
   });
 
   it("returns null when something is wrong", () => {
