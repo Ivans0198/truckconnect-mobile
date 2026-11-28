@@ -29,9 +29,9 @@ export function TypePicker({
         return (
           <Pressable
             key={docType}
-            accessibilityRole="radio"
+            role="radio"
             accessibilityLabel={DOC_TYPE_NAMES[docType]}
-            accessibilityState={{ selected: isSelected }}
+            aria-checked={isSelected}
             onPress={() => onSelect(docType)}
             style={[styles.option, isSelected && styles.selected]}
           >

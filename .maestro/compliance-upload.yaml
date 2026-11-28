@@ -1,0 +1,50 @@
+# Renovar un documento desde Docs: abre el formulario desde la tarjeta de
+# Public Liability, pide la foto, ve la explicación de la cámara, permite el
+# permiso del sistema y llega a la cámara. Es lo único que Playwright no
+# puede probar: el permiso y la cámara son nativos.
+#
+# Corre con `pnpm e2e:android` (emulador o teléfono por USB, dev build
+# instalado con `pnpm android` DESPUES de sumar expo-image-picker, Metro
+# corriendo con `pnpm start`). Sin EXPO_PUBLIC_API_URL los mocks de
+# src/mocks listan un Public Liability a 32 días. Fuera del gate a propósito:
+# ver CLAUDE.md → Testing layers.
+appId: au.com.truckconnect.driver
+env:
+  DEV_CLIENT_LINK: "exp+truckconnect-driver://?__expo_url=http%3A%2F%2Flocalhost%3A8081&__expo_disable_fab=1&__expo_disable_auto_launch=1&__expo_disable_onboarding=1"
+---
+- launchApp:
+    # clearState también revoca los permisos: la cámara se pide de nuevo.
+    clearState: true
+- extendedWaitUntil:
+    visible: "Development Build"
+    timeout: 60000
+- openLink: ${DEV_CLIENT_LINK}
+- extendedWaitUntil:
+    visible: "Welcome back"
+    timeout: 180000
+- tapOn: "Email"
+- inputText: driver@truckconnect.test
+- tapOn: "Password"
+- inputText: driver-password
+- hideKeyboard
+- tapOn: "Sign in"
+- tapOn: "Docs"
+# "How alerts work" solo existe en Docs: el nombre "Docs" también es el de la
+# pestaña.
+- extendedWaitUntil:
+    visible: "How alerts work"
+    timeout: 30000
+- tapOn: "Upload renewed document"
+- extendedWaitUntil:
+    visible: "Upload document"
+    timeout: 15000
+- tapOn: "Take photo"
+- assertVisible: "TruckConnect needs the camera.*"
+- tapOn: "Continue"
+# El diálogo del sistema; el texto del botón cambia según la versión de Android.
+- tapOn:
+    text: "While using the app|Only this time|Allow"
+    optional: false
+- extendedWaitUntil:
+    notVisible: "Upload document"
+    timeout: 15000
