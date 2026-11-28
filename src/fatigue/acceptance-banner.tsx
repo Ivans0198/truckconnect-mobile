@@ -8,7 +8,7 @@ import {
   spacing,
 } from "@/theme/tokens";
 
-import { ACCEPTANCE_BLOCK_MESSAGES } from "./order-acceptance";
+import { describeBlockReason } from "./order-acceptance";
 import type { OrderAcceptance } from "./order-acceptance";
 
 type AcceptanceBannerProps = {
@@ -28,11 +28,14 @@ export function AcceptanceBanner({
       style={styles.box}
     >
       <Text style={styles.title}>You can&apos;t accept new orders</Text>
-      {acceptance.reasons.map((reason) => (
-        <Text key={reason} style={styles.reason}>
-          {ACCEPTANCE_BLOCK_MESSAGES[reason]}
-        </Text>
-      ))}
+      {acceptance.reasons.map((reason) => {
+        const text = describeBlockReason(reason);
+        return (
+          <Text key={text} style={styles.reason}>
+            {text}
+          </Text>
+        );
+      })}
     </View>
   );
 }

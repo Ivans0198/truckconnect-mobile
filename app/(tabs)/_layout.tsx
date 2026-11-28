@@ -1,11 +1,16 @@
 import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { useComplianceAttention } from "@/compliance/queries";
 import { TabBar } from "@/navigation/tab-bar";
 import { colors } from "@/theme/tokens";
 
+// El valor no se dibuja: la barra propia solo mira si hay badge y pone el punto.
+const ATTENTION_BADGE = "!";
+
 export default function TabsLayout(): React.JSX.Element {
   const insets = useSafeAreaInsets();
+  const needsAttention = (useComplianceAttention()?.attentionCount ?? 0) > 0;
 
   return (
     <Tabs
@@ -20,7 +25,13 @@ export default function TabsLayout(): React.JSX.Element {
     >
       <Tabs.Screen name="index" options={{ title: "Home" }} />
       <Tabs.Screen name="fatigue" options={{ title: "Fatigue" }} />
-      <Tabs.Screen name="docs" options={{ title: "Docs" }} />
+      <Tabs.Screen
+        name="docs"
+        options={{
+          title: "Docs",
+          tabBarBadge: needsAttention ? ATTENTION_BADGE : undefined,
+        }}
+      />
       <Tabs.Screen name="profile" options={{ title: "Profile" }} />
     </Tabs>
   );

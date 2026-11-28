@@ -2,6 +2,7 @@ import { screen } from "@testing-library/react-native";
 import { http, HttpResponse } from "msw";
 import { StyleSheet } from "react-native";
 
+import { approvedExpiringIn, documentsPage } from "@/test/compliance-fixtures";
 import { FATIGUE_NOW, fatigueStatusFixture } from "@/test/fatigue-fixtures";
 import { renderWithQuery } from "@/test/render";
 import { apiUrl, server } from "@/test/server";
@@ -99,6 +100,39 @@ describe("acceptance banner on FatigueScreen", () => {
     expect(screen.getByText("Daily limit reached")).toBeOnTheScreen();
     expect(screen.getByText("Weekly limit reached")).toBeOnTheScreen();
     expect(screen.getByText("Break overdue")).toBeOnTheScreen();
+  });
+
+  it("shows a compliance reason on its own", async () => {
+    server.use(
+      http.get(apiUrl("/compliance/documents"), () =>
+        HttpResponse.json(
+          documentsPage([approvedExpiringIn("a", "PUBLIC_LIABILITY", 5)]),
+        ),
+      ),
+    );
+
+    await renderWithQuery(<FatigueScreen />);
+
+    expect(await screen.findByText(TITLE)).toBeOnTheScreen();
+    expect(
+      screen.getByText("Public Liability expires in 5 days"),
+    ).toBeOnTheScreen();
+  });
+
+  it("lists a compliance reason together with the fatigue ones", async () => {
+    serveStatus({ hoursRemaining: 0 });
+    server.use(
+      http.get(apiUrl("/compliance/documents"), () =>
+        HttpResponse.json(
+          documentsPage([approvedExpiringIn("a", "DRIVER_LICENCE", -3)]),
+        ),
+      ),
+    );
+
+    await renderWithQuery(<FatigueScreen />);
+
+    expect(await screen.findByText("Daily limit reached")).toBeOnTheScreen();
+    expect(await screen.findByText("Driver Licence expired")).toBeOnTheScreen();
   });
 
   it("does not show the banner inside the hours", async () => {

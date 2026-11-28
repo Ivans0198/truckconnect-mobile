@@ -11,7 +11,7 @@ import {
 } from "@/theme/tokens";
 
 import { ComplianceIcon } from "./icons";
-import { expiryAttentionOf, formatDaysLabel } from "./expiry-text";
+import { expiryAttentionOf, formatDaysLabel, isRedCard } from "./expiry-text";
 import {
   DOC_TYPE_NAMES,
   type ComplianceSummary,
@@ -21,15 +21,6 @@ import {
 const ICON_SIZE = 20;
 const CIRCLE_SIZE = 40;
 const BLOCKED_NOTE = "to avoid being blocked from new orders.";
-
-function isRed(card: DocumentCard): boolean {
-  const kind = expiryAttentionOf(card.attention)?.kind;
-  return (
-    kind === "urgent" ||
-    kind === "expired" ||
-    card.attention.kind === "rejected"
-  );
-}
 
 function countTitle(count: number): string {
   return count === 1
@@ -65,7 +56,7 @@ export function AttentionBanner({
 }): React.JSX.Element | null {
   const { mostUrgent } = summary;
   if (!mostUrgent) return null;
-  const tone = semantic[isRed(mostUrgent) ? "danger" : "warning"];
+  const tone = semantic[isRedCard(mostUrgent) ? "danger" : "warning"];
   return (
     <View
       accessibilityLiveRegion="polite"

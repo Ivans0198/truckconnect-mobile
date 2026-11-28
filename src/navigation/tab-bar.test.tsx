@@ -6,8 +6,23 @@ import {
   within,
 } from "expo-router/testing-library";
 
-import TabsLayout from "../../app/(tabs)/_layout";
+import { summarizeDocuments } from "@/compliance/attention";
+import type { ComplianceDocument } from "@/compliance/types";
+import { COMPLIANCE_NOW, approvedExpiringIn } from "@/test/compliance-fixtures";
 import { colors, fontSize, TOUCH_TARGET_MIN } from "@/theme/tokens";
+
+import TabsLayout from "../../app/(tabs)/_layout";
+
+// La lectura de documentos tiene su propia prueba; aquí solo importa que la
+// barra pinte el punto cuando el resumen pide atención.
+const mockAttention = jest.fn();
+jest.mock("@/compliance/queries", () => ({
+  useComplianceAttention: () => mockAttention() as unknown,
+}));
+
+const nearExpiry = approvedExpiringIn("a", "PUBLIC_LIABILITY", 32);
+const summaryFor = (documents: ComplianceDocument[]) =>
+  summarizeDocuments(documents, COMPLIANCE_NOW);
 
 const SCREEN = () => null;
 const routes = {
@@ -19,6 +34,8 @@ const routes = {
 };
 
 describe("tab bar", () => {
+  beforeEach(() => mockAttention.mockReturnValue(undefined));
+
   it("shows Home, Fatigue, Docs and Profile in that order", async () => {
     await renderRouter(routes, { initialUrl: "/" });
 
@@ -93,5 +110,39 @@ describe("tab bar", () => {
     for (const label of ["Home", "Fatigue", "Docs", "Profile"]) {
       expect(screen.getByText(label)).toHaveStyle({ fontSize: fontSize.body });
     }
+  });
+
+  describe("Docs attention dot", () => {
+    it("shows the dot and ends the accessible name with ', needs attention' when a document needs attention", async () => {
+      mockAttention.mockReturnValue(summaryFor([nearExpiry]));
+      await renderRouter(routes, { initialUrl: "/" });
+
+      const docs = await screen.findByRole("tab", {
+        name: "Docs, needs attention",
+      });
+
+      expect(within(docs).getByTestId("tab-badge")).toBeOnTheScreen();
+      expect(
+        screen.queryByRole("tab", { name: "Fatigue, needs attention" }),
+      ).not.toBeOnTheScreen();
+    });
+
+    it("draws no dot and keeps the plain name when nothing needs attention", async () => {
+      mockAttention.mockReturnValue(summaryFor([]));
+      await renderRouter(routes, { initialUrl: "/" });
+
+      const docs = await screen.findByRole("tab", { name: "Docs" });
+
+      expect(within(docs).queryByTestId("tab-badge")).not.toBeOnTheScreen();
+    });
+
+    it("draws no dot while the documents have not loaded or failed", async () => {
+      mockAttention.mockReturnValue(undefined);
+      await renderRouter(routes, { initialUrl: "/" });
+
+      const docs = await screen.findByRole("tab", { name: "Docs" });
+
+      expect(within(docs).queryByTestId("tab-badge")).not.toBeOnTheScreen();
+    });
   });
 });

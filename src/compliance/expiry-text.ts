@@ -1,4 +1,4 @@
-import type { Attention } from "./types";
+import type { Attention, DocumentCard } from "./types";
 
 // "32 days", "1 day", "Today": la etiqueta de un documento que vence pronto.
 export function formatDaysLabel(days: number): string {
@@ -20,4 +20,14 @@ export function expiryAttentionOf(
     return attention.current ? expiryAttentionOf(attention.current) : null;
   }
   return attention;
+}
+
+// Rojo: vence en 7 días o menos, ya venció o fue rechazado.
+export function isRedCard(card: DocumentCard): boolean {
+  const kind = expiryAttentionOf(card.attention)?.kind;
+  return (
+    kind === "urgent" ||
+    kind === "expired" ||
+    card.attention.kind === "rejected"
+  );
 }

@@ -3,6 +3,7 @@ import { renderRouter, screen } from "expo-router/testing-library";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useSessionStore } from "@/auth/session-store";
+import { withQueryClient } from "@/test/render";
 
 import TabsLayout from "../../app/(tabs)/_layout";
 
@@ -21,7 +22,7 @@ const tabScreen = (name: string) =>
   };
 
 const routes = {
-  "(tabs)/_layout": TabsLayout,
+  "(tabs)/_layout": withQueryClient(TabsLayout),
   "(tabs)/index": tabScreen("Home"),
   "(tabs)/fatigue": tabScreen("Fatigue"),
   "(tabs)/docs": tabScreen("Docs"),

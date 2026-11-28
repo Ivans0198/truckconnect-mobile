@@ -7,6 +7,7 @@ import {
   palette,
   fontFamily,
   fontSize,
+  semantic,
   spacing,
   TOUCH_TARGET_MIN,
 } from "@/theme/tokens";
@@ -18,6 +19,8 @@ type TabBarProps = Parameters<
 >[0];
 
 const ICON_SIZE = 24;
+const DOT_SIZE = 10;
+const ATTENTION_SUFFIX = ", needs attention";
 
 const TAB_ICONS: Readonly<Partial<Record<string, TabIconName>>> = {
   index: "home",
@@ -46,7 +49,10 @@ export function TabBar({
     >
       {state.routes.map((route, index) => {
         const isSelected = state.index === index;
-        const title = descriptors[route.key]?.options.title ?? route.name;
+        const options = descriptors[route.key]?.options;
+        const title = options?.title ?? route.name;
+        // Cualquier badge es el aviso: se dibuja un punto, nunca su valor.
+        const needsAttention = options?.tabBarBadge !== undefined;
         const tint = isSelected ? colors.primary : colors.textMuted;
 
         const press = (): void => {
@@ -64,12 +70,24 @@ export function TabBar({
           <Pressable
             key={route.key}
             accessibilityRole="tab"
+            accessibilityLabel={
+              needsAttention ? `${title}${ATTENTION_SUFFIX}` : title
+            }
             accessibilityState={{ selected: isSelected }}
             aria-selected={isSelected}
             onPress={press}
             style={({ pressed }) => [styles.tab, pressed && styles.tabPressed]}
           >
-            <TabIcon name={iconFor(route.name)} color={tint} size={ICON_SIZE} />
+            <View>
+              <TabIcon
+                name={iconFor(route.name)}
+                color={tint}
+                size={ICON_SIZE}
+              />
+              {needsAttention ? (
+                <View style={styles.dot} testID="tab-badge" />
+              ) : null}
+            </View>
             <Text
               style={[
                 styles.label,
@@ -103,6 +121,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: spacing.xs,
+  },
+  dot: {
+    position: "absolute",
+    top: 0,
+    right: -spacing.xs,
+    width: DOT_SIZE,
+    height: DOT_SIZE,
+    borderRadius: DOT_SIZE / 2,
+    backgroundColor: semantic.warning.accent,
+    borderWidth: 1,
+    borderColor: colors.surface,
   },
   tabPressed: { backgroundColor: palette.slate100 },
   label: { fontSize: fontSize.body, fontFamily: fontFamily.medium },
