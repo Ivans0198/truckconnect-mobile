@@ -27,11 +27,21 @@ describe("startDevMocks", () => {
     expect(response.status).toBe(200);
   });
 
+  it("also answers the compliance documents", async () => {
+    startDevMocks();
+
+    const response = await globalThis.fetch(
+      `${DEFAULT_API_URL}/compliance/documents`,
+    );
+    expect(response.status).toBe(200);
+  });
+
   // Hermes lacks BroadcastChannel and MessageEvent, which msw's core needs.
   it.each([
     "start-dev-mocks.native.ts",
     "mocked-fetch.ts",
     "dev-auth-handlers.ts",
+    "dev-compliance-handlers.ts",
   ])("%s does not import msw", (file) => {
     const source = readFileSync(join(__dirname, file), "utf8");
     expect(source).not.toMatch(/from ["']msw/);

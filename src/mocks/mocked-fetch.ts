@@ -21,10 +21,13 @@ export function createMockedFetch({
     if (!request.url.startsWith(baseUrl)) return realFetch(input, init);
 
     const { origin, pathname } = new URL(request.url);
+    const requested = `${origin}${pathname}`;
     const route = routes.find(
       (candidate) =>
         candidate.method === request.method.toUpperCase() &&
-        candidate.url === `${origin}${pathname}`,
+        (typeof candidate.url === "string"
+          ? candidate.url === requested
+          : candidate.url.test(requested)),
     );
     if (!route) {
       throw new Error(
